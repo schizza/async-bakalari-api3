@@ -5,7 +5,7 @@ class APIException(Exception):
     """General API exception."""
 
 
-class Ex:
+class Ex(APIException):
     """Root exception class."""
 
     class InvalidCredentials(APIException):
