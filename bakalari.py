@@ -1,11 +1,10 @@
 """Async Bakalari v3 API connector."""
 from __future__ import annotations
 
-import datetime
-import logging
 import asyncio
 from urllib import parse
 from typing import Any
+import orjson
 
 import aiohttp
 from aiohttp import hdrs
@@ -81,12 +80,15 @@ class Bakalari:
 
     def __init__(
         self,
-        credentials: Credentials,
         server: str = None,
+        auto_cache_credentials: bool = False,
+        cache_filename: str = None,
     ):
         self.server = server
-        self.credentials = credentials
+        self.credentials = Credentials
         self.new_token = False
+        self.auto_cache_credentials = auto_cache_credentials
+        self.cache_filename = cache_filename
 
     @staticmethod
     def purge_request(request=str) -> str:
@@ -113,8 +115,12 @@ class Bakalari:
         if isinstance(_credentials, Ex):
             return _credentials
 
-        _credentials.update({"username":username})
-        return Credentials.get(_credentials)
+        _credentials.update({"username": username})
+        self.credentials = Credentials.get(_credentials)
+
+        if self.auto_cache_credentials:
+            self.save_credentials()
+        return self.credentials
 
     async def refresh_access_token(self):
         """Refresh access token using refresh token.
@@ -132,6 +138,9 @@ class Bakalari:
             return _credentials
 
         self.credentials = Credentials.get(_credentials)
+
+        if self.auto_cache_credentials:
+            self.save_credentials()
 
         return self.credentials
 
@@ -197,10 +206,42 @@ class Bakalari:
 
         if response.status in [400, 401]:
             raise Ex.BadRequestException(response, response_json)
-            # TODO - remove response_json in final
 
         if response.status == 200:
             return response_json
+
+    def save_credentials(self, filename: str = None) -> bool:
+        """Save credentials to file in JSON format.
+
+        If auto_save_credentials are enabled, parameters could be ommited."""
+
+        if (filename is None) and (self.auto_cache_credentials):
+            if self.cache_filename is None:
+                return False
+            filename = self.cache_filename
+        try:
+            with open(filename, "wb") as file:
+                file.write(orjson.dumps(self.credentials, option=orjson.OPT_INDENT_2))
+            file.close()
+        except OSError:
+            return False
+
+        return True
+
+    def load_credentials(self, filename: str = None) -> bool:
+        """Loads credentials from file."""
+
+        if filename is None:
+            return False
+        try:
+            with open(filename, "rb") as file:
+                data = orjson.loads(file.read())
+            file.close()
+        except OSError:
+            return False
+
+        self.credentials = Credentials.get_from_json(data)
+        return self.credentials
 
     async def close(self) -> None:
         """Close open client session."""
