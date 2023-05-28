@@ -25,6 +25,15 @@ class Credentials:
             access_token=data[Token.ACCESS_TOKEN],
             refresh_token=data[Token.REFRESH_TOKEN],
         )
+    @classmethod
+    def get_from_json(cls, data: dict[str, Any]) -> Credentials:
+        """Return class object from JSON dictionary."""
+        return cls(
+            user_id=data["user_id"],
+            access_token=data["access_token"],
+            refresh_token=data["refresh_token"],
+            username=data["username"]
+        )   
 
 
 @dataclass
@@ -78,6 +87,14 @@ class Schools:
             if town in item.town:
                 _schools.append(item)
         return _schools
+    
+    def get_school_name_by_api_point(self, api_point: str) -> str | bool:
+        """Get school name by its api point."""
+        
+        for item in self.school_list:
+            if api_point == item.api_point:
+                return item.name
+        return False
 
     def save_to_file(self, filename: str) -> bool:
         """Save loaded school list to file in JSON format."""
