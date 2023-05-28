@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import datetime
+import logging
 import asyncio
+from urllib import parse
 from typing import Any
 
 import aiohttp
@@ -13,7 +15,59 @@ import async_timeout
 
 from exceptions import Ex
 from const import REQUEST_TIMEOUT, Errors, EndPoint
-from datastructure import Credentials
+from datastructure import Credentials, Schools
+
+
+async def schools_list() -> Schools:
+    """Returns list of schools with their API points."""
+
+    _schools_list = Schools()
+    request = "https://sluzby.bakalari.cz/api/v1/municipality"
+    headers = {"Accept": "application/json"}
+    session = aiohttp.ClientSession()
+
+    try:
+        async with async_timeout.timeout(REQUEST_TIMEOUT):
+            response = await session.request(
+                method=hdrs.METH_GET, url=request, ssl=True, headers=headers
+            )
+    except asyncio.TimeoutError as err:
+        raise Ex.TimeoutException(
+            f"Timeout occurred while connecting to server {request}."
+        ) from err
+
+    except aiohttp.ClientConnectionError as err:
+        raise Ex.BadRequestException(f"Connection error: {request}.") from err
+
+    try:
+        response_json = await response.json()
+    except Exception as err:
+        await session.close()
+        raise Ex.InvalidResponse("Invalid response from server.") from err
+
+    schools: list = []
+    for town in response_json:
+        town_name = str(town["name"])
+        if town_name == "":
+            continue
+        if "." in town_name:
+            town_name = town_name[: town_name.find(".")]
+
+        request_town = f"{request}/{parse.quote(town_name)}"
+        response_town = await session.request(
+            method=hdrs.METH_GET, url=request_town, ssl=True, headers=headers
+        )
+        schools: dict = await response_town.json()
+        for _schools in schools.get("schools"):
+            _schools_list.append_school(
+                name=_schools.get("name"),
+                api_point=_schools.get("schoolUrl"),
+                town=town_name,
+            )
+
+    await session.close()
+
+    return _schools_list
 
 
 class Bakalari:
@@ -59,7 +113,7 @@ class Bakalari:
         if isinstance(_credentials, Ex):
             return _credentials
 
-        _credentials["username"] = username
+        _credentials.update({"username":username})
         return Credentials.get(_credentials)
 
     async def refresh_access_token(self):
@@ -81,7 +135,7 @@ class Bakalari:
 
         return self.credentials
 
-    async def send_request(self, request:EndPoint, method=hdrs.METH_POST, **kwargs):
+    async def send_request(self, request: EndPoint, method=hdrs.METH_POST, **kwargs):
         """Send request to server."""
 
         request = f"{self.server}{request}"
@@ -112,14 +166,16 @@ class Bakalari:
             ) from err
         except aiohttp.ClientConnectionError as err:
             raise Ex.BadRequestException(f"Connection error: {request}.") from err
-            
+
         if (response.status == 401) and (
             Errors.ACCESS_TOKEN_EXPIRED in response.headers["WWW-Authenticate"]
         ):
             try:
                 new_credentials = await self.refresh_access_token()
             except Ex.RefreshTokenExpired as exc:
-                raise Ex.TokensExpired("Unable to refresh access token. Refresh token has been redeemd.") from exc
+                raise Ex.TokensExpired(
+                    "Unable to refresh access token. Refresh token has been redeemd."
+                ) from exc
             self.credentials = new_credentials
             self.new_token = True
             raise Ex.AccessTokenExpired
@@ -133,7 +189,7 @@ class Bakalari:
             Errors.INVALID_LOGIN in response_json["error_uri"]
         ):
             raise Ex.InvalidLogin
-        
+
         if (response.status == 400) and (
             Errors.REFRESH_TOKEN_EXPIRED in response_json["error_uri"]
         ):
