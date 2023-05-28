@@ -4,7 +4,6 @@ from __future__ import annotations
 import datetime
 import asyncio
 from typing import Any
-import json
 
 import aiohttp
 from aiohttp import hdrs
@@ -33,6 +32,7 @@ class Bakalari:
     ):
         self.server = server
         self.credentials = credentials
+        self.new_token = False
 
     @staticmethod
     def purge_request(request=str) -> str:
@@ -47,14 +47,14 @@ class Bakalari:
     ) -> Credentials:
         """First login.
 
-        Create access and refrest token.
+        Create access and refresh tokens.
         """
 
         login_url = f"client_id=ANDR&grant_type=password&username={username}&password={password}"
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
         _credentials = await self.send_request(
-            f"{self.server}{EndPoint.LOGIN}", data=login_url, headers=headers
+            EndPoint.LOGIN, data=login_url, headers=headers
         )
         if isinstance(_credentials, Ex):
             return _credentials
@@ -72,7 +72,7 @@ class Bakalari:
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
         _credentials = await self.send_request(
-            f"{self.server}{EndPoint.LOGIN}", data=login_url, headers=headers
+            EndPoint.LOGIN, data=login_url, headers=headers
         )
         if isinstance(_credentials, Ex):
             return _credentials
@@ -81,10 +81,10 @@ class Bakalari:
 
         return self.credentials
 
-    async def send_request(self, request, method=hdrs.METH_POST, **kwargs):
+    async def send_request(self, request:EndPoint, method=hdrs.METH_POST, **kwargs):
         """Send request to server."""
 
-        request = self.purge_request(request)
+        request = f"{self.server}{request}"
 
         if (self.credentials.access_token) and ("headers" not in kwargs):
             headers_access_token = {
@@ -106,36 +106,45 @@ class Bakalari:
                 )
                 response_json = await response.json()
 
-        except asyncio.TimeoutError:
-            return Ex.TimeoutException(
+        except asyncio.TimeoutError as err:
+            raise Ex.TimeoutException(
                 f"Timeout occurred while connecting to server {request}."
-            )
-
+            ) from err
+        except aiohttp.ClientConnectionError as err:
+            raise Ex.BadRequestException(f"Connection error: {request}.") from err
+            
         if (response.status == 401) and (
             Errors.ACCESS_TOKEN_EXPIRED in response.headers["WWW-Authenticate"]
         ):
-            return Ex.AccessTokenExpired
+            try:
+                new_credentials = await self.refresh_access_token()
+            except Ex.RefreshTokenExpired as exc:
+                raise Ex.TokensExpired("Unable to refresh access token. Refresh token has been redeemd.") from exc
+            self.credentials = new_credentials
+            self.new_token = True
+            raise Ex.AccessTokenExpired
 
         if (response.status == 400) and (
-            response_json["error_uri"] == Errors.INVALID_METHOD
+            Errors.INVALID_METHOD in response_json["error_uri"]
         ):
-            return Ex.InvalidHTTPMethod
+            raise Ex.InvalidHTTPMethod
 
         if (response.status == 400) and (
-            response_json["error_uri"] == Errors.INVALID_LOGIN
+            Errors.INVALID_LOGIN in response_json["error_uri"]
         ):
-            return Ex.InvalidLogin
+            raise Ex.InvalidLogin
+        
+        if (response.status == 400) and (
+            Errors.REFRESH_TOKEN_EXPIRED in response_json["error_uri"]
+        ):
+            raise Ex.RefreshTokenExpired("Refresh token already redeemd!")
 
-        elif response.status == 400:
-            return (
-                Ex.BadRequestException,
-                response_json,
-            )  # TODO - remove response_json in final
+        if response.status in [400, 401]:
+            raise Ex.BadRequestException(response, response_json)
+            # TODO - remove response_json in final
 
-        elif response.status == 200:
+        if response.status == 200:
             return response_json
-
-        return response_json, response
 
     async def close(self) -> None:
         """Close open client session."""
@@ -169,9 +178,7 @@ class Komens:
 
     async def messages(self):
         """Get unread messages."""
-
-        request = f"{self._bak.server}{EndPoint.KOMENS_UNREAD}"
-        return await self._bak.send_request(request)
+        return await self._bak.send_request(EndPoint.KOMENS_UNREAD)
 
     def unread_messages(self):
         pass

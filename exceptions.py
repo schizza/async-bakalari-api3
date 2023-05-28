@@ -28,3 +28,10 @@ class Ex:
     
     class AccessTokenExpired(APIException):
         """Access token expired. Refresh with refresh token."""
+        
+    class RefreshTokenExpired(APIException):
+        """Refresh token expired. You have to login with username and password."""
+        
+    class TokensExpired(APIException):
+        """Access token and refresh token expired."""
+        

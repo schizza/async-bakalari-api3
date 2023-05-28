@@ -13,6 +13,7 @@ class Errors(StrEnum):
     INVALID_LOGIN: str = "ID2024"
     MISSING_LOGIN: str = "ID2059"
     ACCESS_TOKEN_EXPIRED: str = "ID2019"
+    REFRESH_TOKEN_EXPIRED: str = "ID2012"
 
 
 class EndPoint(StrEnum):
