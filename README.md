@@ -11,4 +11,4 @@ Now supports to download list of schools with their API points.
 ## Class Bakalari
 * first login with username and password and stores access and refresh token
 * automaticaly refreshes access token with refresh token if refresh token is not expired
-* save access and refresh token localy to be cashed
+* save access and refresh token localy to be cached
