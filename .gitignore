@@ -1,1 +1,15 @@
+.gitignore
 main.py
+resp.json
+.vscode/settings.json
+data.json
+__pycache__/bakalari.cpython-310.pyc
+__pycache__/const.cpython-310.pyc
+__pycache__/datastructure.cpython-310.pyc
+__pycache__/exceptions.cpython-310.pyc
+new_data.json
+credentials
+schools_data.json
+log.log
+
+.DS_Store
