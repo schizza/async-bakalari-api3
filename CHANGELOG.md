@@ -4,7 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-## [0.0.1] - 2014-05-31
+### Added
+
+- better excetions handling and logging
+- `class Komens`
+  - count unread messages
+
+### Fixed
+  
+- Invalid refresh token
+
+## [0.0.1]
 
 ### Added
 
