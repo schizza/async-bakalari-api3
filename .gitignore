@@ -13,3 +13,7 @@ schools_data.json
 log.log
 
 .DS_Store
+
+__pycache__/
+
+.vscode/
