@@ -19,22 +19,22 @@ async def test_unauth_request():
     bakalari = Bakalari("http://fake_server")
 
     with aioresponses() as m:
-        m.post(
+        m.get(
             "http://fake_server" + EndPoint.KOMENS_UNREAD_COUNT.get("endpoint"),
-            payload={"data": "we have data!"},
+            payload="we have data!",
             headers={},
             status=200,
         )
         # we tries to `GET` response on `POST` method
-        m.get(
+        m.post(
             "http://fake_server" + EndPoint.KOMENS_UNREAD_COUNT.get("endpoint"),
-            payload={"data": "we should have no data!"},
+            payload="we should have no data!",
             headers={},
             status=200,
         )
 
         result = await bakalari.send_unauth_request(EndPoint.KOMENS_UNREAD_COUNT)
-        assert result == {"data": "we have data!"}
+        assert result == "we have data!"
 
         with pytest.raises(Ex.BadRequestException) as ex:
             result = await bakalari.send_unauth_request(EndPoint.KOMENS_UNREAD_COUNT)
@@ -143,7 +143,7 @@ async def test_send_auth_request():
             headers={"WWW-Authenticate": Errors.ACCESS_TOKEN_EXPIRED},
             status=401,
         )
-        m.get(
+        m.post(
             fs + EndPoint.LOGIN.endpoint,
             payload={
                 "bak:UserId": "fake_user_id",
@@ -177,7 +177,7 @@ async def test_send_auth_request():
             status=401,
         )
 
-        m.get(
+        m.post(
             fs + EndPoint.LOGIN.endpoint,
             headers={"WWW-Authenticate": Errors.REFRESH_TOKEN_EXPIRED},
             payload={
@@ -234,7 +234,7 @@ async def test_send_auth_request():
             payload="we should have no data",
             status=401,
         )
-        m.get(
+        m.post(
             fs + EndPoint.LOGIN.endpoint,
             headers={},
             payload="we should have no data",
@@ -272,7 +272,7 @@ async def test__send_request():
         m.get(
             "fake_server",
             payload={},
-            headers={"": ""},
+            headers={"WWW-Authenticate": ""},
             status=401,
         )
 
@@ -311,8 +311,8 @@ async def test__send_request():
         # 8 - BadRequestExeption in 400
         m.get(
             "fake_server",
-            payload={"other_exception": "another bad thing happened"},
-            headers={},
+            payload={"other_exception": "another bad thing happened", "error_uri": "err"},
+            headers={"WWW-Authenticate": "error_uri"},
             status=400,
         )
 
@@ -495,7 +495,7 @@ async def test_first_login():
 
     # we have valid username and password
     with aioresponses() as m:
-        m.get(
+        m.post(
             url=fs + EndPoint.LOGIN.endpoint,
             headers={},
             payload={
@@ -518,7 +518,7 @@ async def test_first_login():
     # we don't have valid username / password provided
     # we have valid username and password
     with aioresponses() as m:
-        m.get(
+        m.post(
             url=fs + EndPoint.LOGIN.endpoint,
             headers={},
             payload={"error_uri": Errors.INVALID_LOGIN},

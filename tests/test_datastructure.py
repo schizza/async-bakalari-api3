@@ -91,7 +91,7 @@ async def test_get_url():
     schools.append_school("test_school", "test_api_point_in", "test_town_in")
     schools.append_school("test_school2", "test_api_point_out", "test_town_in")
 
-    false_name_test = schools.get_url("test")
+    false_name_test = schools.get_url("not in")
     true_name_test = schools.get_url("test_school")
     both_specified = schools.get_url("test_school", 1)
     index_error = schools.get_url(idx=10)
