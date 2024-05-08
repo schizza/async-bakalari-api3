@@ -3,7 +3,7 @@
 from enum import Enum
 from typing import Any, Final
 
-from bakalari_api.logger_api import api_logger
+from src.bakalari_api.logger_api import api_logger
 from strenum import StrEnum
 
 log = api_logger("Bakalari API").get()
