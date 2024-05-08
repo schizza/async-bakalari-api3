@@ -6,13 +6,21 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- better excetions handling and logging
+- better exceptions handling and logging
 - `class Komens`
   - count unread messages
+  - tests and coverage
+
+### Changed
+
+- `async_schools_list` moved to `Bakalari` class
+- Refactor login functions
+- Refactor token handling
 
 ### Fixed
   
 - Invalid refresh token
+- Refactor send_request to better maintenance
 
 ## [0.0.1]
 
@@ -21,7 +29,7 @@ All notable changes to this project will be documented in this file.
 - main `class Bakalari`
 
   - supports saving `access token` and `refresh token` localy
-  - automaticaly refreshes access token with refresh token if refresh token is not expired
+  - automatically refreshes access token with refresh token if refresh token is not expired
   
 - `class Schools` in `datastructures.py` lists all schools with their API points
   
