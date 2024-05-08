@@ -1,6 +1,6 @@
-name: ruff
+name: Ruff chcek
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
