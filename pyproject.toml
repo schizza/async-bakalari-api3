@@ -40,6 +40,10 @@ Repository = "https://github.com/schizza/bakalari-api3"
 "Bug Tracker" = "https://github.com/schizza/bakalari-api3/issues"
 Changelog = "https://github.com/schizza/bakalari-api3/blob/master/CHANGELOG.md"
 
+packages = [
+    { package = "bakalari_api", from = "src" }
+]
+
 [project.scripts]
 bakalari = "bakalari_api:main"
 
