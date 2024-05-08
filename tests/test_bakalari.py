@@ -4,9 +4,9 @@ from unittest.mock import patch
 import aiohttp
 from aiohttp import hdrs
 from aioresponses import aioresponses
-from bakalari_api import Bakalari, Schools, Credentials
-from bakalari_api.const import EndPoint, Errors
-from bakalari_api.exceptions import Ex
+from src.bakalari_api.bakalari import Bakalari, Schools, Credentials
+from src.bakalari_api.const import EndPoint, Errors
+from src.bakalari_api.exceptions import Ex
 import pytest
 import tempfile
 import orjson
