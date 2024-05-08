@@ -15,3 +15,7 @@ Now supports to download list of schools with their API points.
 * first login with username and password and stores access and refresh token
 * automaticaly refreshes access token with refresh token if refresh token is not expired
 * save access and refresh token localy to be cached
+
+## Class Komens
+
+* count unread messages `count_unread_messages`

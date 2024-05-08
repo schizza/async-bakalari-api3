@@ -1,0 +1,24 @@
+# This extend our general Ruff rules specifically for tests
+extend = "../pyproject.toml"
+
+[lint]
+
+extend-ignore = [
+    "B904", # Use raise from to specify exception cause
+    "N815", # Variable {name} in class scope should not be mixedCase
+    "RUF018", # Avoid assignment expressions in assert statements
+]
+
+[lint.isort]
+known-first-party = [
+    "tests",
+    "script",
+]
+known-third-party = [
+    "syrupy",
+    "pytest",
+    "pylint",
+]
+forced-separate = [
+    "tests",
+]
