@@ -1,5 +1,6 @@
-from bakalari_api import Bakalari
-from bakalari_api.const import EndPoint
+from src.bakalari_api import Bakalari
+from src.bakalari_api.const import EndPoint
+
 
 class Komens:
     """Class for manipulating Komens messages."""

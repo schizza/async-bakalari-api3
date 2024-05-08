@@ -4,7 +4,7 @@ import asyncio
 
 import orjson
 
-from bakalari_api import Bakalari, Schools
+from src.bakalari_api import Bakalari, Schools
 
 
 SERVER = "https://kadanska.chomutov.cz"
