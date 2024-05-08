@@ -1,5 +1,7 @@
 name: Upload coverage reports to Codecov
 
+on: [push, pull_request]
+
 jobs:
   run:
     runs-on: ubuntu-latest
