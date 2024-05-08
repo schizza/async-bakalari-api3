@@ -3,7 +3,7 @@
 from enum import Enum
 from typing import Any, Final
 
-from src.bakalari_api.logger_api import api_logger
+from .logger_api import api_logger
 from strenum import StrEnum
 
 log = api_logger("Bakalari API").get()
@@ -18,6 +18,7 @@ class Errors(StrEnum):
     INVALID_LOGIN: str = "ID2024"
     MISSING_LOGIN: str = "ID2059"
     ACCESS_TOKEN_EXPIRED: str = "ID2019"
+    INVALID_TOKEN: str = "ID2004"
     REFRESH_TOKEN_EXPIRED: str = "ID2012"
     INVALID_REFRESH_TOKEN: str = "ID2003"
     REFRESH_TOKEN_REDEEMD: str = "ID2012"
@@ -27,7 +28,7 @@ class EndPoint(Enum):
     """List of endpoints."""
 
     VERSION: Final = {"endpoint": "/api", "method": "get"}
-    LOGIN: Final = {"endpoint": "/api/login", "method": "get"}
+    LOGIN: Final = {"endpoint": "/api/login", "method": "post"}
     SCHOOL_LIST: Final = {
         "endpoint": "https://sluzby.bakalari.cz/api/v1/municipality",
         "method": "get",
@@ -38,7 +39,7 @@ class EndPoint(Enum):
     }
     KOMENS_UNREAD_COUNT: Final = {
         "endpoint": "/api/3/komens/messages/received/unread",
-        "method": "post",
+        "method": "get",
     }
 
     def get(self, key: str) -> Any:

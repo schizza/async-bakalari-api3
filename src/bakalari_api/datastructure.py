@@ -106,7 +106,7 @@ class Schools:
 
         if name is not None:
             for item in self.school_list:
-                if name == item.name:
+                if name in item.name:
                     return item.api_point
 
         if idx is not None:

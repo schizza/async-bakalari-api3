@@ -57,5 +57,8 @@ class Ex(APIException):
     class TokenMissing(APIException):
         """Either Access token or Refresh token is missing."""
 
+    class InvalidToken(APIException):
+        """Specified token is invalid."""
+
     class CacheError(APIException):
         """Auto-cache is enabled, but no filename is provided."""

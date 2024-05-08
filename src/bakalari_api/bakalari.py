@@ -83,8 +83,14 @@ class Bakalari:
                 except Ex.AccessTokenExpired:
                     access_token_invalid = True
                     continue
+                except Ex.InvalidToken:
+                    access_token_invalid = True
+                    continue
                 except Exception as ex:
                     raise ex from ex
+                else:
+                    return result
+
             if access_token_invalid and self.refresh_access_token:
                 log.debug("Trying refresh token ...")
                 try:
@@ -95,8 +101,6 @@ class Bakalari:
                 except Exception as ex:
                     raise ex from ex
                 access_token_invalid = False
-            if result:
-                return result
 
     async def send_unauth_request(
         self, request: EndPoint, headers: dict[str, str] | None = None, **kwargs
@@ -113,11 +117,11 @@ class Bakalari:
         """
         method = hdrs.METH_GET if "get" in request.method else hdrs.METH_POST
 
-        _request = self.get_request_url(request)
+        _request_url = self.get_request_url(request)
 
         try:
             _request = await self._send_request(
-                _request, method=method, headers=headers, **kwargs
+                _request_url, method=method, headers=headers, **kwargs
             )
 
         except Exception as err:
@@ -171,6 +175,7 @@ class Bakalari:
                             url, ssl=True, headers=headers, **kwargs
                         )
                     response_json = await response.json()
+                    log.debug(f"Response: {response}")
 
         except TimeoutError as err:
             raise Ex.TimeoutException(
@@ -181,23 +186,30 @@ class Bakalari:
 
         match response.status:
             case 401:
-                if Errors.ACCESS_TOKEN_EXPIRED in response.headers.values():
+                if Errors.ACCESS_TOKEN_EXPIRED in response.headers.get(
+                    "WWW-Authenticate"
+                ):
                     raise Ex.AccessTokenExpired("Access token expired.")
-                if Errors.REFRESH_TOKEN_EXPIRED in response.headers.values():
+                if Errors.REFRESH_TOKEN_EXPIRED in response.headers.get(
+                    "WWW-Authenticate"
+                ):
                     raise Ex.RefreshTokenExpired("Refresh token expired.")
+
+                if Errors.INVALID_TOKEN in response.headers.get("WWW-Authenticate"):
+                    raise Ex.InvalidToken("Invalid token provided.")
 
                 raise Ex.BadRequestException(f"{url} with message: {response_json}")
             case 400:
                 match response_json.get("error_uri"):
-                    case Errors.INVALID_METHOD:
+                    case x if Errors.INVALID_METHOD in x:
                         raise Ex.InvalidHTTPMethod(
                             f"Invalid HTTP method. Method '{method}' is not supported for '{url}'"
                         )
-                    case Errors.INVALID_LOGIN:
+                    case x if Errors.INVALID_LOGIN in x:
                         raise Ex.InvalidLogin("Invalid login!")
-                    case Errors.REFRESH_TOKEN_REDEEMD:
+                    case x if Errors.REFRESH_TOKEN_REDEEMD in x:
                         raise Ex.RefreshTokenRedeemd("Refresh token already redeemd!")
-                    case Errors.INVALID_REFRESH_TOKEN:
+                    case x if Errors.INVALID_REFRESH_TOKEN in x:
                         raise Ex.InvalidRefreshToken("Invalid refresh token!")
                     case _:
                         raise Ex.BadRequestException(
@@ -256,13 +268,14 @@ class Bakalari:
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
         try:
+            log.debug("Trying to login with username and password ...")
             _credentials = await self.send_unauth_request(
                 EndPoint.LOGIN, data=login_url, headers=headers
             )
         except Ex.InvalidLogin as ex:
             log.error("Invalid username / password provided.")
             raise ex from ex
-
+        _credentials.update({"username": username})
         self.credentials = Credentials.create(_credentials)
 
         if self.auto_cache_credentials:
@@ -274,13 +287,13 @@ class Bakalari:
 
         returns new Credentials if success, else RefreshTokenExpired exception
         """
-
-        login_url = f"client_id=ANDR&grant_type=refresh_token&refresh_token={self.credentials.refresh_token}"
+        login_body = f"client_id=ANDR&grant_type=refresh_token&refresh_token={self.credentials.refresh_token}"
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
         try:
+            log.debug("Trying refresh token ... ")
             _credentials = await self.send_unauth_request(
-                EndPoint.LOGIN, headers=headers, data=login_url
+                EndPoint.LOGIN, headers=headers, data=login_body
             )
         except Ex.RefreshTokenExpired as ex:
             raise ex from ex
