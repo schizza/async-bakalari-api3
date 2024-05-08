@@ -30,7 +30,3 @@ jobs:
           verbose: true
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-flag_management:
-  default_rules:
-    carryforward: true
