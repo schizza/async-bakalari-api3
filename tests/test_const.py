@@ -1,4 +1,4 @@
-from bakalari_api.const import EndPoint
+from src.bakalari_api.const import EndPoint
 
 
 def test_Endpoint_get():

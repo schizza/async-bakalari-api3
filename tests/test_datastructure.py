@@ -3,7 +3,7 @@
 import tempfile
 from unittest.mock import patch
 
-from bakalari_api import Credentials, Schools
+from src.bakalari_api.bakalari import Credentials, Schools
 import orjson
 import pytest
 
