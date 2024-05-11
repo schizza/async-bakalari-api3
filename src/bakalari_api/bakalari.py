@@ -110,6 +110,7 @@ class Bakalari:
         Args:
             request (EndPoint): endpoint
             headers (str): headers for request
+            **kwargs (dict): kwargs
 
         Returns:
             str: JSON response or None
