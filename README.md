@@ -2,7 +2,29 @@
 
 # Python async client for Bakalari API v3
 
-Initial version.
+### 0.0.2
+
+## Added
+
+* better exceptions handling and logging
+* class Komens
+  * count unread messages
+  * get all messages
+
+* tests and coverage
+
+## Changed
+
+* async_schools_list moved to Bakalari class
+* Refactor login functions
+* Refactor token handling
+
+## Fixed
+
+* Invalid refresh token
+* Refactor send_request to better maintenance
+
+### v0.1
 
 ## Class School from `datastructure.py`
 
