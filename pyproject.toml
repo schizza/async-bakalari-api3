@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bakalari_api"
-version = "0.1"
+version = "0.0"
 dependencies = [
   "asyncio",
   "typing",
@@ -39,10 +39,6 @@ Documentation = "https://github.com/schizza/bakalari-api3"
 Repository = "https://github.com/schizza/bakalari-api3"
 "Bug Tracker" = "https://github.com/schizza/bakalari-api3/issues"
 Changelog = "https://github.com/schizza/bakalari-api3/blob/master/CHANGELOG.md"
-
-packages = [
-    { package = "bakalari_api", from = "src" }
-]
 
 [project.scripts]
 bakalari = "bakalari_api:main"
