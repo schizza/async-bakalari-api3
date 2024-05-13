@@ -27,7 +27,6 @@ jobs:
       - run: pip install \
                 mkdocs-material \
                 mkdocs-git-authors-plugin \
-                mkdocs-git-committers-plugin \
                 mkdocs-git-committers-plugin-2 \
                 mkdocs-git-revision-date-localized-plugin \
                 mkdocs-material \
