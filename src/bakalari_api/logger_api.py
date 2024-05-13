@@ -41,9 +41,10 @@ class CustomFormatter(logging.Formatter):
 class api_logger:
     """API logger."""
 
-    def __init__(self, name, loglevel=logging.WARNING):
+    def __init__(self, name, loglevel: logging = logging.ERROR):
         """Create API logger."""
         self.name = name
+        self.loglevel = loglevel
 
         self.console_formatter = CustomFormatter()
         self.console_logger = logging.StreamHandler()
@@ -53,7 +54,7 @@ class api_logger:
         if self.logger.handlers:
             self.logger.handlers.pop()
         self.logger.addHandler(self.console_logger)
-        self.logger.setLevel(loglevel)
+        self.logger.setLevel(self.loglevel)
 
     def get(self):
         "Get."

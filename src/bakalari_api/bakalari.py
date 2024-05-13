@@ -17,7 +17,7 @@ from .datastructure import Credentials, Schools
 from .exceptions import Ex
 from .logger_api import api_logger
 
-log = api_logger("Bakalari API", loglevel=logging.DEBUG).get()
+log = api_logger("Bakalari API", loglevel=logging.ERROR).get()
 
 
 class Bakalari:
