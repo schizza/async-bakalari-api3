@@ -35,7 +35,7 @@ classifiers = [
 
 [project.urls]
 Homepage = "https://github.com/schizza/bakalari-api3"
-Documentation = "https://github.com/schizza/bakalari-api3"
+Documentation = "https://async-bakalari-api.schizza.cz"
 Repository = "https://github.com/schizza/bakalari-api3"
 "Bug Tracker" = "https://github.com/schizza/bakalari-api3/issues"
 Changelog = "https://github.com/schizza/bakalari-api3/blob/master/CHANGELOG.md"
