@@ -1,8 +1,10 @@
 [![codecov](https://codecov.io/gh/schizza/async-bakalari-api3/graph/badge.svg?token=KC2WYAOLOP)](https://codecov.io/gh/schizza/async-bakalari-api3)
 
+Dokumentace k dispozici [zde](https://async-bakalari-api.schizza.cz)
+
 # Python async client for Bakalari API v3
 
-### 0.0.2
+## 0.0.2
 
 ## Added
 
