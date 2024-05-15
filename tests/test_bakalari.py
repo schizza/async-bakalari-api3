@@ -244,6 +244,24 @@ async def test_send_auth_request():
             result = await bakalari.send_auth_request(EndPoint.KOMENS_UNREAD)
         assert result != "we should have no data"
 
+    # we have an invalid refresh token
+    result = None
+    with aioresponses() as m:
+        m.post(
+            fs + EndPoint.KOMENS_UNREAD.endpoint,
+            headers={"WWW-Authenticate": Errors.INVALID_TOKEN},
+            payload="we should have no data",
+            status=401,
+        )
+        m.post(
+            fs + EndPoint.LOGIN.endpoint,
+            headers={"WWW-Authenticate": Errors.REFRESH_TOKEN_EXPIRED},
+            payload="we should have no data",
+            status=401,
+        )
+        with pytest.raises(Ex.RefreshTokenExpired):
+            result = await bakalari.send_auth_request(EndPoint.KOMENS_UNREAD)
+
 
 async def test__send_request():
 
@@ -309,7 +327,10 @@ async def test__send_request():
         # 8 - BadRequestExeption in 400
         m.get(
             "fake_server",
-            payload={"other_exception": "another bad thing happened", "error_uri": "err"},
+            payload={
+                "other_exception": "another bad thing happened",
+                "error_uri": "err",
+            },
             headers={"WWW-Authenticate": "error_uri"},
             status=400,
         )
