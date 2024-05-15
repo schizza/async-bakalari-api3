@@ -30,7 +30,6 @@ class Credentials:
             user_id=data[Token.USER_ID],
             access_token=data[Token.ACCESS_TOKEN],
             refresh_token=data[Token.REFRESH_TOKEN],
-            username=data[Token.USERNAME],
         )
 
     @classmethod
@@ -41,7 +40,6 @@ class Credentials:
                 Token.USER_ID: data["user_id"],
                 Token.ACCESS_TOKEN: data["access_token"],
                 Token.REFRESH_TOKEN: data["refresh_token"],
-                Token.USERNAME: data["username"],
             }
         )
 

@@ -149,7 +149,6 @@ async def test_send_auth_request():
                 "bak:UserId": "fake_user_id",
                 "access_token": "fake_access_token",
                 "refresh_token": "fake_refresh_token",
-                "username": "fake_username",
             },
             status=200,
         )
@@ -163,7 +162,6 @@ async def test_send_auth_request():
 
         result = await bakalari.send_auth_request(EndPoint.KOMENS_UNREAD)
         assert result == "we should have some data"
-        assert bakalari.credentials.username == "fake_username"
         assert bakalari.credentials.access_token == "fake_access_token"
         assert bakalari.credentials.refresh_token == "fake_refresh_token"
         assert bakalari.credentials.user_id == "fake_user_id"
@@ -246,6 +244,24 @@ async def test_send_auth_request():
             result = await bakalari.send_auth_request(EndPoint.KOMENS_UNREAD)
         assert result != "we should have no data"
 
+    # we have an invalid refresh token
+    result = None
+    with aioresponses() as m:
+        m.post(
+            fs + EndPoint.KOMENS_UNREAD.endpoint,
+            headers={"WWW-Authenticate": Errors.INVALID_TOKEN},
+            payload="we should have no data",
+            status=401,
+        )
+        m.post(
+            fs + EndPoint.LOGIN.endpoint,
+            headers={"WWW-Authenticate": Errors.REFRESH_TOKEN_EXPIRED},
+            payload="we should have no data",
+            status=401,
+        )
+        with pytest.raises(Ex.RefreshTokenExpired):
+            result = await bakalari.send_auth_request(EndPoint.KOMENS_UNREAD)
+
 
 async def test__send_request():
 
@@ -311,7 +327,10 @@ async def test__send_request():
         # 8 - BadRequestExeption in 400
         m.get(
             "fake_server",
-            payload={"other_exception": "another bad thing happened", "error_uri": "err"},
+            payload={
+                "other_exception": "another bad thing happened",
+                "error_uri": "err",
+            },
             headers={"WWW-Authenticate": "error_uri"},
             status=400,
         )
@@ -419,7 +438,6 @@ def test_load_credentials_success(mocker_file):
     success = bakalari.load_credentials("fake_file")
     assert success
 
-    assert bakalari.credentials.username == "test_name"
     assert bakalari.credentials.access_token == "test_access"
     assert bakalari.credentials.refresh_token == "test_refresh"
 
@@ -429,7 +447,6 @@ def test_save_file_success():
     bakalari = Bakalari()
     bakalari.credentials = bakalari.credentials.create_from_json(
         {
-            "username": "test_name",
             "access_token": "test_access",
             "refresh_token": "test_refresh",
             "user_id": "test_user_id",
@@ -444,7 +461,6 @@ def test_save_file_success():
             data = orjson.loads(file.read())
             file.close()
 
-        assert data.get("username") == bakalari.credentials.username
         assert data.get("access_token") == bakalari.credentials.access_token
         assert data.get("refresh_token") == bakalari.credentials.refresh_token
         assert data.get("user_id") == bakalari.credentials.user_id
@@ -466,7 +482,6 @@ def test_save_file_cache_file():
     bakalari = Bakalari("", auto_cache_credentials=True, cache_filename="fake_file")
     bakalari.credentials = bakalari.credentials.create_from_json(
         {
-            "username": "test_name",
             "access_token": "test_access",
             "refresh_token": "test_refresh",
             "user_id": "test_user_id",
@@ -482,7 +497,6 @@ def test_save_file_cache_file():
             data = orjson.loads(file.read())
             file.close()
 
-        assert data.get("username") == bakalari.credentials.username
         assert data.get("access_token") == bakalari.credentials.access_token
         assert data.get("refresh_token") == bakalari.credentials.refresh_token
         assert data.get("user_id") == bakalari.credentials.user_id
@@ -500,7 +514,6 @@ async def test_first_login():
             headers={},
             payload={
                 "bak:UserId": "fake_user_id",
-                "username": "fake_user_name",
                 "access_token": "fake_access_token",
                 "token_type": "Bearer",
                 "expires_in": 0,

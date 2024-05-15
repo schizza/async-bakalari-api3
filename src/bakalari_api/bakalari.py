@@ -11,6 +11,7 @@ import aiohttp
 from aiohttp import hdrs
 import aiohttp.web_response
 import orjson
+from urllib import parse
 
 from .const import REQUEST_TIMEOUT, EndPoint, Errors
 from .datastructure import Credentials, Schools
@@ -55,10 +56,16 @@ class Bakalari:
         if self.auto_cache_credentials and not self.cache_filename:
             raise Ex.CacheError("Auto-cache is enabled, but no filename is provided!")
 
-    async def send_auth_request(self, request_endpoint: EndPoint, **kwargs):
+    async def send_auth_request(
+        self, request_endpoint: EndPoint, extend: str | None = None, **kwargs
+    ):
         """Send authorized request with access token or refresh token."""
 
         request = self.get_request_url(request_endpoint)
+
+        if extend:
+            request += extend
+
         method = hdrs.METH_POST if "post" in request_endpoint.method else hdrs.METH_GET
 
         access_token_invalid = False
@@ -92,7 +99,6 @@ class Bakalari:
                     return result
 
             if access_token_invalid and self.refresh_access_token:
-                log.debug("Trying refresh token ...")
                 try:
                     await self.refresh_access_token()
                 except Ex.RefreshTokenExpired as ex:
@@ -160,6 +166,9 @@ class Bakalari:
 
         """
 
+        filedata = None
+        filename = None
+
         if not self.session or self.session.closed:
             self.session = aiohttp.ClientSession()
 
@@ -175,8 +184,16 @@ class Bakalari:
                         response = await self.session.post(
                             url, ssl=True, headers=headers, **kwargs
                         )
-                    response_json = await response.json()
-                    log.debug(f"Response: {response}")
+                    if (
+                        response.headers[aiohttp.hdrs.CONTENT_TYPE]
+                        == "application/octet-stream"
+                    ):
+                        filedata = await response.read()
+                        filename = response.headers[aiohttp.hdrs.CONTENT_DISPOSITION]
+                        filename = parse.unquote(filename[filename.rindex("filename*=") + 17:])
+                    else:
+                        response_json = await response.json()
+                        log.debug(f"Response: {response}")
 
         except TimeoutError as err:
             raise Ex.TimeoutException(
@@ -217,7 +234,7 @@ class Bakalari:
                             f"{url} with message: {response_json}"
                         )
             case 200:
-                return response_json
+                return [filename, filedata] if filedata else response_json
             case _:
                 raise Ex.BadRequestException(f"{url} with message: {response_json}")
 

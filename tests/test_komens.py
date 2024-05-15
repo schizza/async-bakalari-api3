@@ -125,7 +125,7 @@ async def test_komens_get_messages():
             == "<MessageContainer message_id=fake_id1 title= sender=fake_teacher_name1>"
         )
 
-        assert isinstance(msg[0].as_json(), orjson.Fragment)
+        assert isinstance(msg[1].as_json(), orjson.Fragment)
 
         msg[0].title = "new_set_title"
         assert msg[0].title == "new_set_title"
@@ -146,3 +146,39 @@ async def test_komens_count_unread_messages():
         )
 
         assert await komens.count_unread_messages() == 50
+
+
+async def test_komens_get_attachment():
+
+    bakalari = Bakalari(fs)
+    komens = Komens(bakalari)
+    bakalari.credentials.access_token = "token"
+
+    with aioresponses() as m:
+        m.get(
+            url=fs + EndPoint.KOMENS_ATTACHMENT.get("endpoint") + "/1",
+            body="content of file",
+            headers={
+                "Content-type": "application/octet-stream",
+                "Content-Disposition": "filename*=utf-8''test-filename",
+            },
+            status=200,
+        )
+
+        test = await komens.get_attachment("1")
+        assert test[0] == "test-filename"
+        assert test[1] == b"content of file"
+
+    with aioresponses() as m:
+        m.get(
+            url=fs + EndPoint.KOMENS_ATTACHMENT.get("endpoint") + "/1",
+            body="content of file",
+            headers={
+                "Content-type": "application/octet-stream",
+                "Content-Disposition": "filename*=utf-8''test-filename",
+            },
+            status=400,
+        )
+        
+        test = await komens.get_attachment("1")
+        assert not test
