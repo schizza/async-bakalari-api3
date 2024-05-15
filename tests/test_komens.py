@@ -125,7 +125,7 @@ async def test_komens_get_messages():
             == "<MessageContainer message_id=fake_id1 title= sender=fake_teacher_name1>"
         )
 
-        assert isinstance(msg[0].as_json(), orjson.Fragment)
+        assert isinstance(msg[1].as_json(), orjson.Fragment)
 
         msg[0].title = "new_set_title"
         assert msg[0].title == "new_set_title"

@@ -3,8 +3,9 @@
 from enum import Enum
 from typing import Any, Final
 
-from .logger_api import api_logger
 from strenum import StrEnum
+
+from .logger_api import api_logger
 
 log = api_logger("Bakalari API").get()
 
@@ -39,6 +40,10 @@ class EndPoint(Enum):
     }
     KOMENS_UNREAD_COUNT: Final = {
         "endpoint": "/api/3/komens/messages/received/unread",
+        "method": "get",
+    }
+    KOMENS_ATTACHMENT = {
+        "endpoint": "/api/3/komens/attachment",
         "method": "get",
     }
 

@@ -16,7 +16,7 @@ log = api_logger("Bakalari API").get()
 class MessageContainer:
     """Messages registry."""
 
-    mid: int
+    mid: str
     title: str
     text: str
     sent: dt.date
@@ -26,7 +26,7 @@ class MessageContainer:
     def __init__(
         self,
         *,
-        mid: int,
+        mid: str,
         title: str,
         text: str,
         sent: dt,
@@ -85,13 +85,13 @@ class Messages(list[MessageContainer]):
 
     def add_message(self, data: MessageContainer):
         """Add new message to list."""
-        self.append([data])
+        self.append(data)
 
-    def get_message_by_id(self, id: int) -> MessageContainer:
+    def get_message_by_id(self, id: str) -> MessageContainer:
         """Get message by id."""
         for i in self:
-            if i[0].mid == id:
-                return i[0]
+            if i.mid == id:
+                return i
 
     def get_messages_by_date(
         self, date: dt, to_date: dt | None = None
@@ -105,10 +105,10 @@ class Messages(list[MessageContainer]):
 
         for i in self:
             if to_date:
-                if (i[0].sent.date() >= date) and (i[0].sent.date() <= to_date):
-                    messages.append(i[0])
-            elif i[0].sent.date() == date:
-                messages.append(i[0])
+                if (i.sent.date() >= date) and (i.sent.date() <= to_date):
+                    messages.append(i)
+            elif i.sent.date() == date:
+                messages.append(i)
         return None if len(messages) == 0 else messages
 
     def count_messages(self) -> int:
@@ -131,11 +131,6 @@ class Komens:
         )
 
         _messages = Messages()
-
-        # with open(".data", "rb") as f:
-        #     messages = orjson.loads(f.read())
-        #     f.close()
-
         for msg in messages["Messages"]:
             log.debug(f"Writing message: {msg}")
             _message = MessageContainer(
@@ -148,8 +143,18 @@ class Komens:
             )
             self.messages.add_message(_message)
 
-        return _messages
+        return self.messages
 
     async def count_unread_messages(self) -> int:
         """Get count of unreaded messages."""
         return await self.bakalari.send_auth_request(EndPoint.KOMENS_UNREAD_COUNT)
+
+    async def get_attachment(self, id: str) -> Any:
+        """Get attachment."""
+        try:
+            filename, filedata = await self.bakalari.send_auth_request(EndPoint.KOMENS_ATTACHMENT, extend=f"/{id}")
+        except Exception as ex:
+            log.error(f"Exception: {ex} has occurred.")
+            return False
+
+        return filename, filedata

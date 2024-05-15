@@ -2,7 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.0.2]
+## Unreleased
+
+### Added
+
+- download Komens attachment
+- `send_auth_request` now support extending EndPoints wiht `extend` argument
+
+### Changed
+
+- `mid` in `MessageContainter` is now string instead of integer.
+
+### Removed
+
+- `username` from `Credentials` - as we do not need to store it
+
+## [0.2]
 
 ### Added
 
