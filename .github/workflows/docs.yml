@@ -25,7 +25,7 @@ jobs:
         with:
           fetch-depth: 0
           env:
-            MKDOCS_GIT_COMMITTERS_APIKEY = ${{ secret.MKDOCS }}
+            MKDOCS_GIT_COMMITTERS_APIKEY = ${{ secrets.MKDOCS }}
           key: mkdocs-material-${{ env.cache_id }}
           path: .cache
           restore-keys: |
