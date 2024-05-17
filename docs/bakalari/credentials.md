@@ -93,7 +93,7 @@ Po zvolání metody `load_credentials` máme tedy v instanci `bakalari` aktuáln
     from async_bakalari_api.datastructure import Schools
     from async_bakalari_api import Bakalari
 
-    school: Schools = Schools().load_from_file("schools_data.json")
+    school: Schools = await Schools().load_from_file("schools_data.json")
     bakalari = Bakalari(
         server=school.get_url("část jména školy"), 
         auto_cache_credentials=True,
