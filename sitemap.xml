@@ -2,42 +2,42 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://github.com/schizza/async-bakalari-api3/</loc>
-         <lastmod>2024-05-16</lastmod>
+         <lastmod>2024-05-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/schizza/async-bakalari-api3/bakalari/</loc>
-         <lastmod>2024-05-16</lastmod>
+         <lastmod>2024-05-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/schizza/async-bakalari-api3/bakalari/credentials/</loc>
-         <lastmod>2024-05-16</lastmod>
+         <lastmod>2024-05-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/schizza/async-bakalari-api3/bakalari/first_login/</loc>
-         <lastmod>2024-05-16</lastmod>
+         <lastmod>2024-05-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/schizza/async-bakalari-api3/bakalari/seznam_skol/</loc>
-         <lastmod>2024-05-16</lastmod>
+         <lastmod>2024-05-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/schizza/async-bakalari-api3/komens/</loc>
-         <lastmod>2024-05-16</lastmod>
+         <lastmod>2024-05-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/schizza/async-bakalari-api3/komens/cteni_zprav/</loc>
-         <lastmod>2024-05-16</lastmod>
+         <lastmod>2024-05-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/schizza/async-bakalari-api3/komens/stazeni_prilohy/</loc>
-         <lastmod>2024-05-16</lastmod>
+         <lastmod>2024-05-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
