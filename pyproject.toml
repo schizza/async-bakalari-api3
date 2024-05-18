@@ -5,15 +5,8 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "async_bakalari_api"
 version = "0.3"
-dynamic = ["dependencies", "optional-dependencies"]
+dynamic = ["dependencies"]
 
-[tool.setuptools]
-platforms = ["any"]
-zip-safe  = false
-include-package-data = true
-
-[tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
 
 requires-python = ">=3.12"
 authors = [
@@ -31,6 +24,14 @@ classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python"
 ]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.in"] }
+
+[tool.setuptools]
+platforms = ["any"]
+zip-safe  = false
+include-package-data = true
 
 [project.urls]
 Homepage = "https://github.com/schizza/bakalari-api3"

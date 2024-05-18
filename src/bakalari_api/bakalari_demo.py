@@ -47,8 +47,12 @@ async def schools(args, bakalari: Bakalari):
 
     elif args.schoollist and args.town:
         try:
-            _schools: Schools = await bakalari.schools_list(town=args.town)
-            print(_schools.get_schools_by_town(args.town))
+            schools: Schools = await bakalari.schools_list(town=args.town)
+            for school in schools.school_list:
+                print(f"Jméno školy: {school.name}")
+                print(f"Město: {school.town}")
+                print(f"api_point: {school.api_point}")
+                print("-------------")
         except Exception as ex:
             print(ex)
     elif args.schools_file:
