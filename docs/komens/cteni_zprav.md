@@ -84,7 +84,8 @@ Pokud chceme přečíst konkrétní zprávu s `ID_zprávy` slouží k tomu metod
     ``` shell
     # přihlášení pomocí tokenů (-C) ze souboru credentials.json (-cf)
     # školy načti ze souboru skoly.json (-sf)
+    # použij url školy "škola"
     # a z komens načti zprávy (--messages) a vypiš zprávu s ID 1 (-e 1)
 
-    baklari -C -cf credntials.json -sf skoly.json komens --messages -e 1
+    baklari -C -cf credntials.json -sf skoly.json -s "škola" komens --messages -e 1
     ```

@@ -31,8 +31,9 @@ Zprávy v Komens mohou obsahovat přílohy, které mají své `ID`. Stažení p�
     ``` shell
     # přihlaš se automaticky pomocí tokenů (--autocache)
     # načti školy ze souboru skoly.json (-sf)
+    # použij url školy "škola"
     # z komens stáhni zprávy (--messages)
     # ulož přílohu s ID přílohy 1
 
-    bakalari --auto_cache credentials.json -sf skoly.json komens --messages --attachment 1
+    bakalari --auto_cache credentials.json -sf skoly.json -s "škola" komens --messages --attachment 1
     ```
