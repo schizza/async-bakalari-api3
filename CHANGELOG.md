@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 🇨🇿 Full documentation (czech) on [this site](https://async-bakalari-api.schizza.cz)
 
-## Unreleased
+## [0.3]
 
 ### Added
 
