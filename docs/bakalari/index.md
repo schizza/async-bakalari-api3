@@ -1,7 +1,7 @@
 # modul Bakalari
 
 Základní modul `Bakalari` se stará o komunikaci endpointů se serverem školy.
-Udržuje `Credentials`, provádí první přihlášení a umožňuje stáhnout [platný seznam škol](seznam_skol), ke kterým se lze připojit.
+Udržuje `Credentials`, provádí první přihlášení a umožňuje stáhnout [platný seznam škol](seznam_skol.md), ke kterým se lze připojit.
 
 ## třída Bakalari
 

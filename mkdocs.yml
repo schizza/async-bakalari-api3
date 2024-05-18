@@ -1,5 +1,5 @@
 site_name: async Bakalari API v3
-site_url: https://github.com/schizza/async-bakalari-api3
+site_url: https://async-bakalari-api.schizza.cz
 repo_url: https://github.com/schizza/async-bakalari-api3
 repo_name: schizza/async-bakalari-api3
 theme:
@@ -64,8 +64,12 @@ nav:
     - Seznam škol: bakalari/seznam_skol.md
     - První přihlášení: bakalari/first_login.md
     - Tokeny: bakalari/credentials.md
+    - Třída Schools: bakalari/schools.md
   - Komens:
     - komens/index.md
     - Čtení zpráv: komens/cteni_zprav.md
     - Stažení přílohy: komens/stazeni_prilohy.md
+  - CLI:
+    - cli/index.md
+
     

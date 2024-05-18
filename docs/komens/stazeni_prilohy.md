@@ -12,17 +12,27 @@ Zprávy v Komens mohou obsahovat přílohy, které mají své `ID`. Stažení p�
 !!! danger ""
     Při chybě vrací False
 
-```py linenums="1" title="Příklad uložení přílohy do souboru."
-    from async_bakalari_api import Bakalari
-    from async_bakalari_api.komens import Komens
+=== "Py"
 
-    bakalari = Bakalari("http://server")
-    bakalari.load_credentials("credentials.json")
-    komens = Komens(bakalari)
+    ```py linenums="1" title="Příklad uložení přílohy do souboru."
+        from async_bakalari_api import Bakalari
+        from async_bakalari_api.komens import Komens
 
-    data = await komens.get_attachment("ID_zprávy")
+        bakalari = Bakalari("http://server")
+        bakalari.load_credentials("credentials.json")
+        komens = Komens(bakalari)
 
-    with open(data[0], "wb") as fi:
-        fi.write(data[1])
-        fi.close()
-```
+        data = await komens.get_attachment("ID_zprávy")
+
+        with open(data[0], "wb") as fi:
+            fi.write(data[1])
+    ```
+=== "CLI"
+    ``` shell
+    # přihlaš se automaticky pomocí tokenů (--autocache)
+    # načti školy ze souboru skoly.json (-sf)
+    # z komens stáhni zprávy (--messages)
+    # ulož přílohu s ID přílohy 1
+
+    bakalari --auto_cache credentials.json -sf skoly.json komens --messages --attachment 1
+    ```

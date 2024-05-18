@@ -1,7 +1,7 @@
 #Modul Komens
 
 Tento modul slouží k získání přijatých zpráv ze serveru školy.
-Tento modul již provádí autorizované dotazy, takže je nutné již mít údaje o [tokenech](../bakalari/credentials), případně provést [první přihlášení](../bakalari/first_login).
+Tento modul již provádí autorizované dotazy, takže je nutné již mít údaje o [tokenech](../bakalari/credentials.md), případně provést [první přihlášení](../bakalari/first_login.md).
 
 ```py linenums="1"
     class Komens:
@@ -27,7 +27,7 @@ Tento modul již provádí autorizované dotazy, takže je nutné již mít úda
 
 ## Načtení přijatých zpráv
 
-Načtení zpráv probíhá metodou `Komens.get_messages()`
+Načtení zpráv probíhá metodou `Komens.fetch_messages()`
 
 Tato metoda vrátí všechny zprávy, které jsou uložené na serveru školy a ukládá je do třídy `Messages`, kde každá zpráva je uložena jako `MessageContainer`.
 
@@ -36,7 +36,7 @@ Messages = list[MessageContainer]
 ```
 
 !!! notice "Messages"
-    ke zprávám lze přistupovat z instance `Komens.messages`
+    ke zprávám lze přistupovat z proměnné `Komens.messages`
 
 Více o `Messages` a `MessageContainer` bude k dispozici Dev dokumentaci později.
 Pro užití v běžném režimu není třeba se jimi zabývat do hloubky.
@@ -49,5 +49,5 @@ Pro užití v běžném režimu není třeba se jimi zabývat do hloubky.
     bakalari.load_credentials("credentials.json")
 
     komens = Komens(bakalari)
-    await komens.get_messages()
+    await komens.fetch_messages()
 ```
