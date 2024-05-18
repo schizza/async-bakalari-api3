@@ -3,13 +3,14 @@
 import tempfile
 from unittest.mock import patch
 
-from src.bakalari_api.bakalari import Credentials, Schools
 import orjson
 import pytest
+from src.bakalari_api.bakalari import Credentials, Schools
 
 
 @pytest.fixture
 def mocker_file(mocker):
+    """Mock file for testing."""
     data = b'[{"name": "test_name","api_point": "test_api_point","town": "test_town"}]'
     mocked_file = mocker.mock_open(read_data=data)
     mocker.patch("builtins.open", mocked_file)
@@ -17,6 +18,7 @@ def mocker_file(mocker):
 
 @pytest.mark.asyncio
 async def test_school_list_from_file(mocker_file):
+    """Test loading schools from file."""
 
     schools: Schools = await Schools().load_from_file("fakefile")
     assert isinstance(schools, Schools)
@@ -24,6 +26,8 @@ async def test_school_list_from_file(mocker_file):
 
 @pytest.fixture
 def mocker_file_bad_data(mocker):
+    """Mock file for testing."""
+
     data = b'[{"name": "test_name","api_point": "test_api_point","town": "test_town"}'
     mocked_file = mocker.mock_open(read_data=data)
     mocker.patch("builtins.open", mocked_file)
@@ -31,6 +35,7 @@ def mocker_file_bad_data(mocker):
 
 @pytest.mark.asyncio
 async def test_school_list_from_file_bad_data(mocker_file_bad_data):
+    """Test loading schools from file."""
 
     schools: Schools = await Schools().load_from_file("fakefile")
     assert not isinstance(schools, Schools)
@@ -38,13 +43,15 @@ async def test_school_list_from_file_bad_data(mocker_file_bad_data):
 
 @pytest.mark.asyncio
 async def test_schools_list_from_file_no_file():
+    """Test loading schools from file."""
 
     schools: Schools = await Schools().load_from_file("")
-    assert schools == False
+    assert schools is False
 
 
 @pytest.mark.asyncio
 async def test_school_append():
+    """Test appending schools to the list."""
 
     schools = Schools()
 
@@ -56,6 +63,7 @@ async def test_school_append():
 
 @pytest.mark.asyncio
 async def test_school_by_name():
+    """Test getting schools by name."""
 
     schools = Schools()
     schools.append_school("test_school", "test_api_point", "test_town_in")
@@ -72,6 +80,7 @@ async def test_school_by_name():
 
 @pytest.mark.asyncio
 async def test_school_by_api_point():
+    """Test getting schools by api point."""
 
     schools = Schools()
     schools.append_school("test_school", "test_api_point_in", "test_town_in")
@@ -81,11 +90,12 @@ async def test_school_by_api_point():
 
     assert len(schools.school_list) == 1
     assert test_api_point == "test_school"
-    assert test_non_exist == False
+    assert test_non_exist is None
 
 
 @pytest.mark.asyncio
 async def test_get_url():
+    """Test getting url by name or index."""
 
     schools = Schools()
     schools.append_school("test_school", "test_api_point_in", "test_town_in")
@@ -105,11 +115,13 @@ async def test_get_url():
 
 
 def open_err(*args, **kwargs):
+    """Raise OSError."""
     raise OSError
 
 
 @pytest.mark.asyncio
 async def test_write_file(monkeypatch):
+    """Test writing to file."""
 
     schools = Schools()
     schools.append_school("test_school", "test_api_point_in", "test_town_in")
@@ -134,6 +146,7 @@ async def test_write_file(monkeypatch):
 
 
 def test_credentials():
+    """Test credentials datastructure."""
 
     data_json = {
         "user_id": "test_user_id",

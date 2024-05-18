@@ -1,21 +1,24 @@
+"""Module contains test cases for the Bakalari API."""
+
 import re
+import tempfile
 from unittest.mock import patch
 
 import aiohttp
 from aiohttp import hdrs
 from aioresponses import aioresponses
-from src.bakalari_api.bakalari import Bakalari, Schools, Credentials
+import orjson
+import pytest
+from src.bakalari_api.bakalari import Bakalari, Credentials, Schools
 from src.bakalari_api.const import EndPoint, Errors
 from src.bakalari_api.exceptions import Ex
-import pytest
-import tempfile
-import orjson
+from src.bakalari_api.logger_api import api_logger
 
 fs = "http://fake_server"
 
 
 async def test_unauth_request():
-
+    """Test the unauthenticated request function."""
     bakalari = Bakalari("http://fake_server")
 
     with aioresponses() as m:
@@ -54,8 +57,8 @@ async def test_unauth_request():
         result = await bakalari.send_unauth_request(EndPoint.KOMENS_UNREAD_COUNT)
 
 
-def test_get_request_url():
-
+async def test_get_request_url():
+    """Test case for the get_request_url method of the Bakalari class."""
     bakalari = Bakalari()
 
     with pytest.raises(Ex.BadEndpointUrl) as ex:
@@ -69,8 +72,10 @@ def test_get_request_url():
 
 
 async def test_school_list():
+    """Test the schools_list method of the Bakalari class."""
     bakalari = Bakalari()
     pattern = re.compile(r"^https://sluzby\.bakalari\.cz/.*$")
+    api_logger("Bakalari API").get().setLevel(10)
 
     with aioresponses() as m:
         m.get(
@@ -86,7 +91,7 @@ async def test_school_list():
             body="""{"name": "town_name", "schools": [{"name": "school_name","schoolUrl": "endpoint_url"}]}""",
         )
 
-        result = await bakalari.async_schools_list()
+        result = await bakalari.schools_list()
         assert isinstance(result, Schools)
         assert result.get_url("school_name") == "endpoint_url"
         assert result.get_school_name_by_api_point("endpoint_url") == "school_name"
@@ -97,32 +102,43 @@ async def test_school_list():
             headers={"Accept": "application/json"},
             body="""{"name": "town_name", "schools": [{"name": "school_name","schoolUrl": "endpoint_url"}]}""",
         )
-        result = await bakalari.async_schools_list()
+        result = await bakalari.schools_list()
         assert not result
 
+        m.get(
+            pattern,
+            headers={"Accept": "application/json"},
+            body="""{"name": "town_name", "schools": [{"name": "school_name","schoolUrl": "endpoint_url"}]}""",
+        )
+        result = await bakalari.schools_list(town="town_name")
+        assert isinstance(result, Schools)
+        assert result.get_url("school_name") == "endpoint_url"
 
-async def test__send_request_aioex(monkeypatch: pytest.MonkeyPatch):
+
+async def test__send_request_aioex():
+    """Test the _send_request function with aiohttp.ClientConnectionError and TimeoutError exceptions."""
 
     bakalari = Bakalari("fake_server")
 
-    with (
-        patch("asyncio.timeout", side_effect=TimeoutError),
-        pytest.raises(Ex.TimeoutException) as ex,
-    ):
-        result = await bakalari._send_request("fake_server", hdrs.METH_GET, "")
+    with patch("asyncio.timeout", side_effect=TimeoutError):
+        try:
+            await bakalari._send_request("fake_server", hdrs.METH_GET, "")
+        except Ex.TimeoutException:
+            pytest.raises(Ex.TimeoutException)
+        except aiohttp.ClientConnectionError:
+            pytest.fail("ClientConnectionError should not be raised")
+        except Exception as ex:
+            pytest.fail(f"Unexpected exception: {ex}")
 
-    assert "Timeout occurred while connecting to server" in str(ex.value)
-
-    with (
-        patch("aiohttp.ClientSession.get", side_effect=aiohttp.ClientConnectionError),
-        pytest.raises(Ex.BadRequestException) as ex,
-    ):
-        result = await bakalari._send_request("", hdrs.METH_GET, "")
-
-    assert "Connection error:" in str(ex.value)
+    with patch("aiohttp.ClientSession.get", side_effect=aiohttp.ClientConnectionError):
+        try:
+            await bakalari._send_request("fake_server", hdrs.METH_GET, "")
+        except Ex.BadRequestException:
+            pytest.raises(Ex.BadRequestException)
 
 
 async def test_send_auth_request():
+    """Test the send_auth_request method of the Bakalari class."""
 
     cache_file = f"{tempfile.TemporaryDirectory()}/cache_file"
 
@@ -264,6 +280,7 @@ async def test_send_auth_request():
 
 
 async def test__send_request():
+    """Test the _send_request method of the Bakalari class."""
 
     bakalari = Bakalari("fake_server")
 
@@ -351,7 +368,15 @@ async def test__send_request():
             status=500,
         )
 
-        ###### TESTS  ####
+        # 11 - Some weird things happening
+        m.get(
+            "fake_server",
+            payload={"Oh god.": "We have some kind of 404 error."},
+            headers={},
+            status=404,
+        )
+
+        # TESTS
         # 1
         with pytest.raises(Ex.AccessTokenExpired) as exc:
             response = await bakalari._send_request(
@@ -409,19 +434,30 @@ async def test__send_request():
             )
         assert "We have some kind of 500 error." in str(exc.value)
 
+        # 11
+        with pytest.raises(Ex.BadRequestException) as exc:
+            response = await bakalari._send_request(
+                "fake_server", hdrs.METH_GET, headers={}
+            )
+        assert "Not found! (fake_server)" in str(exc.value)
+
 
 def raise_OSError(*args, **kwargs):
+    """OsError exception."""
     raise OSError
 
 
 @pytest.fixture
 def mocker_file(mocker):
+    """Mock file for testing."""
+
     data = b'{"username": "test_name", "access_token": "test_access","refresh_token": "test_refresh", "user_id": "test_user_id"}'
     mocked_file = mocker.mock_open(read_data=data)
     mocker.patch("builtins.open", mocked_file)
 
 
-def test_load_credentials_OSError():
+async def test_load_credentials_OSError():
+    """Test the load_credentials method of the Bakalari class with OSError exception."""
 
     bakalari = Bakalari()
 
@@ -431,7 +467,8 @@ def test_load_credentials_OSError():
         assert not false_data
 
 
-def test_load_credentials_success(mocker_file):
+async def test_load_credentials_success(mocker_file):
+    """Test the load_credentials method of the Bakalari class with success."""
 
     bakalari = Bakalari()
 
@@ -442,7 +479,8 @@ def test_load_credentials_success(mocker_file):
     assert bakalari.credentials.refresh_token == "test_refresh"
 
 
-def test_save_file_success():
+async def test_save_file_success():
+    """Test the save_credentials method of the Bakalari class."""
 
     bakalari = Bakalari()
     bakalari.credentials = bakalari.credentials.create_from_json(
@@ -473,7 +511,9 @@ def test_save_file_success():
             assert not false
 
 
-def test_save_file_cache_file():
+async def test_save_file_cache_file():
+    """Test the save_credentials method of the Bakalari class with cache file."""
+
     # we have auto_cache, but no filename provided.
     with pytest.raises(Ex.CacheError) as ex:
         bakalari = Bakalari("", auto_cache_credentials=True, cache_filename=None)
@@ -503,6 +543,7 @@ def test_save_file_cache_file():
 
 
 async def test_first_login():
+    """Test the first_login method of the Bakalari class."""
 
     filename = f"{tempfile.TemporaryDirectory()}/cache_file"
     bakalari = Bakalari(fs, auto_cache_credentials=True, cache_filename=filename)

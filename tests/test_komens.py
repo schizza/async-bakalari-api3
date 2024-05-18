@@ -1,3 +1,5 @@
+"""Test for Komens class."""
+
 import datetime as dt
 
 from aioresponses import aioresponses
@@ -77,6 +79,7 @@ payload = """
 
 
 async def test_komens_get_messages():
+    """Test the Komens class and its methods."""
 
     bakalari = Bakalari(fs)
     komens = Komens(bakalari)
@@ -90,7 +93,7 @@ async def test_komens_get_messages():
             status=200,
         )
 
-        await komens.get_messages()
+        msgs = await komens.fetch_messages()
         msg = komens.messages.get_message_by_id("fake_id1")
         assert isinstance(komens.messages, Messages)
         assert komens.messages.count_messages() == 2
@@ -99,6 +102,35 @@ async def test_komens_get_messages():
         assert msg.sender == "fake_teacher_name1"
         assert msg.text == "fake_text_id1"
         assert msg.title == ""
+
+        assert (
+            str(msgs)
+            == """Message id: fake_id1
+            title: 
+            text: fake_text_id1,
+            sent: 2024-01-01,
+            sender: fake_teacher_name1,
+            attachments: [{'$type': 'AttachmentInfo', 'Id': 'fake_attachment_id1', 'Name': 'fake_atachement_name1', 'Type': 'fake_type', 'Size': 12345}]
+Message id: fake_id2
+            title: 
+            text: fake_text_id2,
+            sent: 2024-01-05,
+            sender: fake_teacher_name2,
+            attachments: []
+"""
+        )
+        assert_msgs = [
+            {
+                "mid": msg.mid,
+                "title": msg.title,
+                "text": msg.text,
+                "sent": msg.sent,
+                "sender": msg.sender,
+                "attachments": msg.attachments,
+            }
+            for msg in msgs
+        ]
+        assert msgs.json() == orjson.loads(orjson.dumps(assert_msgs))
 
         msg = komens.messages.get_messages_by_date(dt.date(2024, 1, 1))
         assert msg[0].mid == "fake_id1"
@@ -109,7 +141,6 @@ async def test_komens_get_messages():
         assert isinstance(msg, list)
         assert len(msg) == 2
         assert msg[1].mid == "fake_id2"
-
         assert (
             str(msg[1])
             == """Message id: fake_id2
@@ -125,13 +156,18 @@ async def test_komens_get_messages():
             == "<MessageContainer message_id=fake_id1 title= sender=fake_teacher_name1>"
         )
 
-        assert isinstance(msg[1].as_json(), orjson.Fragment)
+        # JSON
+        assert (
+            msg[1].as_json()
+            == b'{"mid":"fake_id2","title":"","text":"fake_text_id2","sent":"2024-01-05","sender":"fake_teacher_name2","attachments":[]}'
+        )
 
         msg[0].title = "new_set_title"
         assert msg[0].title == "new_set_title"
 
 
 async def test_komens_count_unread_messages():
+    """Test the count_unread_messages method of the Komens class."""
 
     bakalari = Bakalari(fs)
     komens = Komens(bakalari)
@@ -149,6 +185,7 @@ async def test_komens_count_unread_messages():
 
 
 async def test_komens_get_attachment():
+    """Test the get_attachment method of the Komens class."""
 
     bakalari = Bakalari(fs)
     komens = Komens(bakalari)
@@ -179,6 +216,6 @@ async def test_komens_get_attachment():
             },
             status=400,
         )
-        
+
         test = await komens.get_attachment("1")
         assert not test

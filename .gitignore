@@ -152,3 +152,4 @@ pytest_buckets.txt
 src/bakalari_api/first_login.py
 
 .data
+newcred
