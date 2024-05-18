@@ -11,7 +11,6 @@ import aiohttp
 from aiohttp import hdrs
 import aiohttp.web_response
 import orjson
-from urllib import parse
 
 from .const import REQUEST_TIMEOUT, EndPoint, Errors
 from .datastructure import Credentials, Schools
@@ -24,7 +23,6 @@ log = api_logger("Bakalari API", loglevel=logging.ERROR).get()
 class Bakalari:
     """Root class of Bakalari."""
 
-    session: aiohttp.ClientSession | None = None
     response: None
     response_json: None
 
@@ -52,9 +50,21 @@ class Bakalari:
         self.new_token = False
         self.auto_cache_credentials = auto_cache_credentials
         self.cache_filename = cache_filename
+        self.session = aiohttp.ClientSession()
 
         if self.auto_cache_credentials and not self.cache_filename:
             raise Ex.CacheError("Auto-cache is enabled, but no filename is provided!")
+
+    def __del__(self):
+        """Destructor."""
+        # Close connection when this object is destroyed
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                return loop.create_task(self.session.close())
+            loop.run_until_complete(self.session.close())
+        finally:
+            pass
 
     async def send_auth_request(
         self, request_endpoint: EndPoint, extend: str | None = None, **kwargs
@@ -169,31 +179,31 @@ class Bakalari:
         filedata = None
         filename = None
 
-        if not self.session or self.session.closed:
-            self.session = aiohttp.ClientSession()
+        if method == hdrs.METH_GET:
+            session = self.session.get
+        else:
+            session = self.session.post
 
         log.debug("Requesting URL %s, kwargs: %s", url, kwargs)
         try:
             async with asyncio.timeout(REQUEST_TIMEOUT):
-                async with self.session:
-                    if method == hdrs.METH_GET:
-                        response = await self.session.get(
-                            url, ssl=True, headers=headers, **kwargs
-                        )
-                    else:
-                        response = await self.session.post(
-                            url, ssl=True, headers=headers, **kwargs
-                        )
+
+                async with session(
+                    url, ssl=True, headers=headers, **kwargs
+                ) as response:
+
                     if (
-                        response.headers[aiohttp.hdrs.CONTENT_TYPE]
+                        response.headers.get(aiohttp.hdrs.CONTENT_TYPE)
                         == "application/octet-stream"
                     ):
                         filedata = await response.read()
                         filename = response.headers[aiohttp.hdrs.CONTENT_DISPOSITION]
-                        filename = parse.unquote(filename[filename.rindex("filename*=") + 17:])
+                        filename = parse.unquote(
+                            filename[filename.rindex("filename*=") + 17 :]
+                        )
                     else:
                         response_json = await response.json()
-                        log.debug(f"Response: {response}")
+                        log.debug(f"Response: {response_json}")
 
         except TimeoutError as err:
             raise Ex.TimeoutException(
@@ -233,29 +243,37 @@ class Bakalari:
                         raise Ex.BadRequestException(
                             f"{url} with message: {response_json}"
                         )
+            case 404:
+                raise Ex.BadRequestException(f"Not found! ({url})")
             case 200:
                 return [filename, filedata] if filedata else response_json
             case _:
                 raise Ex.BadRequestException(f"{url} with message: {response_json}")
 
-    async def async_schools_list(self) -> Schools:
+    async def schools_list(self, town: str | None = None) -> Schools:
         """Return list of schools with their API points."""
 
         _schools_list = Schools()
         headers = {"Accept": "application/json"}
 
-        log.debug("Gathering list of towns ...")
-        try:
-            towns_json = await self.send_unauth_request(EndPoint.SCHOOL_LIST, headers)
-        except Exception as exc:
-            log.error(f"Error while gathering schools endpoints. {exc}")
-            return None
+        if not town:
+            log.debug("Gathering list of towns ...")
+            try:
+                towns_json = await self.send_unauth_request(
+                    EndPoint.SCHOOL_LIST, headers
+                )
+            except Exception as exc:
+                log.error(f"Error while gathering schools endpoints. {exc}")
+                return None
+        else:
+            towns_json: dict = [{"name": f"{town}"}]
 
         schools: list = []
+        tasks = []
 
-        for town in towns_json:
-            town_name = str(town["name"])
-            if town_name == "":
+        for _town in towns_json:
+            town_name = str(_town["name"])
+            if town_name == "" or None:
                 continue
             if "." in town_name:
                 town_name = town_name[: town_name.find(".")]
@@ -264,14 +282,20 @@ class Bakalari:
 
             endpoint = f"{EndPoint.SCHOOL_LIST.endpoint}/{parse.quote(town_name)}"
 
-            response_town = await self._send_request(endpoint, hdrs.METH_GET, headers)
+            task = asyncio.create_task(
+                self._send_request(endpoint, hdrs.METH_GET, headers), name=town_name
+            )
+            tasks.append(task)
+
+        responses = await asyncio.gather(*tasks)
+        for response_town in responses:
 
             schools: dict = response_town
             for _schools in schools.get("schools"):
                 _schools_list.append_school(
                     name=_schools.get("name"),
                     api_point=_schools.get("schoolUrl"),
-                    town=town_name,
+                    town=response_town.get("name"),
                 )
 
         return _schools_list
@@ -282,19 +306,29 @@ class Bakalari:
         Create access and refresh tokens.
         """
 
-        login_url = f"client_id=ANDR&grant_type=password&username={username}&password={password}"
+        login_params = parse.urlencode(
+            {
+                "client_id": "ANDR",
+                "grant_type": "password",
+                "username": username,
+                "password": password,
+            }
+        )
+
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
         try:
-            log.debug("Trying to login with username and password ...")
+            log.debug(f"Trying to login with username: {username}")
             _credentials = await self.send_unauth_request(
-                EndPoint.LOGIN, data=login_url, headers=headers
+                EndPoint.LOGIN, data=login_params, headers=headers
             )
         except Ex.InvalidLogin as ex:
             log.error("Invalid username / password provided.")
             raise ex from ex
         _credentials.update({"username": username})
         self.credentials = Credentials.create(_credentials)
+
+        log.info(f"Successfully logged in with username: {username}")
 
         if self.auto_cache_credentials:
             self.save_credentials()
@@ -305,7 +339,13 @@ class Bakalari:
 
         returns new Credentials if success, else RefreshTokenExpired exception
         """
-        login_body = f"client_id=ANDR&grant_type=refresh_token&refresh_token={self.credentials.refresh_token}"
+        login_body = parse.urlencode(
+            {
+                "client_id": "ANDR",
+                "grant_type": "refresh_token",
+                "refresh_token": self.credentials.refresh_token,
+            }
+        )
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
         try:
@@ -336,6 +376,7 @@ class Bakalari:
             str: full url of endpoint
 
         """
+
         request = (
             request_endpoint.endpoint
             if request_endpoint.endpoint.lower().startswith(("http", "https"))
@@ -353,13 +394,12 @@ class Bakalari:
         If auto_save_credentials are enabled, parameters could be ommited.
         """
 
-        if not filename and self.auto_cache_credentials:
-            filename = self.cache_filename
+        filename = filename or self.cache_filename
         try:
             with open(filename, "wb") as file:
                 file.write(orjson.dumps(self.credentials, option=orjson.OPT_INDENT_2))
-            file.close()
-        except OSError:
+        except OSError as err:
+            log.error(f"Error while saving credentials to file {filename}. {str(err)}")
             return False
 
         return True
@@ -370,11 +410,12 @@ class Bakalari:
         try:
             with open(filename, "rb") as file:
                 data = orjson.loads(file.read())
-            file.close()
-        except OSError:
+        except (OSError, orjson.JSONDecodeError):
+            log.error(f"Error while loading credentials from file {filename}")
             return False
 
         self.credentials = Credentials.create_from_json(data)
+
         return self.credentials
 
     async def __aenter__(self) -> Self:

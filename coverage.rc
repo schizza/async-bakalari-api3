@@ -1,2 +1,4 @@
 [run]
-ommit = tests/*
+omit = 
+    */tests/*
+    src/bakalari_api/bakalari_demo.py

@@ -54,6 +54,12 @@ ignore = [
     "tests"
 ]
 
+[tool.coverage.run]
+omit = [
+    "tests/*",
+    "src/bakalari_api/bakalari_demo.py"
+  ]
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = [

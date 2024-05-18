@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from contextlib import suppress
 from dataclasses import dataclass
 from typing import Any
 
@@ -117,18 +118,12 @@ class Schools:
 
     def get_schools_by_town(self, town: str | None = None) -> list[School]:
         """Get list of schools in town."""
-        _schools = []
-        for item in self.school_list:
-            _schools.append(item) if item.town in town else None
-        return _schools
+        return [item for item in self.school_list if item.town in town]
 
     def get_school_name_by_api_point(self, api_point: str) -> str | bool:
         """Get school name by its api point."""
-
-        for item in self.school_list:
-            if api_point == item.api_point:
-                return item.name
-        return False
+        with suppress(IndexError):
+            return [item for item in self.school_list if api_point == item.api_point][0].name
 
     def save_to_file(self, filename: str) -> bool:
         """Save loaded school list to file in JSON format."""
@@ -145,9 +140,9 @@ class Schools:
 
         try:
             with open(filename, "wb") as file:
-                file.write(orjson.dumps(schools, option=orjson.OPT_INDENT_2))
-            file.close()
-        except OSError:
+                file.write(orjson.dumps(self.school_list, option=orjson.OPT_INDENT_2))
+        except (OSError, orjson.JSONEncodeError) as ex:
+            log.error(f"Unable to save schools list to file {filename}. Error: {str(ex)}")
             return False
 
         return True

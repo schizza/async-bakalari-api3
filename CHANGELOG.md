@@ -2,16 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+::flag_cz:: Full documentation (czech) on [this site](https://async-bakalari-api.schizza.cz)
+
 ## Unreleased
 
 ### Added
 
-- download Komens attachment
-- `send_auth_request` now support extending EndPoints wiht `extend` argument
+- `bakalari_demo.py` is now CLI application
+- `Komens` now support for downloading attachment - `get_attachment`
+- `send_auth_request` now supports extending EndPoints url wiht `extend` argument
+- `school_list` now supports variable `town` - fetch schools in the town to limit downloading full list of schools.
+- `Messages` class now have function `json` to return messages as JSON representative
+- `Messages` class have `__str__` function for better handling `str(Messages)`
 
 ### Changed
 
-- `mid` in `MessageContainter` is now string instead of integer.
+- refactor of the code for speed and better reading of the code
+- `school_list` now fetching schools in concurency mode - improved speed form about 1:30 min to 20s
+- `mid` variable in the `MessageContainter` is now string instead of integer.
+- `async_school_list` renamed to `school_list` as all methods are async
+- `MessageContainter` returns JSON bytes on `as_json()` call instead of `orjson.Fragment`
+- `get_messsages()` renamed to `fetch_messages()`
 
 ### Removed
 
