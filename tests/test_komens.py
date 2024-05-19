@@ -107,15 +107,15 @@ async def test_komens_get_messages():
             str(msgs)
             == """Message id: fake_id1
             title: 
-            text: fake_text_id1,
-            sent: 2024-01-01,
-            sender: fake_teacher_name1,
+            text: fake_text_id1
+            sent: 2024-01-01
+            sender: fake_teacher_name1
             attachments: [{'$type': 'AttachmentInfo', 'Id': 'fake_attachment_id1', 'Name': 'fake_atachement_name1', 'Type': 'fake_type', 'Size': 12345}]
 Message id: fake_id2
             title: 
-            text: fake_text_id2,
-            sent: 2024-01-05,
-            sender: fake_teacher_name2,
+            text: fake_text_id2
+            sent: 2024-01-05
+            sender: fake_teacher_name2
             attachments: []
 """
         )
@@ -145,9 +145,9 @@ Message id: fake_id2
             str(msg[1])
             == """Message id: fake_id2
             title: 
-            text: fake_text_id2,
-            sent: 2024-01-05,
-            sender: fake_teacher_name2,
+            text: fake_text_id2
+            sent: 2024-01-05
+            sender: fake_teacher_name2
             attachments: []"""
         )
 

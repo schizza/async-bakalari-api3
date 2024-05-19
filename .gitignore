@@ -153,3 +153,5 @@ src/bakalari_api/first_login.py
 
 .data
 newcred
+
+src/bakalari_api/tests.py

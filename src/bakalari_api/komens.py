@@ -71,9 +71,9 @@ class MessageContainer:
         """Return string representation of data."""
         return f"""Message id: {self.mid}
             title: {self.title}
-            text: {self.text},
-            sent: {self.sent},
-            sender: {self.sender},
+            text: {self.text}
+            sent: {self.sent}
+            sender: {self.sender}
             attachments: {self.attachments}"""
 
 

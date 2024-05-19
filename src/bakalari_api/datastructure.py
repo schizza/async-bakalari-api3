@@ -54,6 +54,49 @@ class School:
     town: str = None
 
 
+class UniqueTowns:
+    """Unique towns list."""
+
+    def __init__(self) -> None:
+        """Create unique towns list."""
+
+        self.list: list[str] = []
+        self.set: set[str] = set()
+
+    def append(self, town: str) -> None:
+        """Append new town to the list."""
+
+        if town not in self.set:
+            self.list.append(town)
+            self.set.add(town)
+
+    def __str__(self) -> str:
+        """Return string representation of the list."""
+        return str(self.list)
+
+    def __len__(self) -> int:
+        """Return number of towns in the list."""
+        return len(self.list)
+
+    def __iter__(self):
+        """Return iterator for the list."""
+        return iter(self.list)
+
+    def __contains__(self, value: str) -> bool:
+        """Check if town is in the list."""
+        return value in self.set
+
+    def __delitem__(self, value: str) -> None:
+        """Remove town from the list."""
+        if value in self.set:
+            self.list.remove(value)
+            self.set.remove(value)
+
+    def __getitem__(self, index: int) -> str:
+        """Get town by index."""
+        return self.list[index]
+
+
 class Schools:
     """List of schools with their url for Bakalari API."""
 
@@ -61,6 +104,11 @@ class Schools:
         """List of schools with their url for Bakalari API."""
 
         self.school_list: list[School] = []
+        self.towns_list: UniqueTowns = UniqueTowns()
+
+    def __len__(self) -> int:
+        """Return number of schools in the list."""
+        return len(self.school_list)
 
     def append_school(
         self,
@@ -88,10 +136,26 @@ class Schools:
             )
             return False
 
-        new_school = School(name=name, api_point=api_point, town=town)
-        self.school_list.append(new_school)
+        self.school_list.append(School(name=name, api_point=api_point, town=town))
+        self.towns_list.append(town)
 
         return True
+
+    def get_all_towns(self) -> list[str]:
+        """Return list of all towns in the list."""
+        return self.towns_list.list
+
+    def istown(self, town: str) -> bool:
+        """Check if town is in the list."""
+        return town in self.towns_list
+
+    def get_towns_partial_name(self, partial: str) -> list[str]:
+        """Get town by partial name."""
+        return [town for town in self.towns_list if partial in town]
+
+    def count_towns(self) -> int:
+        """Return number of towns in the list."""
+        return len(self.towns_list)
 
     def get_url(self, name: str | None = None, idx: int | None = None) -> str | False:
         """Return url for school from name or index in dictionary.
@@ -123,7 +187,9 @@ class Schools:
     def get_school_name_by_api_point(self, api_point: str) -> str | bool:
         """Get school name by its api point."""
         with suppress(IndexError):
-            return [item for item in self.school_list if api_point == item.api_point][0].name
+            return [item for item in self.school_list if api_point == item.api_point][
+                0
+            ].name
 
     def save_to_file(self, filename: str) -> bool:
         """Save loaded school list to file in JSON format."""
@@ -142,7 +208,9 @@ class Schools:
             with open(filename, "wb") as file:
                 file.write(orjson.dumps(self.school_list, option=orjson.OPT_INDENT_2))
         except (OSError, orjson.JSONEncodeError) as ex:
-            log.error(f"Unable to save schools list to file {filename}. Error: {str(ex)}")
+            log.error(
+                f"Unable to save schools list to file {filename}. Error: {str(ex)}"
+            )
             return False
 
         return True
@@ -153,7 +221,6 @@ class Schools:
         try:
             with open(filename, mode="+rb") as file:
                 data = orjson.loads(file.read())
-            file.close()
         except OSError:
             return False
         except orjson.JSONDecodeError:
