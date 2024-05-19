@@ -242,7 +242,7 @@ def test_str_towns():
 
 
 def test_istown():
-    """Test checking if town is in the list.""
+    """Test checking if town is in the list."""
     towns = Schools()
     towns.towns_list.append("Town A")
     assert towns.istown("Town A")
