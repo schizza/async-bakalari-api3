@@ -27,7 +27,6 @@ classifiers = [
 
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
-dependencies-dev = { file = ["requirements-dev.txt"] }
 
 [tool.setuptools]
 platforms = ["any"]
