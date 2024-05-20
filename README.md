@@ -6,6 +6,20 @@ All notable changes to this project will be documented in this file.
 
 🇨🇿 Full documentation (czech) on [this site](https://async-bakalari-api.schizza.cz)
 
+## 0.3.1
+
+Added
+
+Schools now support operations with towns
+new data structure UniqueTowns that hold all town names
+get_town_partial_name returns list of the towns based on partial name
+get_all_towns returns list of all towns
+istown checks if the town is present in the list
+count_towns returns number of towns in list
+Changed
+
+dependency list is divided to application dependencies and development dependencies
+
 ## [0.3]
 
 ### Added
@@ -67,4 +81,7 @@ All notable changes to this project will be documented in this file.
   - cache list of schools by saving and loading list in JSON format
 
 [unreleased]: https://github.com/schizza/bakalari-api3/compare/v0.0.1...HEAD
+[0.3.1]: https://https://github.com/schizza/bakalari-api3/releases/tag/0.3.1
+[0.3]: https://https://github.com/schizza/bakalari-api3/releases/tag/0.3
+[0.2]: https://github.com/schizza/bakalari-api3/releases/tag/0.2
 [0.0.1]: https://github.com/schizza/bakalari-api3/releases/tag/v0.0.1
