@@ -6,9 +6,9 @@ All notable changes to this project will be documented in this file.
 
 🇨🇿 Full documentation (czech) on [this site](https://async-bakalari-api.schizza.cz)
 
-## 0.3.1
+## [0.3.1]
 
-Added
+### Added
 
 Schools now support operations with towns
 new data structure UniqueTowns that hold all town names
