@@ -155,3 +155,5 @@ src/bakalari_api/first_login.py
 newcred
 
 src/bakalari_api/tests.py
+
+.bumpversion.cfg
