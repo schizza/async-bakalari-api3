@@ -10,13 +10,14 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-Schools now support operations with towns
-new data structure UniqueTowns that hold all town names
-get_town_partial_name returns list of the towns based on partial name
-get_all_towns returns list of all towns
-istown checks if the town is present in the list
-count_towns returns number of towns in list
-Changed
+- `Schools` now support operations with towns
+- new data structure `UniqueTowns` that hold all town names
+  - `get_town_partial_name` returns list of the towns based on partial name
+  - `get_all_towns returns` list of all towns
+  - `istown` checks if the town is present in the list
+  - `count_towns` returns number of towns in list
+
+### Changed
 
 dependency list is divided to application dependencies and development dependencies
 
