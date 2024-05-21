@@ -71,11 +71,56 @@ async def test_get_request_url():
     assert final_url == "http://fake_server/api/login"
 
 
+async def test_schools_list_not_recursive():
+    """Test the schools_list method withou recrusive parameter of the Bakalari class."""
+    bakalari = Bakalari()
+    pattern = re.compile(r"^https://sluzby\.bakalari\.cz/.*$")
+    api_logger("Bakalari API", loglevel=10).get()
+
+    with aioresponses() as m:
+        # town is provided, recursive is False
+        m.get(
+            pattern,
+            headers={"Accept": "application/json"},
+            body="""
+            [
+                {
+                    "name": "town name.a",
+                    "schoolCount": 1
+                },
+                {
+                    "name": "name town.b",
+                    "schoolCount": 1
+                },
+                {
+                    "name":"no town.c"}
+            ]
+            """,
+            status=200,
+        )
+        m.get(
+            pattern,
+            headers={"Accept": "application/json"},
+            body="""{"name": "name town.b", "schools": [{"name": "school_name_town.b","schoolUrl": "endpoint_url_town.b"}]}""",
+        )
+
+        m.get(
+            pattern,
+            headers={"Accept": "application/json"},
+            body="""{"name": "town name.a", "schools": [{"name": "school_name_town.a","schoolUrl": "endpoint_url_town.a"}]}""",
+        )
+
+        s: Schools = await bakalari.schools_list(town="name", recursive=False)
+    assert isinstance(s, Schools)
+    assert not s.get_url("school_name_town.a")
+    assert s.get_url("school_name_town.b") == "endpoint_url_town.b"
+
+
 async def test_school_list():
     """Test the schools_list method of the Bakalari class."""
     bakalari = Bakalari()
     pattern = re.compile(r"^https://sluzby\.bakalari\.cz/.*$")
-    api_logger("Bakalari API").get().setLevel(10)
+    api_logger("Bakalari API", loglevel=10).get()
 
     with aioresponses() as m:
         m.get(
@@ -105,14 +150,49 @@ async def test_school_list():
         result = await bakalari.schools_list()
         assert not result
 
+        # town is provided
         m.get(
             pattern,
             headers={"Accept": "application/json"},
-            body="""{"name": "town_name", "schools": [{"name": "school_name","schoolUrl": "endpoint_url"}]}""",
+            body="""
+            [
+                {
+                    "name": "town name.a",
+                    "schoolCount": 1
+                },
+                {
+                    "name": "name town.b",
+                    "schoolCount": 1
+                },
+                {
+                    "name":"no town.c"}
+            ]
+            """,
+            status=200,
         )
-        result = await bakalari.schools_list(town="town_name")
+
+        m.get(
+            pattern,
+            headers={"Accept": "application/json"},
+            body="""{"name": "town name.a", "schools": [{"name": "school_name_town.a","schoolUrl": "endpoint_url_town.a"}]}""",
+        )
+
+        m.get(
+            pattern,
+            headers={"Accept": "application/json"},
+            body="""{"name": "name town.b", "schools": [{"name": "school_name_town.b","schoolUrl": "endpoint_url_town.b"}]}""",
+        )
+
+        m.get(
+            pattern,
+            headers={"Accept": "application/json"},
+            body="""{"name": "no town.c", "schools": [{"name": "school_name_no_town.c","schoolUrl": "endpoint_url_town.c"}]}""",
+        )
+        result = await bakalari.schools_list(town="name")
         assert isinstance(result, Schools)
-        assert result.get_url("school_name") == "endpoint_url"
+        assert result.get_url("school_name_town.a") == "endpoint_url_town.a"
+        assert result.get_url("school_name_town.b") == "endpoint_url_town.b"
+        assert not result.get_url("school_name_no_town.c")
 
 
 async def test__send_request_aioex():
@@ -483,13 +563,11 @@ async def test_save_file_success():
     """Test the save_credentials method of the Bakalari class."""
 
     bakalari = Bakalari()
-    bakalari.credentials = bakalari.credentials.create_from_json(
-        {
-            "access_token": "test_access",
-            "refresh_token": "test_refresh",
-            "user_id": "test_user_id",
-        }
-    )
+    bakalari.credentials = bakalari.credentials.create_from_json({
+        "access_token": "test_access",
+        "refresh_token": "test_refresh",
+        "user_id": "test_user_id",
+    })
 
     with tempfile.TemporaryDirectory() as temp_dir:
         filename = temp_dir + "test_data"
@@ -520,13 +598,11 @@ async def test_save_file_cache_file():
     assert "Auto-cache is enabled, but no filename is provided!" in str(ex.value)
 
     bakalari = Bakalari("", auto_cache_credentials=True, cache_filename="fake_file")
-    bakalari.credentials = bakalari.credentials.create_from_json(
-        {
-            "access_token": "test_access",
-            "refresh_token": "test_refresh",
-            "user_id": "test_user_id",
-        }
-    )
+    bakalari.credentials = bakalari.credentials.create_from_json({
+        "access_token": "test_access",
+        "refresh_token": "test_refresh",
+        "user_id": "test_user_id",
+    })
 
     with tempfile.TemporaryDirectory() as temp_dir:
         filename = temp_dir + "test_data"

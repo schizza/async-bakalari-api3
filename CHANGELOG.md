@@ -4,7 +4,17 @@ All notable changes to this project will be documented in this file.
 
 🇨🇿 Full documentation (czech) on [this site](https://async-bakalari-api.schizza.cz)
 
-[0.3.1]
+[unreleased]
+
+### Added
+
+- class `Schools()` is access by `Bakalari` class in `self.schools`
+
+### Changed
+
+- recursive search in towns when fetching `schools_list` from server
+
+## [0.3.1]
 
 ### Added
 

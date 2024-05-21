@@ -51,6 +51,7 @@ class Bakalari:
         self.auto_cache_credentials = auto_cache_credentials
         self.cache_filename = cache_filename
         self.session = aiohttp.ClientSession()
+        self.schools = Schools()
 
         if self.auto_cache_credentials and not self.cache_filename:
             raise Ex.CacheError("Auto-cache is enabled, but no filename is provided!")
@@ -187,11 +188,9 @@ class Bakalari:
         log.debug("Requesting URL %s, kwargs: %s", url, kwargs)
         try:
             async with asyncio.timeout(REQUEST_TIMEOUT):
-
                 async with session(
                     url, ssl=True, headers=headers, **kwargs
                 ) as response:
-
                     if (
                         response.headers.get(aiohttp.hdrs.CONTENT_TYPE)
                         == "application/octet-stream"
@@ -250,23 +249,33 @@ class Bakalari:
             case _:
                 raise Ex.BadRequestException(f"{url} with message: {response_json}")
 
-    async def schools_list(self, town: str | None = None) -> Schools:
+    async def schools_list(
+        self, town: str | None = None, recursive: bool = True
+    ) -> Schools:
         """Return list of schools with their API points."""
 
         _schools_list = Schools()
         headers = {"Accept": "application/json"}
 
-        if not town:
-            log.debug("Gathering list of towns ...")
-            try:
-                towns_json = await self.send_unauth_request(
-                    EndPoint.SCHOOL_LIST, headers
-                )
-            except Exception as exc:
-                log.error(f"Error while gathering schools endpoints. {exc}")
-                return None
-        else:
-            towns_json: dict = [{"name": f"{town}"}]
+        log.debug("Gathering list of towns ...")
+        try:
+            towns_json = await self.send_unauth_request(EndPoint.SCHOOL_LIST, headers)
+        except Exception as exc:
+            log.error(f"Error while gathering schools endpoints. {exc}")
+            return None
+
+        if town and recursive:
+            towns_json = [
+                town_element
+                for town_element in towns_json
+                if town in town_element["name"]
+            ]
+        if town and not recursive:
+            towns_json = [
+                town_element
+                for town_element in towns_json
+                if town_element["name"].startswith(town)
+            ]
 
         schools: list = []
         tasks = []
@@ -289,7 +298,6 @@ class Bakalari:
 
         responses = await asyncio.gather(*tasks)
         for response_town in responses:
-
             schools: dict = response_town
             for _schools in schools.get("schools"):
                 _schools_list.append_school(
@@ -297,6 +305,8 @@ class Bakalari:
                     api_point=_schools.get("schoolUrl"),
                     town=response_town.get("name"),
                 )
+
+        self.schools = _schools_list
 
         return _schools_list
 
@@ -306,14 +316,12 @@ class Bakalari:
         Create access and refresh tokens.
         """
 
-        login_params = parse.urlencode(
-            {
-                "client_id": "ANDR",
-                "grant_type": "password",
-                "username": username,
-                "password": password,
-            }
-        )
+        login_params = parse.urlencode({
+            "client_id": "ANDR",
+            "grant_type": "password",
+            "username": username,
+            "password": password,
+        })
 
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
@@ -339,13 +347,11 @@ class Bakalari:
 
         returns new Credentials if success, else RefreshTokenExpired exception
         """
-        login_body = parse.urlencode(
-            {
-                "client_id": "ANDR",
-                "grant_type": "refresh_token",
-                "refresh_token": self.credentials.refresh_token,
-            }
-        )
+        login_body = parse.urlencode({
+            "client_id": "ANDR",
+            "grant_type": "refresh_token",
+            "refresh_token": self.credentials.refresh_token,
+        })
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
         try:
