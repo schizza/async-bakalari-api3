@@ -56,6 +56,9 @@ class Bakalari:
         if self.auto_cache_credentials and not self.cache_filename:
             raise Ex.CacheError("Auto-cache is enabled, but no filename is provided!")
 
+        if self.auto_cache_credentials and self.cache_filename:
+            self.load_credentials(self.cache_filename)
+
     def __del__(self):
         """Destructor."""
         # Close connection when this object is destroyed
@@ -316,12 +319,14 @@ class Bakalari:
         Create access and refresh tokens.
         """
 
-        login_params = parse.urlencode({
-            "client_id": "ANDR",
-            "grant_type": "password",
-            "username": username,
-            "password": password,
-        })
+        login_params = parse.urlencode(
+            {
+                "client_id": "ANDR",
+                "grant_type": "password",
+                "username": username,
+                "password": password,
+            }
+        )
 
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
@@ -347,11 +352,13 @@ class Bakalari:
 
         returns new Credentials if success, else RefreshTokenExpired exception
         """
-        login_body = parse.urlencode({
-            "client_id": "ANDR",
-            "grant_type": "refresh_token",
-            "refresh_token": self.credentials.refresh_token,
-        })
+        login_body = parse.urlencode(
+            {
+                "client_id": "ANDR",
+                "grant_type": "refresh_token",
+                "refresh_token": self.credentials.refresh_token,
+            }
+        )
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
         try:

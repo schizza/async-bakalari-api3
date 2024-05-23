@@ -2,25 +2,29 @@
 
 import argparse
 import asyncio
+import os
 
+import aiofiles
 from logger import logging
 import orjson
 
 from .bakalari import Bakalari, Schools
-from .komens import Komens
+from .komens import Komens, MessageContainer
 from .logger_api import api_logger
 
 
-def w(name, data):
+async def w(name, data):
     """Write JSON data to file."""
-    with open(name, "+wb") as fi:
-        fi.write(orjson.dumps(data, option=orjson.OPT_INDENT_2))
+    async with aiofiles.open(name, "+wb") as fi:
+        await fi.write(orjson.dumps(data, option=orjson.OPT_INDENT_2))
+        await fi.flush()
 
 
-def wb(name, data):
+async def wb(name, data):
     """Write data to file."""
-    with open(name, "wb") as fi:
-        fi.write(data)
+    async with aiofiles.open(name, "wb") as fi:
+        await fi.write(data)
+        await fi.flush()
 
 
 def r(name):
@@ -65,25 +69,77 @@ async def schools(args, bakalari: Bakalari):
 
 async def komens(args, bakalari):
     """Komens command."""
+
+    async def create_attachment_task(message: MessageContainer):
+        """Create a task for saving an attachment."""
+        tasks = []
+        if args.komens_save_attachment:
+            if message.isattachments():
+                for att in message.attachments:
+                    task = asyncio.create_task(
+                        wb(*(await Komens(bakalari=bakalari).get_attachment(att.id)))
+                    )
+                    tasks.append(task)
+        return tasks
+
+    async def msgs(messages):
+        """Print messages and save attachments if needed."""
+        tasks = []
+        for msg in messages:
+            print(str(msg))
+            tasks = create_attachment_task(msg)
+
+        asyncio.gather(*tasks)
+
+    async def msgs_w(messages):
+        """Save messages and attachments if needed."""
+        tasks = []
+
+        if isinstance(messages, MessageContainer):
+            await wb(args.komens_save, messages.as_json())
+            tasks.extend(await create_attachment_task(messages))
+
+        if isinstance(messages, list):
+            for msg in messages:
+                await wb(f"{args.komens_save}_{msg.mid}.json", msg.as_json())
+                tasks.extend(await create_attachment_task(msg))
+
+        await asyncio.gather(*tasks)
+
     if args.komens_list:
-        print(await Komens(bakalari=bakalari).fetch_messages())
+        if not args.komens_unread:
+            await msgs(await Komens(bakalari=bakalari).fetch_messages())
+        else:
+            await msgs(await Komens(bakalari=bakalari).get_unread_messages())
+
     if args.extend:
         messages = await Komens(bakalari=bakalari).fetch_messages()
-        print(messages.get_message_by_id(args.extend))
+        msgs([messages.get_message_by_id(args.extend)])
+
     if args.komens_save:
-        messages = await Komens(bakalari=bakalari).fetch_messages()
-        w(args.komens_save, messages.json())
+        if not args.komens_unread:
+            await msgs_w(await Komens(bakalari=bakalari).fetch_messages())
+        else:
+            await msgs_w(await Komens(bakalari=bakalari).get_unread_messages())
+
     if args.attachment:
-        wb(*(await Komens(bakalari=bakalari).get_attachment(args.attachment)))
+        await wb(*(await Komens(bakalari=bakalari).get_attachment(args.attachment)))
 
 
 async def runme(args):
     """Run the main function."""
 
     if args.sf:
-        schools: Schools = await Schools().load_from_file(args.sf)
+        try:
+            schools: Schools = await Schools().load_from_file(args.sf)
+        except Exception as ex:
+            os._exit(ex)
     else:
         schools: Schools = await Bakalari().schools_list(town=args.town)
+
+    if not schools:
+        print("Nenalezeny žádné školy")
+        os._exit(1)
 
     school = args.school
     if school:
@@ -245,9 +301,18 @@ def main() -> None:
 
     komens_action = komens_parser.add_mutually_exclusive_group()
     komens_parser.add_argument(
-        "--messages",
+        "-u",
+        "--unread",
+        help="Vypíše nepřečtené zprávy",
+        dest="komens_unread",
         action="store_true",
-        help="Načte zprávy z Komens",
+    )
+    komens_parser.add_argument(
+        "-sa",
+        "--save_attachment",
+        action="store_true",
+        help="Uloží automaticky přílohy zpráv do souboru",
+        dest="komens_save_attachment",
     )
     komens_action.add_argument(
         "-l",
@@ -256,6 +321,7 @@ def main() -> None:
         dest="komens_list",
         action="store_true",
     )
+
     komens_action.add_argument(
         "-e",
         "--extend",
@@ -279,6 +345,9 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.verbose:
-        api_logger("Bakalari API").get().setLevel(logging.DEBUG)
+        log = api_logger("Bakalari API", loglevel=logging.DEBUG).get()
+    else:
+        log = api_logger("Bakalari API").get()
 
-    asyncio.run(runme(args))
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(runme(args))

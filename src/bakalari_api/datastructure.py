@@ -222,6 +222,7 @@ class Schools:
             with open(filename, mode="+rb") as file:
                 data = orjson.loads(file.read())
         except OSError:
+            log.error(f"Unable to open file {filename}.")
             return False
         except orjson.JSONDecodeError:
             log.error(f"Unable to decode JSON file. File {filename} is corrupted.")
