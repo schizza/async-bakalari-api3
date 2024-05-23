@@ -4,6 +4,8 @@
 #
 #    pip-compile
 #
+aiofiles==23.2.1
+    # via -r requirements.in
 aiohttp==3.9.5
     # via -r requirements.in
 aiosignal==1.3.1
