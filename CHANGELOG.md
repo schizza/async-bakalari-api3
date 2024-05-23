@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 🇨🇿 Full documentation (czech) on [this site](https://async-bakalari-api.schizza.cz)
 
-[unreleased]
+[0.3.2]
 
 ### Added
 
@@ -98,6 +98,7 @@ All notable changes to this project will be documented in this file.
   - cache list of schools by saving and loading list in JSON format
 
 [unreleased]: https://github.com/schizza/bakalari-api3/compare/v0.0.1...HEAD
+[0.3.2]: https://https://github.com/schizza/bakalari-api3/releases/tag/0.3.2
 [0.3.1]: https://https://github.com/schizza/bakalari-api3/releases/tag/0.3.1
 [0.3]: https://https://github.com/schizza/bakalari-api3/releases/tag/0.3
 [0.2]: https://github.com/schizza/bakalari-api3/releases/tag/0.2
