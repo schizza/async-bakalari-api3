@@ -14,6 +14,46 @@ from .logger_api import api_logger
 log = api_logger("Bakalari API").get()
 
 
+class AttachmentsRegistry:
+    """Attachments registry."""
+
+    id: str
+    name: str
+
+    def __init__(self, *, id: str, name: str):
+        """Initialize Attachments."""
+
+        _setter = object.__setattr__
+        _setter(self, "id", id)
+        _setter(self, "name", name)
+
+    def __setattr__(self, key: str, value: Any) -> None:
+        """Set an attribute."""
+        super().__setattr__(key, value)
+
+    def __getattr__(self, key: str) -> Any:
+        """Get an attribute."""
+        log.error(f"AttributeError: {key} not found.")
+        return f"You tried to access {key}, but it doesn't exist!"
+
+    def __str__(self) -> str:
+        """Return string representation of data."""
+        return f"id: {self.id} name: {self.name}"
+
+    def __repr__(self) -> str:
+        """Representation of Attachments."""
+        return f"<Attachments id={self.id} name={self.name}>"
+
+    def __format__(self, format_spec: str) -> str:
+        """Format string representation of data."""
+        return self.__str__()
+
+    def as_json(self) -> str:
+        """Return JSON fragment of attachment."""
+
+        return f"{{'id': {self.id}, 'name': {self.name}}}"
+
+
 class MessageContainer:
     """Messages registry."""
 
@@ -22,7 +62,8 @@ class MessageContainer:
     text: str
     sent: dt
     sender: dict[str, str]
-    attachments: dict[str, str]
+    read: bool
+    attachments: list[AttachmentsRegistry]
 
     def __init__(
         self,
@@ -32,9 +73,15 @@ class MessageContainer:
         text: str,
         sent: dt,
         sender: dict[str, str],
-        attachments: dict[str, str] | None = None,
+        read: bool,
+        attachments: list[AttachmentsRegistry] = {},
     ):
         """Initialize MessagesContainer."""
+
+        if attachments != {}:
+            attachments = [
+                AttachmentsRegistry(id=i["Id"], name=i["Name"]) for i in attachments
+            ]
 
         _setter = object.__setattr__
         _setter(self, "mid", mid)
@@ -42,13 +89,15 @@ class MessageContainer:
         _setter(self, "text", text)
         _setter(self, "sent", sent.date())
         _setter(self, "sender", sender)
+        _setter(self, "read", read)
         _setter(self, "attachments", attachments)
 
     def __repr__(self) -> str:
         """Representation of MessageContainer."""
         return (
             f"<MessageContainer message_id={self.mid} "
-            f"title={self.title} sender={self.sender}>"
+            f"title={self.title} sender={self.sender} "
+            f"attachments={self.attachments}>"
         )
 
     def __setattr__(self, key: str, value: Any) -> None:
@@ -63,18 +112,35 @@ class MessageContainer:
             "text": self.text,
             "sent": self.sent,
             "sender": self.sender,
-            "attachments": self.attachments,
+            "read": self.read,
+            "attachments": self.attachments_as_json(),
         }
         return orjson.dumps(json_repr)
 
     def __str__(self) -> str:
         """Return string representation of data."""
-        return f"""Message id: {self.mid}
-            title: {self.title}
-            text: {self.text}
-            sent: {self.sent}
-            sender: {self.sender}
-            attachments: {self.attachments}"""
+        att = (str(a) for a in self.attachments)
+        return (
+            f"Message id: {self.mid}\n"
+            f"title: {self.title}\n"
+            f"text: {self.text}\n"
+            f"sent: {self.sent}\n"
+            f"sender: {self.sender}\n"
+            f"read: {self.read}\n"
+            f"attachments: {"".join(att)}\n"
+        )
+
+    def __format__(self, format_spec: str) -> str:
+        """Format string representation of data."""
+        return self.__str__()
+
+    def attachments_as_json(self) -> str:
+        """Return JSON fragment of attachments."""
+        return [a.as_json() for a in self.attachments]
+
+    def isattachments(self) -> bool:
+        """Check if message contains attachment."""
+        return bool(self.attachments)
 
 
 class Messages(list[MessageContainer]):
@@ -87,10 +153,7 @@ class Messages(list[MessageContainer]):
     def __str__(self) -> str:
         """Print string representation."""
 
-        text = ""
-        for message in self:
-            text += message.__str__() + "\n"
-        return text
+        return "".join(str(message) for message in self)
 
     def json(self):
         """Return json representation of Messages."""
@@ -153,12 +216,19 @@ class Komens:
                 text=msg["Text"],
                 sent=dateutil.parser.parse(msg["SentDate"]),
                 sender=msg["Sender"]["Name"],
+                read=msg["Read"],
                 attachments=msg["Attachments"],
             )
 
         self.messages.extend([(await create_msg(msg)) for msg in messages["Messages"]])
 
         return self.messages
+
+    async def get_unread_messages(self) -> list[MessageContainer]:
+        """Get unread messages."""
+        if self.messages.count_messages() == 0:
+            await self.fetch_messages()
+        return [msg for msg in self.messages if msg.read is False]
 
     async def count_unread_messages(self) -> int:
         """Get count of unreaded messages."""

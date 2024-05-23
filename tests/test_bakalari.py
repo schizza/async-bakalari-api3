@@ -209,12 +209,16 @@ async def test__send_request_aioex():
             pytest.fail("ClientConnectionError should not be raised")
         except Exception as ex:
             pytest.fail(f"Unexpected exception: {ex}")
+        finally:
+            await bakalari.session.close()
 
     with patch("aiohttp.ClientSession.get", side_effect=aiohttp.ClientConnectionError):
         try:
             await bakalari._send_request("fake_server", hdrs.METH_GET, "")
         except Ex.BadRequestException:
             pytest.raises(Ex.BadRequestException)
+        finally:
+            await bakalari.session.close()
 
 
 async def test_send_auth_request():

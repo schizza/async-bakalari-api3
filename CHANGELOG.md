@@ -8,11 +8,18 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- class `Schools()` is access by `Bakalari` class in `self.schools`
+- class `Schools()` is accessible by `Bakalari` class in `self.schools`
+- `Schools` now support operations with towns
+- new data structure `UniqueTowns` that hold all town names
+  - `get_town_partial_name` returns list of the towns based on partial name
+  - `get_all_towns` returns list of all towns
+  - `istown` checks if the town is present in the list
+  - `count_towns` returns number of towns in list
 
 ### Changed
 
-- recursive search in towns when fetching `schools_list` from server
+- automatically load credentials if auto_cache is on
+- recursive search in towns when fetching `schools_list` from server. Recursive search is enabled by default. You can turn it off by `school_list(... , recursive=False)`
 
 ## [0.3.1]
 
@@ -28,6 +35,7 @@ All notable changes to this project will be documented in this file.
 ## Changed
  
 - dependency list is divided to application dependencies and development dependencies
+- if `auto_cache_credentials` and `cache_filename` is set then credentials are loaded automatically
 
 ## [0.3]
 
