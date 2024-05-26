@@ -866,18 +866,29 @@
 <p>Pro přihlášení je nutné zadat, ke které škole se přihlašujete.</p>
 <p>Je tedy nutné vždy použít parametr <code>-s ŠKOLA</code> popřípadě s parameterm seznamu škol <code>-s ŠKOLA -sf seznam_skol.json</code></p>
 </div>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Přihlášení heslem a zapsání tokenů do souboru</label><label for="__tabbed_1_2">Přihlášení pomocí tokenů bez kešování</label><label for="__tabbed_1_3">Přihlášení s autmatickým kešováním</label></div>
+<div class="admonition notice">
+<p class="admonition-title">Automatické vytvoření konfiguračního souboru</p>
+<p>Od verze 0.3.3 je možné vytvoření konfiguračního souboru s tokeny a API pointem školy.</p>
+<p>Při prvním přihlášení lze použít 
+<code>bakalari -a -F JMENO HESLO -t MĚSTO -s ŠKOLA</code> 
+tím se vytvoří konfukurační soubor a soubor s tokeny, které se budou automaticky načítat při dalším použitím <code>-a</code> bez nutnosti zadávání <code>-s</code>, <code>-sf</code>, <code>--auto_cache</code>, <code>-cf</code></p>
+</div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:4"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Automatické uložení</label><label for="__tabbed_1_2">Přihlášení heslem a zapsání tokenů do souboru</label><label for="__tabbed_1_3">Přihlášení pomocí tokenů bez kešování</label><label for="__tabbed_1_4">Přihlášení s autmatickým kešováním</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>bakalari<span class="w"> </span>-F<span class="w"> </span>JMENO<span class="w"> </span>HESLO<span class="w"> </span>-cf<span class="w"> </span>tokeny.json<span class="w"> </span>-s<span class="w"> </span>ŠKOLA<span class="w"> </span>-t<span class="w"> </span>MĚSTO
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>bakalari<span class="w"> </span>-a<span class="w"> </span>-f<span class="w"> </span>JEMENO<span class="w"> </span>HESLO<span class="w"> </span>-t<span class="w"> </span>MĚSTO<span class="w"> </span>-s<span class="w"> </span>ŠKOLA
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>bakalri<span class="w"> </span>-C<span class="w"> </span>-cf<span class="w"> </span>tokeny.json<span class="w"> </span>-s<span class="w"> </span>ŠKOLA<span class="w"> </span>-sf<span class="w"> </span>seznam_škol
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>bakalari<span class="w"> </span>-F<span class="w"> </span>JMENO<span class="w"> </span>HESLO<span class="w"> </span>-cf<span class="w"> </span>tokeny.json<span class="w"> </span>-s<span class="w"> </span>ŠKOLA<span class="w"> </span>-t<span class="w"> </span>MĚSTO
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>bakalari --auto_cache tokeny.json -s ŠKOLA -sf seznam_škol
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>bakalri<span class="w"> </span>-C<span class="w"> </span>-cf<span class="w"> </span>tokeny.json<span class="w"> </span>-s<span class="w"> </span>ŠKOLA<span class="w"> </span>-sf<span class="w"> </span>seznam_škol
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>bakalari<span class="w"> </span>--auto_cache<span class="w"> </span>tokeny.json<span class="w"> </span>-s<span class="w"> </span>ŠKOLA<span class="w"> </span>-sf<span class="w"> </span>seznam_škol
 </span></code></pre></div>
 </div>
 </div>
