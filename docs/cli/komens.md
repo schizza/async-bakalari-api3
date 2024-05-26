@@ -19,7 +19,7 @@ options:
 ```
 
 !!! danger "Přihlášení"
-    K využití Komens již musíme mít přihlášení ke škole v podobě buď jméno/helso nebo platné tokeny. Jejich získání je posáno [zde](cli/tokeny.md)
+    K využití Komens již musíme mít přihlášení ke škole v podobě buď jméno/helso nebo platné tokeny. Jejich získání je posáno [zde](tokeny.md)
 
 === "Výpis všech zpráv do terminálu"
     ```shell
