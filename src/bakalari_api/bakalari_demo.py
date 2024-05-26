@@ -87,7 +87,7 @@ async def komens(args, bakalari):
         tasks = []
         for msg in messages:
             print(str(msg))
-            tasks = create_attachment_task(msg)
+            tasks = await create_attachment_task(msg)
 
         asyncio.gather(*tasks)
 
@@ -128,21 +128,38 @@ async def komens(args, bakalari):
 
 async def runme(args):
     """Run the main function."""
+    server = False
+    schools = False
+    
+    if args.config and not args.first_login and not args.first_login_file:
+        try:
+            async with aiofiles.open("config.json", "rb") as fi:
+                data = await fi.read()
+                try:
+                    data = orjson.loads(data)
+                except Exception as ex:
+                    print(f"Neplatný konfigurační soubor. ({ex})")
+                    os._exit(1)
+                server = data["school"]
+                args.auto_cache = "credentials.json"
+        except FileNotFoundError:
+            print("Konfigurační soubor nenalezen.")
+            os._exit(1)
 
-    if args.sf:
+    if args.sf and not server:
         try:
             schools: Schools = await Schools().load_from_file(args.sf)
         except Exception as ex:
             os._exit(ex)
-    else:
+    elif not server:
         schools: Schools = await Bakalari().schools_list(town=args.town)
 
-    if not schools:
+    if not schools and not args.config:
         print("Nenalezeny žádné školy")
         os._exit(1)
 
     school = args.school
-    if school:
+    if school and not server:
         server = schools.get_url(school)
 
     if args.no_login:
@@ -166,12 +183,15 @@ async def runme(args):
 
         credentials = await bakalari.first_login(login, passw)
 
-        if args.credentials_file:
-            w(args.credentials_file, credentials)
-        else:
+        if args.credentials_file and not args.config:
+            await w(args.credentials_file, credentials)
+        elif not args.config:
             print(
                 f"Access token: {credentials.access_token}\nRefresh token: {credentials.refresh_token}"
             )
+        if args.config:
+            await w("config.json", {"school": server})
+            await w("credentials.json", credentials)
 
         print(
             f"Cahce: {bakalari.auto_cache_credentials}  cache_filename={bakalari.cache_filename} server: {bakalari.server}"
@@ -201,7 +221,7 @@ def main() -> None:
     parser_login = parser.add_argument_group(
         "Přihlášení (požadováno)", "Zvolte typ přihlášení heslo / tokenu"
     )
-    login_type = parser_login.add_mutually_exclusive_group(required=True)
+    login_type = parser_login.add_mutually_exclusive_group()
 
     login_type.add_argument(
         "-N", "--no_login", action="store_true", help="Provede neautorizovaný přístup"
@@ -239,7 +259,14 @@ def main() -> None:
         metavar="soubor s tokeny",
         help="Jméno souboru odkud se maji načíst tokeny.",
     )
-
+    
+    parser_login.add_argument(
+        "-a",
+        "--auto",
+        help="Při úspěšném přihlášení jménem a heslem uloží tokeny a název školy do konfiguračních souborů a později je použije k automatickému přihlášení.",
+        action="store_true",
+        dest="config"
+    )
     login_type.add_argument(
         "--auto_cache",
         nargs=None,
