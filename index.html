@@ -12,11 +12,11 @@
       
       
       
-        <link rel="next" href="bakalari/">
+        <link rel="next" href="podrobna_instalace/">
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.23">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.24">
     
     
       
@@ -446,6 +446,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="podrobna_instalace/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Podrobná instalace
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -782,6 +803,69 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cli/seznam_skol/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Seznam škol
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cli/tokeny/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Přihlášení (tokeny)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cli/komens/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Zprávy
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -812,22 +896,23 @@
 <p class="admonition-title">Upozornění</p>
 <p>Tato API je stále vyvíjena, a proto podporuje jen malé množství endpointů. Nicméně moduly zveřejněné v této dokumentaci jsou již stabilní.</p>
 </div>
-<p><code>async Bakaláři API v3</code> je asynchronní klient pro komunikaci se školami, které jsou zapojeny do programu Bakaláři.
-Seznam všech škol zapojených do programu Bakaláři lze získat též z <a href="bakalari/seznam_skol/">tohoto modulu</a>.</p>
+<p><code>async Bakaláři API v3</code> je asynchronní klient pro komunikaci se školami, které jsou zapojeny do programu Bakaláři. Aplikace je napsána kompletně v Pythonu.</p>
+<p>Má taktéž zabudovaný <a href="cli/">modul pro příkazovou řádku</a> <code>CLI</code> k jednoduchému.</p>
+<p>Seznam všech škol zapojených do programu Bakaláři lze získat též z <a href="bakalari/seznam_skol/">tohoto modulu</a>.</p>
 <h2 id="instalace">Instalace<a class="headerlink" href="#instalace" title="Permanent link">&para;</a></h2>
-<p>Modul lze nainstalovat jako balíček z <a href="https://PyPi.org">PyPI</a> nebo stáhnout z GitHubu.</p>
+<p>Modul lze nainstalovat jako balíček z <a href="https://pypi.org/project/async-bakalari-api/">PyPI</a> nebo stáhnout z GitHubu.</p>
 <div class="admonition note">
 <p>Minimální verze Pythonu pro tento balíček je 3.12</p>
 </div>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M23.922 13.58v3.912L20.55 18.72l-.078.055.052.037 3.45-1.256.026-.036v-3.997l-.053-.036-.025.092zm-.301-7.962-3.04 1.107v3.912l3.339-1.215V5.509zm.299 7.839V9.544l-3.336 1.215v3.913zm-3.45 1.253V10.8l-3.3 1.2v3.913zm-3.436 5.286v-3.912l-3.313 1.206v3.912zm.136-3.939v3.868l3.314-1.206V14.85l-3.314 1.206zm2.093 1.882c-.367.134-.663-.074-.663-.463s.296-.814.663-.947c.365-.133.662.075.662.464s-.297.814-.662.946zm-6.038-8.624.365-.132-3.285-1.197-3.323 1.21.102.037 3.184 1.16zm7.282 1.349V6.751L17.17 7.965v3.913zm-3.449 1.254V8.005l-3.302 1.202v3.912zm-3.415-2.672-3.336 1.215v3.913l3.336-1.215zm-6.736 3.919 3.322 1.209v-3.913L6.907 9.252zm3.433-5.292 3.281 1.193V5.198l-3.28-1.193zm10.167-5.158L17.19 3.922v3.913l3.317-1.207zM16.95 3.903 13.724 2.73l-3.269 1.19 3.225 1.174zm-1.585.703-1.624.592v3.868l3.317-1.207V3.991l-1.693.615zm-.391 2.778c-.367.134-.662-.074-.662-.464s.295-.813.662-.946c.366-.133.663.074.663.464s-.297.813-.663.946zM10.229 18.41v-3.914l-3.322-1.209V17.2zm3.449-1.228v-3.913l-3.371 1.227v3.913zm.078-.028 3.3-1.2V12.04l-3.3 1.2zm-.078 4.063-3.371 1.227v-3.912h-.078v3.912l-3.322-1.209v-3.913l-.053-.058-.025-.06-3.336-1.21v-3.948l.034.013 3.287 1.196.015-.078-3.261-1.187 3.26-1.187v-.109L3.876 9.62l-.307-.112 3.26-1.188v.877l.079-.055V6.769l3.257 1.185.058-.061L7.084 6.75l-.102-.037 3.24-1.179v-.083L6.854 6.677v.018l-.025.018v1.523L3.44 9.47v.02l-.025.017v4.007l-3.39 1.233v.019L0 14.784v3.995l.025.037 3.4 1.237.008-.006.007.01 3.4 1.238.008-.006.006.01 3.4 1.237.014-.009.012.01 3.45-1.256.026-.037-.078-.027zM3.493 9.563l3.257 1.185-3.257 1.187V9.562zM3.4 19.96.078 18.752v-3.913l2.361.86.96.349v3.913zm.015-3.99-3.08-1.12-.182-.066 3.262-1.187v2.374zm3.399 5.231-3.321-1.209V16.08l3.321 1.209v3.912zM23.791 5.434l-3.21-1.17v2.338zm-3.404-2.791-3.24-1.18-3.27 1.19 3.247 1.182z"/></svg></span> PyPI</label><label for="__tabbed_1_2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg></span> GitHub</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>async_bakalari_api
-</code></pre></div>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>async_bakalari_api
+</span></code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python3 -m pip install &quot;git+https://github.com/schizza/async-bakalari-api3.git#egg=async-bakalari-api&quot;
-</code></pre></div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python3 -m pip install &quot;git+https://github.com/schizza/async-bakalari-api3.git#egg=async-bakalari-api&quot;
+</span></code></pre></div>
 </div>
 </div>
 </div>
@@ -857,7 +942,7 @@ Seznam všech škol zapojených do programu Bakaláři lze získat též z <a hr
     <span class="md-icon" title="Poslední aktualizace">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1-2.1-2M12.5 7v5.2l4 2.4-1 1L11 13V7h1.5M11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2v1.8Z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">May 18, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">May 26, 2024</span>
   </span>
 
     
@@ -941,13 +1026,13 @@ Seznam všech škol zapojených do programu Bakaláři lze získat též z <a hr
         
         
           
-          <a href="bakalari/" class="md-footer__link md-footer__link--next" aria-label="Další: modul Bakalari">
+          <a href="podrobna_instalace/" class="md-footer__link md-footer__link--next" aria-label="Další: Podrobná instalace">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Další
               </span>
               <div class="md-ellipsis">
-                modul Bakalari
+                Podrobná instalace
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -984,7 +1069,7 @@ Seznam všech škol zapojených do programu Bakaláři lze získat též z <a hr
     <script id="__config" type="application/json">{"base": ".", "features": ["navigation.instant", "content.code.copy", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "toc.integrate", "navigation.footer", "navigation.top"], "search": "assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Zkop\u00edrov\u00e1no do schr\u00e1nky", "clipboard.copy": "Kop\u00edrovat do schr\u00e1nky", "search.result.more.one": "1 dal\u0161\u00ed na t\u00e9to str\u00e1nce", "search.result.more.other": "# v\u00edce na t\u00e9to str\u00e1nce", "search.result.none": "Nenalezeny \u017e\u00e1dn\u00e9 dokumenty", "search.result.one": "Nalezen\u00fd dokument: 1", "search.result.other": "Nalezen\u00e9 dokumenty: #", "search.result.placeholder": "Pi\u0161te co se m\u00e1 vyhledat", "search.result.term.missing": "Chyb\u011bj\u00edc\u00ed", "select.version": "Vyberte verzi"}}</script>
     
     
-      <script src="assets/javascripts/bundle.ebd0bdb7.min.js"></script>
+      <script src="assets/javascripts/bundle.081f42fc.min.js"></script>
       
     
   </body>
