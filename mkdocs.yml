@@ -33,16 +33,23 @@ markdown_extensions:
   - admonition
   - toc:
       permalink: true
-  - pymdownx.emoji:
-      emoji_index: !!python/name:material.extensions.emoji.twemoji 
-      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.highlight:
       anchor_linenums: true
-  - pymdownx.superfences
+      line_spans: __span
+      pygments_lang_class: true
+      use_pygments: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.details
   - pymdownx.inlinehilite
   - pymdownx.snippets
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      # custom_fences:
+      #   - name: '*'
+      #     class: '*'
+      #     format: !!python/name:custom_prefix.formatter
+      #     validator: !!python/name:custom_prefix.validator
   - pymdownx.tabbed:
       alternate_style: true
 
@@ -58,7 +65,9 @@ plugins:
 
 nav:
   - Úvod:
-    - index.md 
+    - index.md
+    - Podrobná instalace: podrobna_instalace.md
+    
   - Bakaláři:
     - bakalari/index.md
     - Seznam škol: bakalari/seznam_skol.md
@@ -71,5 +80,8 @@ nav:
     - Stažení přílohy: komens/stazeni_prilohy.md
   - CLI:
     - cli/index.md
+    - Seznam škol: cli/seznam_skol.md
+    - Přihlášení (tokeny): cli/tokeny.md
+    - Zprávy: cli/komens.md
 
     

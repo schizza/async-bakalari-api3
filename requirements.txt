@@ -1,0 +1,5 @@
+mkdocs
+mkdocs-material
+mike
+beautifulsoup4
+lxml
