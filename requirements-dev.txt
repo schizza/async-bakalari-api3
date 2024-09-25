@@ -6,7 +6,7 @@
 #
 aiofiles==24.1.0
     # via -r requirements.in
-aiohttp==3.10.3
+aiohttp==3.10.5
     # via
     #   -r requirements_dev.in
     #   aioresponses
@@ -59,7 +59,7 @@ pluggy==1.5.0
     # via
     #   -r requirements_dev.in
     #   pytest
-pytest==8.3.2
+pytest==8.3.3
     # via
     #   -r requirements_dev.in
     #   pytest-aiohttp
@@ -70,7 +70,7 @@ pytest-aiohttp==1.0.5
     # via -r requirements_dev.in
 pytest-async==0.1.1
     # via -r requirements_dev.in
-pytest-asyncio==0.23.8
+pytest-asyncio==0.24.0
     # via
     #   -r requirements_dev.in
     #   pytest-aiohttp
@@ -90,7 +90,7 @@ typing==3.7.4.3
     # via -r requirements_dev.in
 urllib3==2.2.2
     # via -r requirements_dev.in
-yarl==1.9.4
+yarl==1.11.1
     # via
     #   -r requirements_dev.in
     #   aiohttp
