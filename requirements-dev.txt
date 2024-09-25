@@ -70,7 +70,7 @@ pytest-aiohttp==1.0.5
     # via -r requirements_dev.in
 pytest-async==0.1.1
     # via -r requirements_dev.in
-pytest-asyncio==0.23.8
+pytest-asyncio==0.24.0
     # via
     #   -r requirements_dev.in
     #   pytest-aiohttp
