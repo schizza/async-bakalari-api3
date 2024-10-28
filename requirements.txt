@@ -32,5 +32,5 @@ six==1.16.0
     # via python-dateutil
 strenum==0.4.15
     # via -r requirements.in
-yarl==1.11.1
+yarl==1.16.0
     # via aiohttp
