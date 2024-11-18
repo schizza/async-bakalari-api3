@@ -6,7 +6,7 @@
 #
 aiofiles==24.1.0
     # via -r requirements.in
-aiohttp==3.10.5
+aiohttp==3.11.2
     # via
     #   -r requirements_dev.in
     #   aioresponses
