@@ -90,7 +90,7 @@ typing==3.7.4.3
     # via -r requirements_dev.in
 urllib3==2.2.3
     # via -r requirements_dev.in
-yarl==1.18.0
+yarl==1.18.3
     # via
     #   -r requirements_dev.in
     #   aiohttp
