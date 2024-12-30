@@ -49,7 +49,7 @@ multidict==6.1.0
     #   -r requirements_dev.in
     #   aiohttp
     #   yarl
-orjson==3.10.7
+orjson==3.10.13
     # via -r requirements_dev.in
 packaging==24.1
     # via
