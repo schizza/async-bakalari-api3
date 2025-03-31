@@ -80,7 +80,7 @@ pytest-mock==3.14.0
     # via -r requirements_dev.in
 python-dateutil==2.9.0.post0
     # via dateutils
-pytz==2024.2
+pytz==2025.2
     # via dateutils
 six==1.16.0
     # via python-dateutil
