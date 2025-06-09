@@ -29,7 +29,7 @@ coverage[toml]==7.7.1
     #   pytest-cov
 dateutils==0.6.12
     # via -r requirements_dev.in
-frozenlist==1.4.1
+frozenlist==1.6.2
     # via
     #   -r requirements_dev.in
     #   aiohttp
