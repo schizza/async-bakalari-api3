@@ -28,7 +28,7 @@ orjson==3.10.15
     # via -r requirements.in
 python-dateutil==2.9.0.post0
     # via -r requirements.in
-six==1.16.0
+six==1.17.0
     # via python-dateutil
 strenum==0.4.15
     # via -r requirements.in
