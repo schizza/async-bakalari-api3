@@ -234,3 +234,62 @@ class Schools:
             )
 
         return self
+
+
+@dataclass
+class Subject:
+    """Data structure for a school subject."""
+
+    name: str = None
+    abbreviation: str = None
+    id: str = None
+
+
+@dataclass
+class Grade:
+    """Data structure for a single grade."""
+
+    caption: str = None
+    value: str = None
+    weight: str = None
+    subject: Subject = None
+    date: str = None
+    description: str = None
+
+
+@dataclass
+class Grades:
+    """Data structure for a list of grades."""
+
+    grades: list[Grade] = None
+
+
+@dataclass
+class TimetableEvent:
+    """Data structure for a single event in the timetable."""
+
+    subject: Subject = None
+    teacher: str = None
+    room: str = None
+    group: str = None
+    time_from: str = None
+    time_to: str = None
+    day: str = None
+
+
+@dataclass
+class Timetable:
+    """Data structure for a timetable."""
+
+    events: list[TimetableEvent] = None
+
+
+@dataclass
+class Homework:
+    """Data structure for a single homework assignment."""
+
+    subject: Subject = None
+    assigned_date: str = None
+    due_date: str = None
+    description: str = None
+    completed: bool = False
