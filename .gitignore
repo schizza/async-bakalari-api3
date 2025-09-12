@@ -157,3 +157,7 @@ newcred
 src/bakalari_api/tests.py
 
 .bumpversion.cfg
+
+config.json
+
+credentials.json

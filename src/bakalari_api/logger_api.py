@@ -19,15 +19,15 @@ class CustomFormatter(logging.Formatter):
     cyan = "\u001b[36m"
     white = "\u001b[37m"
 
-    format = f"%(asctime)s - %(name)s - %(levelname)s - %(threadName)s:\n   {cyan}Message: %(message)s\n{magenta}@(%(filename)s:%(lineno)d)"
+    _format = f"%(asctime)s - %(name)s - %(levelname)s - %(threadName)s:\n   {cyan}Message: %(message)s\n{magenta}@(%(filename)s:%(lineno)d)"
     dateformat = "%d/%m/%Y %H:%M:%S"
 
     FORMATS = {
-        logging.DEBUG: grey + format + reset,
-        logging.INFO: green + format + reset,
-        logging.WARNING: yellow + format + reset,
-        logging.ERROR: bold_red + format + reset,
-        logging.CRITICAL: bold_red + format + reset,
+        logging.DEBUG: grey + _format + reset,
+        logging.INFO: green + _format + reset,
+        logging.WARNING: yellow + _format + reset,
+        logging.ERROR: bold_red + _format + reset,
+        logging.CRITICAL: bold_red + _format + reset,
     }
 
     def format(self, record):
@@ -40,6 +40,12 @@ class CustomFormatter(logging.Formatter):
 
 class api_logger:
     """API logger."""
+    
+    @classmethod
+    def create(cls, name, loglevel: logging = logging.ERROR):
+        """Create API logger."""
+        instance = cls(name, loglevel)
+        return instance.logger
 
     def __init__(self, name, loglevel: logging = logging.ERROR):
         """Create API logger."""
@@ -52,7 +58,7 @@ class api_logger:
 
         self.logger = logging.getLogger(name)
         if self.logger.handlers:
-            self.logger.handlers.pop()
+            self.logger.handlers.clear()
         self.logger.addHandler(self.console_logger)
         self.logger.setLevel(self.loglevel)
 

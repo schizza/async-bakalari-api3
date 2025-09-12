@@ -64,11 +64,14 @@ class Bakalari:
         # Close connection when this object is destroyed
         try:
             loop = asyncio.get_event_loop()
-            if loop.is_running():
-                return loop.create_task(self.session.close())
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+
+        if loop.is_running():
+            return loop.create_task(self.session.close())
+        else:
             loop.run_until_complete(self.session.close())
-        finally:
-            pass
 
     async def send_auth_request(
         self, request_endpoint: EndPoint, extend: str | None = None, **kwargs
