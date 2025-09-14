@@ -132,7 +132,7 @@ async def runme(args):
     """Run the main function."""
     server = False
     schools = False
-    
+
     if args.config and not args.first_login and not args.first_login_file:
         try:
             async with aiofiles.open("config.json", "rb") as fi:
@@ -261,15 +261,15 @@ def main() -> None:
         metavar="soubor s tokeny",
         help="Jméno souboru odkud se maji načíst tokeny.",
     )
-    
+
     parser_login.add_argument(
         "-a",
         "--auto",
         help="Při úspěšném přihlášení jménem a heslem uloží tokeny a název školy do konfiguračních souborů a později je použije k automatickému přihlášení.",
         action="store_true",
-        dest="config"
+        dest="config",
     )
-    login_type.add_argument(
+    parser_login.add_argument(
         "--auto_cache",
         nargs=None,
         dest="auto_cache",
