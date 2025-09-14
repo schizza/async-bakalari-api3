@@ -414,6 +414,7 @@ class Bakalari:
         try:
             with open(filename, "wb") as file:
                 file.write(orjson.dumps(self.credentials, option=orjson.OPT_INDENT_2))
+                log.debug(f"Credentials saved to file {filename}")
         except OSError as err:
             log.error(f"Error while saving credentials to file {filename}. {str(err)}")
             return False

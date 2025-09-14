@@ -18,6 +18,7 @@ async def w(name, data):
     async with aiofiles.open(name, "+wb") as fi:
         await fi.write(orjson.dumps(data, option=orjson.OPT_INDENT_2))
         await fi.flush()
+        logging.debug(f"File {name} written")
 
 
 async def wb(name, data):
@@ -25,6 +26,7 @@ async def wb(name, data):
     async with aiofiles.open(name, "wb") as fi:
         await fi.write(data)
         await fi.flush()
+    logging.debug(f"File {name} written")
 
 
 def r(name):
