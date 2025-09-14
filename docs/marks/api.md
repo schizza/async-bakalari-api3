@@ -1,4 +1,4 @@
-## Rychlá referenční API
+## Referenční API
 
 ``` py linenums="1" title="Hlavní metody"
 class Marks:
