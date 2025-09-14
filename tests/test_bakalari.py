@@ -36,7 +36,7 @@ async def test_bakalari_del_closes_session(monkeypatch):
 
     assert True
 
-def test_bakalari_del_outside_loop(monkeypatch):
+async def test_bakalari_del_outside_loop(monkeypatch):
     bakalari = Bakalari("http://fake_server", auto_cache_credentials=False)
     
     # patch event loop tak, že get_event_loop vyhodí výjimku
