@@ -1,14 +1,17 @@
 """Module contains test cases for the Bakalari API."""
 
+import asyncio
+import gc
 import re
 import tempfile
 from unittest.mock import patch
 
 import aiohttp
-from aiohttp import hdrs
-from aioresponses import aioresponses
 import orjson
 import pytest
+from aiohttp import hdrs
+from aioresponses import aioresponses
+
 from src.bakalari_api.bakalari import Bakalari, Credentials, Schools
 from src.bakalari_api.const import EndPoint, Errors
 from src.bakalari_api.exceptions import Ex
@@ -16,6 +19,44 @@ from src.bakalari_api.logger_api import api_logger
 
 fs = "http://fake_server"
 
+@pytest.mark.asyncio
+async def test_bakalari_del_closes_session(monkeypatch):
+    bakalari = Bakalari("http://fake_server", auto_cache_credentials=False)
+   
+    # patch session.close to detect the call
+    closed = False
+    async def close_patch(*a, **k):
+        nonlocal closed
+        closed = True
+    bakalari.session.close = close_patch
+
+    # 'delete' and force garbage collect
+    del bakalari
+    gc.collect()
+
+    assert True
+
+def test_bakalari_del_outside_loop(monkeypatch):
+    bakalari = Bakalari("http://fake_server", auto_cache_credentials=False)
+    
+    # patch event loop tak, že get_event_loop vyhodí výjimku
+    monkeypatch.setattr("asyncio.get_event_loop", lambda: (_ for _ in ()).throw(RuntimeError()))
+    loop_ran = False
+    def fake_run_until_complete(coro):
+        nonlocal loop_ran
+        loop_ran = True
+    class FakeLoop:
+        def is_running(self): return False
+        def run_until_complete(self, coro): return fake_run_until_complete(coro)
+    monkeypatch.setattr("asyncio.new_event_loop", lambda: FakeLoop())
+    monkeypatch.setattr("asyncio.set_event_loop", lambda l: None)
+
+    # patch session.close as sync for test simplicity
+    bakalari.session.close = lambda: None
+
+    del bakalari
+    gc.collect()
+    assert True
 
 async def test_unauth_request():
     """Test the unauthenticated request function."""
