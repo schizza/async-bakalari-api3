@@ -132,34 +132,45 @@ class MarksRegistry:
         """Find new marks."""
 
         return [mark for mark in self._data.values() if mark.is_new]
-    
-    @overload
-    def get_marks_by_date(self, date: datetime, date_to: datetime) -> list[MarksBase]:
-        ...
-    @overload
-    def get_marks_by_date(self, date: datetime) -> list[MarksBase]:
-        ...
-    @overload
-    def get_marks_by_date(self, subject_id: str, date: datetime, date_to: datetime) -> list[MarksBase]:
-        ...
-    @overload
-    def get_marks_by_date(self, subject_id: str, date: datetime) -> list[MarksBase]:
-        ...
 
-    def get_marks_by_date(self , subject_id: str | None = None, date: datetime | None = None, date_to: datetime | None = None) -> list[MarksBase]:
+    @overload
+    def get_marks_by_date(
+        self, date: datetime, date_to: datetime
+    ) -> list[MarksBase]: ...
+    @overload
+    def get_marks_by_date(self, date: datetime) -> list[MarksBase]: ...
+    @overload
+    def get_marks_by_date(
+        self, subject_id: str, date: datetime, date_to: datetime
+    ) -> list[MarksBase]: ...
+    @overload
+    def get_marks_by_date(self, subject_id: str, date: datetime) -> list[MarksBase]: ...
+
+    def get_marks_by_date(
+        self,
+        subject_id: str | None = None,
+        date: datetime | None = None,
+        date_to: datetime | None = None,
+    ) -> list[MarksBase]:
         """Get marks by date or date range. Or for subject by date or date range."""
+        if date is None:
+            return []
+
+        start = date.date()
+        end = date_to.date() if date_to is not None else start
 
         if subject_id is not None:
-            if date_to is not None:
-                return [mark for mark in self._data.values() if mark.subject_id == subject_id and mark.date.date() >= date.date() and mark.date <= date_to.date()]
-            return [mark for mark in self._data.values() if mark.subject_id == subject_id and mark.date.date() == date.date()]
+            return [
+                mark
+                for mark in self._data.values()
+                if mark.subject_id == subject_id and start <= mark.date.date() <= end
+            ]
 
-        if date_to is not None:
-            return [mark for mark in self._data.values() if mark.date.date() >= date.date() and mark.date <= date_to.date()]
-        return [mark for mark in self._data.values() if mark.date.date() == date.date()]
-        
-        
-    def get(self, id: str) -> MarksBase:
+        return [
+            mark for mark in self._data.values() if start <= mark.date.date() <= end
+        ]
+
+    def get(self, id: str) -> MarksBase | None:
         """Get marks."""
         return self._data.get(id, None)
 
@@ -345,10 +356,10 @@ class Marks:
         """Get list subjects."""
         return list(self.subjects._subjects.values())
 
-    async def get_marks(self, subject_id: str) -> list[MarksBase]:
+    async def get_marks_by_subject(self, subject_id: str) -> list[MarksBase]:
         """Get marks for subject."""
-
-        return list(self.subjects.get_subject(subject_id).marks)
+        subject = self.subjects.get_subject(subject_id)
+        return list(subject.marks) if subject else []
 
     async def get_new_marks(self) -> list[SubjectsBase]:
         """Get new marks for subject."""
@@ -357,80 +368,154 @@ class Marks:
 
         for subject in self.subjects._subjects.values():
             if len(found := subject.marks.find_new_marks()) != 0:
-                new_marks.append(SubjectsBase(
-                    id=subject.id,
-                    abbr=subject.abbr,
-                    name=subject.name,
-                    average_text=subject.average_text,
-                    points_only=subject.points_only,
-                ))
-                for mark in found:
-                    new_marks[-1].marks.append(mark)
-        return new_marks
-
-    @overload
-    async def get_new_marks_by_date(self, date: datetime = ..., *, date_to: datetime, subject_id: str) -> list[SubjectsBase]:
-        ...
-
-    @overload
-    async def get_new_marks_by_date(self, date: datetime = ..., date_to: datetime = ..., *, subject_id: str) -> list[SubjectsBase]:
-        ...
-    @overload
-    async def get_new_marks_by_date(self,  date: datetime = ..., date_to: datetime = ..., subject_id: str = ...) -> list[SubjectsBase]:
-        ...
-    @overload
-    async def get_new_marks_by_date(self, date: datetime = ..., subject_id: str = ..., *, date_to: datetime) -> list[SubjectsBase]:
-        ...
-
-    async def get_new_marks_by_date(
-        self,
-        date: datetime | None = None,
-        date_to: datetime | None = None,
-        subject_id: str | None  = None,
-        ) -> list[SubjectsBase]:
-        """Get marks by date or date range. Or for subject by date or date range."""
-
-        new_marks: list[SubjectsBase] = []
-
-        if subject_id is not None:
-            if date_to is not None:
-                marks = self.subjects.get_subject(subject_id).marks.get_marks_by_date(subject_id, date, date_to)
-                for mark in marks:
-                    new_marks[-1].marks.append(mark)
-            else:
-                marks = self.subjects.get_subject(subject_id).marks.get_marks_by_date(subject_id, date)
-                for mark in marks:
-                    new_marks[-1].marks.append(mark)
-
-        if date_to is not None:
-            for subject in self.subjects._subjects.values():
-                marks = self.subjects.get_subject(subject.id).marks.get_marks_by_date(subject.id, date, date_to)
-                for mark in marks:
-                    new_marks[-1].marks.append(mark)
-        else:
-            for subject in self.subjects._subjects.values():
-                # marks = self.subjects.get_subject.marks.get_marks_by_date(subject.id, date)
-                marks = self.subjects.get_subject(subject.id).marks.get_marks_by_date(subject.id, date)
-                if marks:
-                    new_marks.append(SubjectsBase(
+                new_marks.append(
+                    SubjectsBase(
                         id=subject.id,
                         abbr=subject.abbr,
                         name=subject.name,
                         average_text=subject.average_text,
                         points_only=subject.points_only,
-                    ))
-                    for mark in marks:
-                        new_marks[-1].marks.append(mark)
-                # if len(found := self._subjects.get_marks(subject_id).marks.date.date() >= date.date() and self._subjects.get_marks(subject_id).marks.date <= date_to.date()) != 0:
-                #        marks.date.date() >= date.date() and subject.marks.date <= date_to.date()) != 0:
-                #     new_marks.append(SubjectsBase(
-                #         id=subject.id,
-                #         abbr=subject.abbr,
-                #         name=subject.name,
-                #         average_text=subject.average_text,
-                #         points_only=subject.points_only,
-                #     ))
-                # for mark in found:
-                #     new_marks[-1].marks.append(mark)
+                    )
+                )
+                for mark in found:
+                    new_marks[-1].marks.append(mark)
+        return new_marks
+
+    async def get_marks_all(
+        self,
+        date: datetime | None = None,
+        date_to: datetime | None = None,
+        subject_id: str | None = None,
+    ) -> list[SubjectsBase]:
+        """Get all marks grouped by subject. Optionally filter by date or date range and/or subject."""
+
+        results: list[SubjectsBase] = []
+
+        if subject_id is not None:
+            subject = self.subjects.get_subject(subject_id)
+            if not subject:
+                return results
+
+            if date is None:
+                marks = list(subject.marks)
+            else:
+                marks = subject.marks.get_marks_by_date(date=date, date_to=date_to)
+
+            if marks:
+                container = SubjectsBase(
+                    id=subject.id,
+                    abbr=subject.abbr,
+                    name=subject.name,
+                    average_text=subject.average_text,
+                    points_only=subject.points_only,
+                )
+                for mark in marks:
+                    container.marks.append(mark)
+                results.append(container)
+            return results
+
+        for subject in self.subjects._subjects.values():
+            if date is None:
+                marks = list(subject.marks)
+            else:
+                marks = subject.marks.get_marks_by_date(date=date, date_to=date_to)
+
+            if marks:
+                container = SubjectsBase(
+                    id=subject.id,
+                    abbr=subject.abbr,
+                    name=subject.name,
+                    average_text=subject.average_text,
+                    points_only=subject.points_only,
+                )
+                for mark in marks:
+                    container.marks.append(mark)
+                results.append(container)
+
+        return results
+
+    async def format_all_marks(
+        self,
+        date: datetime | None = None,
+        date_to: datetime | None = None,
+        subject_id: str | None = None,
+    ) -> str:
+        """Return a nicely formatted string of all marks, grouped by subject."""
+        groups = await self.get_marks_all(
+            date=date, date_to=date_to, subject_id=subject_id
+        )
+        lines: list[str] = []
+        for subj in groups:
+            header = f"{subj.name} ({subj.abbr}) | average: {subj.average_text} | points_only: {subj.points_only}"
+            lines.append(header)
+            lines.append("-" * len(header))
+            for m in subj.marks:
+                mark_text = m.marktext.text if m.marktext else ""
+                caption = m.caption or ""
+                line = f"  [{m.date.date()}] {caption} -> {mark_text}"
+                if m.is_new:
+                    line += " [NEW]"
+                lines.append(line)
+                if m.theme:
+                    lines.append(f"    theme: {m.theme.strip()}")
+                if m.is_points:
+                    pt = m.points_text or ""
+                    if m.max_points is not None:
+                        lines.append(f"    points: {pt} / {m.max_points}")
+                    else:
+                        lines.append(f"    points: {pt}")
+            lines.append("")  # blank line between subjects
+        return "\n".join(lines).rstrip()
+
+
+    async def get_new_marks_by_date(
+        self,
+        date: datetime,
+        date_to: datetime | None = None,
+        subject_id: str | None = None,
+    ) -> list[SubjectsBase]:
+        """Get new marks by date or date range. Optionally for a specific subject."""
+
+        new_marks: list[SubjectsBase] = []
+
+        if subject_id is not None:
+            subject = self.subjects.get_subject(subject_id)
+            if not subject:
+                return new_marks
+            marks = [
+                m
+                for m in subject.marks.get_marks_by_date(date=date, date_to=date_to)
+                if m.is_new
+            ]
+            if marks:
+                container = SubjectsBase(
+                    id=subject.id,
+                    abbr=subject.abbr,
+                    name=subject.name,
+                    average_text=subject.average_text,
+                    points_only=subject.points_only,
+                )
+                for mark in marks:
+                    container.marks.append(mark)
+                new_marks.append(container)
+            return new_marks
+
+        for subject in self.subjects._subjects.values():
+            marks = [
+                m
+                for m in subject.marks.get_marks_by_date(date=date, date_to=date_to)
+                if m.is_new
+            ]
+            if marks:
+                container = SubjectsBase(
+                    id=subject.id,
+                    abbr=subject.abbr,
+                    name=subject.name,
+                    average_text=subject.average_text,
+                    points_only=subject.points_only,
+                )
+                for mark in marks:
+                    container.marks.append(mark)
+                new_marks.append(container)
 
         return new_marks
