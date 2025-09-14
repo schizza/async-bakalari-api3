@@ -187,13 +187,15 @@ async def runme(args):
 
         if args.credentials_file and not args.config:
             await w(args.credentials_file, credentials)
-        elif not args.config:
+        elif not args.config and not cache:
             print(
                 f"Access token: {credentials.access_token}\nRefresh token: {credentials.refresh_token}"
             )
         if args.config:
             await w("config.json", {"school": server})
             await w("credentials.json", credentials)
+        if cache:
+            bakalari.save_credentials()
 
         print(
             f"Cahce: {bakalari.auto_cache_credentials}  cache_filename={bakalari.cache_filename} server: {bakalari.server}"
@@ -205,7 +207,9 @@ async def runme(args):
         bakalari.credentials.access_token = credentials["access_token"]
         bakalari.credentials.refresh_token = credentials["refresh_token"]
 
-    if args.auto_cache:
+    if args.auto_cache and not (
+        args.first_login or args.first_login_file or args.credentials
+    ):
         bakalari = Bakalari(
             server=server, auto_cache_credentials=True, cache_filename=args.auto_cache
         )
