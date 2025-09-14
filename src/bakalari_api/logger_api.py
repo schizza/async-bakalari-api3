@@ -40,27 +40,45 @@ class CustomFormatter(logging.Formatter):
 
 class api_logger:
     """API logger."""
-    
+
     @classmethod
-    def create(cls, name, loglevel: logging = logging.ERROR):
+    def create(cls, name, loglevel: int = logging.ERROR):
         """Create API logger."""
         instance = cls(name, loglevel)
         return instance.logger
 
-    def __init__(self, name, loglevel: logging = logging.ERROR):
+    def __init__(self, name, loglevel: int = logging.ERROR):
         """Create API logger."""
         self.name = name
         self.loglevel = loglevel
 
         self.console_formatter = CustomFormatter()
-        self.console_logger = logging.StreamHandler()
-        self.console_logger.setFormatter(self.console_formatter)
-
         self.logger = logging.getLogger(name)
-        if self.logger.handlers:
-            self.logger.handlers.clear()
-        self.logger.addHandler(self.console_logger)
-        self.logger.setLevel(self.loglevel)
+
+        # Reuse existing stream handler if present; avoid duplicates
+        stream_handler = None
+        for h in self.logger.handlers:
+            if isinstance(h, logging.StreamHandler):
+                stream_handler = h
+                break
+        if stream_handler is None:
+            stream_handler = logging.StreamHandler()
+            self.logger.addHandler(stream_handler)
+
+        # Expose handler on instance
+        self.console_logger = stream_handler
+
+        # Always use our formatter and let logger level control filtering
+        stream_handler.setFormatter(self.console_formatter)
+        stream_handler.setLevel(logging.NOTSET)
+
+        # Prefer the most verbose (lowest) level across repeated initializations
+        current_level = self.logger.level
+        if current_level == logging.NOTSET:
+            new_level = loglevel
+        else:
+            new_level = min(current_level, loglevel)
+        self.logger.setLevel(new_level)
 
     def get(self):
         "Get."
