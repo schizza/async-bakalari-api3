@@ -38,17 +38,18 @@ class MarkOptionsRegistry:
             self._data[marksoptions.id] = marksoptions
             self._index.add(marksoptions.id)
 
-    def get(self, id: str) -> MarkOptionsBase:
+    def get(self, id: str) -> MarkOptionsBase | None:
         """Get mark options."""
         return self._data.get(id, None)
 
     def __repr__(self) -> str:
         """Representation of MarkOptionsRegistry."""
 
-        return (
-            f"<MarkOptionsRegistry id={data.id} text={data.text}>"
-            for data in self._data
+        items = ", ".join(
+            f"(id={mo.id!r}, abbr={mo.abbr!r}, text={mo.text!r})"
+            for mo in self._data.values()
         )
+        return f"<MarkOptionsRegistry {items}>"
 
     def __str__(self) -> str:
         """Return string representation of data."""
@@ -73,7 +74,7 @@ class MarkOptions(MarkOptionsRegistry):
         """Return string representation of data."""
         return f"{self.registry}"
 
-    def __getitem__(self, key: str) -> MarkOptionsBase:
+    def __getitem__(self, key: str) -> MarkOptionsBase | None:
         """Get mark options."""
         return self.registry.get(key)
 
@@ -89,20 +90,20 @@ class MarksBase:
     id: str
     date: datetime
     caption: str
-    theme: str
-    marktext: MarkOptionsBase
-    teacher: str
+    theme: str | None
+    marktext: MarkOptionsBase | None
+    teacher: str | None
     subject_id: str
     is_new: bool
     is_points: bool
-    points_text: str
-    max_points: int
+    points_text: str | None
+    max_points: int | None
 
     def __str__(self) -> str:
         """Return string representation of data."""
 
         return (
-            f"theme: {self.theme.removesuffix("\n")}:{" " * 5}{self.marktext.text}\n"
+            f"theme: {(self.theme or '').rstrip('\n')}: {' ' * 5}{(self.marktext.text if self.marktext else '')}\n"
             f"date: {self.date.date()}\n"
             f"id: {self.id}\n"
             f"is_new: {self.is_new}\n"
@@ -112,7 +113,7 @@ class MarksBase:
         )
 
 
-class MarksRegistry(MarksBase):
+class MarksRegistry:
     """Marks registry."""
 
     def __init__(self):
@@ -169,6 +170,7 @@ class MarksRegistry(MarksBase):
             f"<MarksRegistry id={data.id} date={data.date} caption={data.caption} theme={data.theme} marktext={data.marktext} teacher={data.teacher} subject_id={data.subject_id} is_new={data.is_new} is_points={data.is_points} points_text={data.points_text} max_points={data.max_points}>"
             for data in self._data
         )
+        return f"<MarksRegistry {items}>"
 
     def __iter__(self):
         """Iterate over marks."""
@@ -190,7 +192,7 @@ class SubjectsBase:
     name: str
     average_text: str
     points_only: bool
-    marks: MarksRegistry = MarksRegistry()
+    marks: MarksRegistry
 
     def __init__(
         self, *, id: str, abbr: str, name: str, average_text: str, points_only: bool
@@ -248,11 +250,13 @@ class SubjectsRegistry:
 
         return self._subjects[subject_id].marks
 
-
     def __repr__(self) -> str:
         """Representation of SubjectsRegistry."""
-
-        return (f"<SubjectsRegistry data={data}>" for data in self._subjects.values())
+        items = ", ".join(
+            f"(id={s.id!r}, abbr={s.abbr!r}, name={s.name!r})"
+            for s in self._subjects.values()
+        )
+        return f"<SubjectsRegistry {items}>"
 
     def __str__(self) -> str:
         """Return string representation of data."""
