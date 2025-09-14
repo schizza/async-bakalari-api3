@@ -175,13 +175,12 @@ class MarksRegistry:
         return self._data.get(id, None)
 
     def __repr__(self) -> str:
-        """Representation of MarksRegistry."""
-
-        return (
-            f"<MarksRegistry id={data.id} date={data.date} caption={data.caption} theme={data.theme} marktext={data.marktext} teacher={data.teacher} subject_id={data.subject_id} is_new={data.is_new} is_points={data.is_points} points_text={data.points_text} max_points={data.max_points}>"
-            for data in self._data
-        )
-        return f"<MarksRegistry {items}>"
+            """Representation of MarksRegistry."""
+            items = ", ".join(
+                f"(id={data.id!r}, date={data.date!r}, caption={data.caption!r}, theme={data.theme!r}, marktext={data.marktext!r}, teacher={data.teacher!r}, subject_id={data.subject_id!r}, is_new={data.is_new!r}, is_points={data.is_points!r}, points_text={data.points_text!r}, max_points={data.max_points!r})"
+                for data in self._data.values()
+            )
+            return f"<MarksRegistry {items}>"
 
     def __iter__(self):
         """Iterate over marks."""
