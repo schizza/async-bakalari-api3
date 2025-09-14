@@ -15,11 +15,11 @@ theme:
     - toc.integrate
     - navigation.footer
     - navigation.top
-  palette: 
+  palette:
     # Palette toggle for light mode
     - scheme: default
       toggle:
-        icon: material/brightness-7 
+        icon: material/brightness-7
         name: Tmavý režim
 
     # Palette toggle for dark mode
@@ -53,7 +53,7 @@ markdown_extensions:
   - pymdownx.tabbed:
       alternate_style: true
 
-plugins: 
+plugins:
   - git-revision-date-localized:
       enable_creation_date: true
   - git-committers:
@@ -61,27 +61,27 @@ plugins:
       branch: docs
   - search
   - git-authors
-  
 
 nav:
   - Úvod:
-    - index.md
-    - Podrobná instalace: podrobna_instalace.md
-    
-  - Bakaláři:
-    - bakalari/index.md
-    - Seznam škol: bakalari/seznam_skol.md
-    - První přihlášení: bakalari/first_login.md
-    - Tokeny: bakalari/credentials.md
-    - Třída Schools: bakalari/schools.md
-  - Komens:
-    - komens/index.md
-    - Čtení zpráv: komens/cteni_zprav.md
-    - Stažení přílohy: komens/stazeni_prilohy.md
-  - CLI:
-    - cli/index.md
-    - Seznam škol: cli/seznam_skol.md
-    - Přihlášení (tokeny): cli/tokeny.md
-    - Zprávy: cli/komens.md
+      - index.md
+      - Podrobná instalace: podrobna_instalace.md
 
-    
+  - Bakaláři:
+      - bakalari/index.md
+      - Seznam škol: bakalari/seznam_skol.md
+      - První přihlášení: bakalari/first_login.md
+      - Tokeny: bakalari/credentials.md
+      - Třída Schools: bakalari/schools.md
+  - Komens:
+      - komens/index.md
+      - Čtení zpráv: komens/cteni_zprav.md
+      - Stažení přílohy: komens/stazeni_prilohy.md
+  - Marks:
+      - marks/index.md
+      - Přehled API: marks/api.md
+  - CLI:
+      - cli/index.md
+      - Seznam škol: cli/seznam_skol.md
+      - Přihlášení (tokeny): cli/tokeny.md
+      - Zprávy: cli/komens.md
