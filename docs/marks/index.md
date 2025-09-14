@@ -1,6 +1,7 @@
 # Modul Marks
 
 Modul `Marks` slouží k načítání a práci se známkami. Umí:
+
 - stáhnout známky ze serveru školy,
 - pracovat s předměty a jejich známkami (včetně nových známek),
 - filtrovat známky podle data nebo rozsahu datumů,
@@ -23,22 +24,23 @@ class Marks:
 !!! notice ""
     Jako jediný parametr přijímá inicializovanou instanci `Bakalari`.
 
-    ``` py linenums="1"
-    from async_bakalari_api import Bakalari
-    from async_bakalari_api.marks import Marks
 
-    bakalari = Bakalari("http://server")
-    bakalari.load_credentials("credentials.json")
+``` py linenums="1"
+from async_bakalari_api import Bakalari
+from async_bakalari_api.marks import Marks
 
-    marks = Marks(bakalari)
-    ```
+bakalari = Bakalari("http://server")
+bakalari.load_credentials("credentials.json")
+
+marks = Marks(bakalari)
+```
 
 ### Načtení známek ze serveru
 
 Známky načte metoda `fetch_marks()`.
 
 !!! notice ""
-  Metoda se nevolá automaticky při inicializaci třídy `Marks`. Je nutné ji volat ručně vždy, když chcete aktualizovat známky.
+    Metoda se nevolá automaticky při inicializaci třídy `Marks`. Je nutné ji volat ručně vždy, když chcete aktualizovat známky.
 
 ``` py linenums="1" title="Načtení známek"
 await marks.fetch_marks()
@@ -54,30 +56,30 @@ await marks.fetch_marks()
 Známky a předměty se ukládají do speciálních tříd, které modul používá interně i v návratových hodnotách API:
 
 - `SubjectsBase`
-  - `id: str` — identifikátor předmětu
-  - `abbr: str` — zkratka předmětu
-  - `name: str` — název předmětu
-  - `average_text: str` — textový průměr (řeší server)
-  - `points_only: bool` — zda je předmět pouze bodově hodnocen
-  - `marks: MarksRegistry` — kolekce známek pro daný předmět
+    - `id: str` — identifikátor předmětu
+    - `abbr: str` — zkratka předmětu
+    - `name: str` — název předmětu
+    - `average_text: str` — textový průměr (řeší server)
+    - `points_only: bool` — zda je předmět pouze bodově hodnocen
+    - `marks: MarksRegistry` — kolekce známek pro daný předmět
 
 - `MarksBase`
-  - `id: str` - id známky
-  - `date: datetime` - datum známky
-  - `caption: str` - text známky
-  - `theme: str | None` - název tématu známky
-  - `marktext: MarkOptionsBase | None` — textová reprezentace známky (1, A, +, apod.)
-  - `teacher: str | None` - učitel, který vydal známku
-  - `subject_id: str` - identifikátor předmětu
-  - `is_new: bool` - nová známka
-  - `is_points: bool` - zda je známka bodová
-  - `points_text: str | None` - textová reprezentace bodů
-  - `max_points: int | None` - maximální počet bodů
+    - `id: str` - id známky
+    - `date: datetime` - datum známky
+    - `caption: str` - text známky
+    - `theme: str | None` - název tématu známky
+    - `marktext: MarkOptionsBase | None` — textová reprezentace známky (1, A, +, apod.)
+    - `teacher: str | None` - učitel, který vydal známku
+    - `subject_id: str` - identifikátor předmětu
+    - `is_new: bool` - nová známka
+    - `is_points: bool` - zda je známka bodová
+    - `points_text: str | None` - textová reprezentace bodů
+    - `max_points: int | None` - maximální počet bodů
 
 - `MarkOptionsBase`
-  - `id: str`
-  - `abbr: str`
-  - `text: str`
+    - `id: str`
+    - `abbr: str`
+    - `text: str`
 
 !!! notice "Logování a fallbacky"
     - Pokud server vrátí `MarkText`, který není v `MarkOptions`, do logu se zapíše warning a modul použije „placeholder“ `MarkOptionsBase`, aby zpracování nespadlo.
@@ -122,19 +124,18 @@ for subj in new_marks_grouped:
 ### Nové známky podle dne nebo rozsahu
 
 === "Jeden den"
+    ``` py linenums="1" title="Nové známky v rozsahu"
+    from datetime import datetime
 
-  ``` py linenums="1" title="Nové známky v rozsahu"
-  from datetime import datetime
-  
-  # Jeden den
-  day = datetime(2025, 9, 12)
-  by_day = await marks.get_new_marks_by_date(date=day)
-  ```
-  
+    # Jeden den
+    day = datetime(2025, 9, 12)
+    by_day = await marks.get_new_marks_by_date(date=day)
+    ```
+
 === "Rozsah dní"
     ``` py linenums="1" title="Nové známky v rozsahu"
     from datetime import datetime
-  
+
     # Rozsah včetně krajních dnů
     start = datetime(2025, 9, 1)
     end = datetime(2025, 9, 30)
