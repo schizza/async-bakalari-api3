@@ -231,7 +231,9 @@ class SubjectsBase:
             f"abbr: {self.abbr}\n"
             f"Average: {self.average_text}\n"
             f"points_only: {self.points_only}\n"
-            f"----\n")
+            f"----\n"
+        )
+
 
 class SubjectsRegistry:
     """Subjects registry."""
