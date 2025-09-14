@@ -239,9 +239,13 @@ class SubjectsRegistry:
 
     def append_marks(self, marks: MarksBase):
         """Set marks."""
-        self._subjects[marks.subject_id].marks.append(marks)
+        subject = self._subjects.get(marks.subject_id)
+        if subject:
+            subject.marks.append(marks)
+        else:
+            log.warning(f"Subject {marks.subject_id} not found for mark {marks.id}")
 
-    def get_subject(self, id: str) -> SubjectsBase:
+    def get_subject(self, id: str) -> SubjectsBase | None:
         """Get subjects."""
         return self._subjects.get(id, None)
 
@@ -286,7 +290,7 @@ class Marks:
                 )
             )
 
-    async def _parse_subjects(self, subjects: list[dict[str, Any]]):
+    async def _parse_subjects(self, subjects: dict[str, Any]):
         """Parse subjects."""
 
         self.subjects.append_subject(
@@ -299,13 +303,22 @@ class Marks:
             )
         )
         for mark in subjects["Marks"]:
+            raw_mt_id = mark.get("MarkText")
+            opt = self.marksoptions[raw_mt_id]
+            if opt is None:
+                log.warning(
+                    f"MarkOptions not found for MarkText={raw_mt_id!r}; using placeholder"
+                )
+                opt = MarkOptionsBase(
+                    id=raw_mt_id, abbr=raw_mt_id or "", text=raw_mt_id or ""
+                )
             self.subjects.append_marks(
                 marks=MarksBase(
                     id=mark.get("Id"),
                     date=parser.parse(mark.get("MarkDate")),
                     caption=mark.get("Caption"),
                     theme=mark.get("Theme"),
-                    marktext=self.marksoptions[mark.get("MarkText")],
+                    marktext=opt,
                     teacher=mark.get("Teacher"),
                     subject_id=mark.get("SubjectId"),
                     is_new=mark.get("IsNew"),
