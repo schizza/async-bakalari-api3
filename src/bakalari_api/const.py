@@ -47,6 +47,11 @@ class EndPoint(Enum):
         "method": "get",
     }
 
+    MARKS: Final = {
+        "endpoint": "/api/3/marks",
+        "method": "get",
+    }
+
     def get(self, key: str) -> Any:
         """Get key value."""
         if not (ret := self.value.get(key)):

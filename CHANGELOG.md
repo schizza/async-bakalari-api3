@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 🇨🇿 Full documentation (czech) on [this site](https://async-bakalari-api.schizza.cz)
 
+## [0.3.3]
+
+### Added
+- New module `Marks` to handle marks from server
+  - Adds endpoint to retrieve marks.
+
+### Changed
+- Added logging for file operations
+- Refactored API logger initialization
+- Argument parsing for CLI appliaction - now `auto_cache` option is available with `-cf` option
+- Fix proper session closure on deletion
+
 [0.3.2]
 
 ### Added
@@ -33,7 +45,7 @@ All notable changes to this project will be documented in this file.
   - `count_towns` returns number of towns in list
 
 ## Changed
- 
+
 - dependency list is divided to application dependencies and development dependencies
 - if `auto_cache_credentials` and `cache_filename` is set then credentials are loaded automatically
 
@@ -98,6 +110,7 @@ All notable changes to this project will be documented in this file.
   - cache list of schools by saving and loading list in JSON format
 
 [unreleased]: https://github.com/schizza/bakalari-api3/compare/v0.0.1...HEAD
+[0.3.3]: https://https://github.com/schizza/bakalari-api3/releases/tag/0.3.3
 [0.3.2]: https://https://github.com/schizza/bakalari-api3/releases/tag/0.3.2
 [0.3.1]: https://https://github.com/schizza/bakalari-api3/releases/tag/0.3.1
 [0.3]: https://https://github.com/schizza/bakalari-api3/releases/tag/0.3

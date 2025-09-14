@@ -18,6 +18,7 @@ async def w(name, data):
     async with aiofiles.open(name, "+wb") as fi:
         await fi.write(orjson.dumps(data, option=orjson.OPT_INDENT_2))
         await fi.flush()
+        logging.debug(f"File {name} written")
 
 
 async def wb(name, data):
@@ -25,6 +26,7 @@ async def wb(name, data):
     async with aiofiles.open(name, "wb") as fi:
         await fi.write(data)
         await fi.flush()
+    logging.debug(f"File {name} written")
 
 
 def r(name):
@@ -130,7 +132,7 @@ async def runme(args):
     """Run the main function."""
     server = False
     schools = False
-    
+
     if args.config and not args.first_login and not args.first_login_file:
         try:
             async with aiofiles.open("config.json", "rb") as fi:
@@ -185,13 +187,15 @@ async def runme(args):
 
         if args.credentials_file and not args.config:
             await w(args.credentials_file, credentials)
-        elif not args.config:
+        elif not args.config and not cache:
             print(
                 f"Access token: {credentials.access_token}\nRefresh token: {credentials.refresh_token}"
             )
         if args.config:
             await w("config.json", {"school": server})
             await w("credentials.json", credentials)
+        if cache:
+            bakalari.save_credentials()
 
         print(
             f"Cahce: {bakalari.auto_cache_credentials}  cache_filename={bakalari.cache_filename} server: {bakalari.server}"
@@ -203,7 +207,9 @@ async def runme(args):
         bakalari.credentials.access_token = credentials["access_token"]
         bakalari.credentials.refresh_token = credentials["refresh_token"]
 
-    if args.auto_cache:
+    if args.auto_cache and not (
+        args.first_login or args.first_login_file or args.credentials
+    ):
         bakalari = Bakalari(
             server=server, auto_cache_credentials=True, cache_filename=args.auto_cache
         )
@@ -259,15 +265,15 @@ def main() -> None:
         metavar="soubor s tokeny",
         help="Jméno souboru odkud se maji načíst tokeny.",
     )
-    
+
     parser_login.add_argument(
         "-a",
         "--auto",
         help="Při úspěšném přihlášení jménem a heslem uloží tokeny a název školy do konfiguračních souborů a později je použije k automatickému přihlášení.",
         action="store_true",
-        dest="config"
+        dest="config",
     )
-    login_type.add_argument(
+    parser_login.add_argument(
         "--auto_cache",
         nargs=None,
         dest="auto_cache",
