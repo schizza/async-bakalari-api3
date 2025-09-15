@@ -21,7 +21,7 @@ idna==3.10
     # via yarl
 logger==1.4
     # via -r requirements.in
-multidict==6.1.0
+multidict==6.6.4
     # via
     #   aiohttp
     #   yarl
