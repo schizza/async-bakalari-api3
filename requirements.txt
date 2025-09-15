@@ -25,7 +25,7 @@ multidict==6.6.4
     # via
     #   aiohttp
     #   yarl
-orjson==3.10.15
+orjson==3.11.3
     # via -r requirements.in
 python-dateutil==2.9.0.post0
     # via -r requirements.in
