@@ -59,14 +59,14 @@ pluggy==1.6.0
     # via
     #   -r requirements_dev.in
     #   pytest
-pytest==8.3.4
+pytest==8.4.2
     # via
     #   -r requirements_dev.in
     #   pytest-aiohttp
     #   pytest-asyncio
     #   pytest-cov
     #   pytest-mock
-pytest-aiohttp==1.0.5
+pytest-aiohttp==1.1.0
     # via -r requirements_dev.in
 pytest-async==0.1.1
     # via -r requirements_dev.in
