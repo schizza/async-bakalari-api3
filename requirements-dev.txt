@@ -55,7 +55,7 @@ packaging==24.2
     # via
     #   -r requirements_dev.in
     #   pytest
-pluggy==1.5.0
+pluggy==1.6.0
     # via
     #   -r requirements_dev.in
     #   pytest
