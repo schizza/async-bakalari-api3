@@ -64,7 +64,7 @@ async def schools(args, bakalari: Bakalari):
     elif args.schools_file:
         try:
             _schools: Schools = await bakalari.schools_list(town=args.town)
-            w(args.schools_file, _schools.school_list)
+            await w(args.schools_file, _schools.school_list)
         except Exception as ex:
             print(ex)
 
