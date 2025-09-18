@@ -26,4 +26,10 @@ Features that are stable and working:
   - download attachments for fetched messages (with auto download support)
   - search messages by ID, date, date range
 
+### New Features (under development)
+
+- fetching grades
+- fetching timetable
+- fetching homework
+
 Any suggestions are welcomed.

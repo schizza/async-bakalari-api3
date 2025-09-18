@@ -16,6 +16,7 @@ from .const import REQUEST_TIMEOUT, EndPoint, Errors
 from .datastructure import Credentials, Schools
 from .exceptions import Ex
 from .logger_api import api_logger
+from .new_features import get_grades, get_homework, get_timetable
 
 log = api_logger("Bakalari API", loglevel=logging.ERROR).get()
 
@@ -434,6 +435,10 @@ class Bakalari:
         self.credentials = Credentials.create_from_json(data)
 
         return self.credentials
+
+    get_grades = get_grades
+    get_timetable = get_timetable
+    get_homework = get_homework
 
     async def __aenter__(self) -> Self:
         """Async enter.
