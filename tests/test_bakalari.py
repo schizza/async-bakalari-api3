@@ -39,18 +39,27 @@ async def test_bakalari_del_closes_session(monkeypatch):
 
     assert True
 
+
 async def test_bakalari_del_outside_loop(monkeypatch):
     bakalari = Bakalari("http://fake_server", auto_cache_credentials=False)
-    
+
     # patch event loop tak, že get_event_loop vyhodí výjimku
-    monkeypatch.setattr("asyncio.get_event_loop", lambda: (_ for _ in ()).throw(RuntimeError()))
+    monkeypatch.setattr(
+        "asyncio.get_event_loop", lambda: (_ for _ in ()).throw(RuntimeError())
+    )
     loop_ran = False
+
     def fake_run_until_complete(coro):
         nonlocal loop_ran
         loop_ran = True
+
     class FakeLoop:
-        def is_running(self): return False
-        def run_until_complete(self, coro): return fake_run_until_complete(coro)
+        def is_running(self):
+            return False
+
+        def run_until_complete(self, coro):
+            return fake_run_until_complete(coro)
+
     monkeypatch.setattr("asyncio.new_event_loop", lambda: FakeLoop())
     monkeypatch.setattr("asyncio.set_event_loop", lambda l: None)
 
@@ -60,6 +69,7 @@ async def test_bakalari_del_outside_loop(monkeypatch):
     del bakalari
     gc.collect()
     assert True
+
 
 async def test_unauth_request():
     """Test the unauthenticated request function."""
