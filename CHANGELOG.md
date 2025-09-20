@@ -10,7 +10,7 @@ All notable changes to this project will be documented in this file.
  - `await` keyword was missing in the code snippet
 
 ### Changed
- - Renamed `src/bakalari_api` to `src/async_bakalari_api3` for consistency
+ - Renamed `src/bakalari_api` to `src/async_bakalari_api` for consistency
  - Strip requirements to minimum
  - Updated wheel build
 
