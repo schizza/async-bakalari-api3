@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 🇨🇿 Full documentation (czech) on [this site](https://async-bakalari-api.schizza.cz)
 
+## [0.3.7]
+
+### Fixed
+ - `await` keyword was missing in the code snippet
+
+### Changed
+ - Renamed `src/bakalari_api` to `src/async_bakalari_api3` for consistency
+ - Strip requirements to minimum
+ - Updated wheel build
+
+## 0.3.4 - 0.3.6
+  - Minor bugfixes, version bumps for Home Assistant
+
 ## [0.3.3]
 
 ### Added
@@ -110,6 +123,7 @@ All notable changes to this project will be documented in this file.
   - cache list of schools by saving and loading list in JSON format
 
 [unreleased]: https://github.com/schizza/bakalari-api3/compare/v0.0.1...HEAD
+[0.3.7]: https://https://github.com/schizza/bakalari-api3/releases/tag/0.3.7
 [0.3.3]: https://https://github.com/schizza/bakalari-api3/releases/tag/0.3.3
 [0.3.2]: https://https://github.com/schizza/bakalari-api3/releases/tag/0.3.2
 [0.3.1]: https://https://github.com/schizza/bakalari-api3/releases/tag/0.3.1
