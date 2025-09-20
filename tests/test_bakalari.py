@@ -621,11 +621,13 @@ async def test_save_file_success():
     """Test the save_credentials method of the Bakalari class."""
 
     bakalari = Bakalari()
-    bakalari.credentials = bakalari.credentials.create_from_json({
-        "access_token": "test_access",
-        "refresh_token": "test_refresh",
-        "user_id": "test_user_id",
-    })
+    bakalari.credentials = bakalari.credentials.create_from_json(
+        {
+            "access_token": "test_access",
+            "refresh_token": "test_refresh",
+            "user_id": "test_user_id",
+        }
+    )
 
     with tempfile.TemporaryDirectory() as temp_dir:
         filename = temp_dir + "test_data"
@@ -656,11 +658,13 @@ async def test_save_file_cache_file():
     assert "Auto-cache is enabled, but no filename is provided!" in str(ex.value)
 
     bakalari = Bakalari("", auto_cache_credentials=True, cache_filename="fake_file")
-    bakalari.credentials = bakalari.credentials.create_from_json({
-        "access_token": "test_access",
-        "refresh_token": "test_refresh",
-        "user_id": "test_user_id",
-    })
+    bakalari.credentials = bakalari.credentials.create_from_json(
+        {
+            "access_token": "test_access",
+            "refresh_token": "test_refresh",
+            "user_id": "test_user_id",
+        }
+    )
 
     with tempfile.TemporaryDirectory() as temp_dir:
         filename = temp_dir + "test_data"
