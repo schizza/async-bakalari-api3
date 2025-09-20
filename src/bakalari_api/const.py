@@ -46,6 +46,9 @@ class EndPoint(Enum):
         "endpoint": "/api/3/komens/attachment",
         "method": "get",
     }
+    MARKS: Final = {"endpoint": "/api/3/marks", "method": "get"}
+    TIMETABLE: Final = {"endpoint": "/api/3/timetable/actual", "method": "get"}
+    HOMEWORK: Final = {"endpoint": "/api/3/homeworks", "method": "get"}
 
     MARKS: Final = {
         "endpoint": "/api/3/marks",

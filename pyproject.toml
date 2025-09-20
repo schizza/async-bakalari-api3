@@ -60,8 +60,6 @@ asyncio_mode = "auto"
 testpaths = [
     "tests"
 ]
-addopts = "--cov=bakalari_api --cov-report html"
-
 norecursedirs = [
     ".git",
     "testing_config",
