@@ -1,12 +1,11 @@
 [build-system]
-requires = ["setuptools >= 61.0"]
+requires = ["setuptools >= 77.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "async_bakalari_api"
-version = "0.3.6"
+version = "0.3.7"
 dynamic = ["dependencies"]
-
 
 requires-python = ">=3.12"
 authors = [
@@ -18,12 +17,12 @@ maintainers = [
 
 description = "Async API for Bakalari endpoint v3"
 readme = "README.md"
-license = {file = "LICENSE.md"}
 keywords = ["bakalari", "async"]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python"
 ]
+license-files = ["LICENSE.md"]
 
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
@@ -32,6 +31,11 @@ dependencies = { file = ["requirements.txt"] }
 platforms = ["any"]
 zip-safe  = false
 include-package-data = true
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["async_bakalari_api*"]
 
 [project.urls]
 Homepage = "https://github.com/schizza/bakalari-api3"
@@ -41,7 +45,7 @@ Repository = "https://github.com/schizza/bakalari-api3"
 Changelog = "https://github.com/schizza/bakalari-api3/blob/master/CHANGELOG.md"
 
 [project.scripts]
-bakalari = "bakalari_api:main"
+bakalari = "async_bakalari_api:main"
 
 [tool.pylint.MAIN]
 py-version = "3.12"
@@ -52,7 +56,7 @@ ignore = [
 [tool.coverage.run]
 omit = [
     "tests/*",
-    "src/bakalari_api/bakalari_demo.py"
+    "src/async_bakalari_api/bakalari_demo.py"
   ]
 
 [tool.pytest.ini_options]
@@ -60,7 +64,7 @@ asyncio_mode = "auto"
 testpaths = [
     "tests"
 ]
-addopts = "--cov=bakalari_api --cov-report html"
+addopts = "--cov=async_bakalari_api --cov-report html"
 
 norecursedirs = [
     ".git",

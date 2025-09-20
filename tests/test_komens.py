@@ -3,9 +3,9 @@
 import datetime as dt
 
 from aioresponses import aioresponses
-from src.bakalari_api.bakalari import Bakalari
-from src.bakalari_api.const import EndPoint
-from src.bakalari_api.komens import AttachmentsRegistry, Komens, Messages
+from src.async_bakalari_api.bakalari import Bakalari
+from src.async_bakalari_api.const import EndPoint
+from src.async_bakalari_api.komens import AttachmentsRegistry, Komens, Messages
 
 fs = "http://fake_server"
 

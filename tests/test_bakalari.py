@@ -12,22 +12,25 @@ import pytest
 from aiohttp import hdrs
 from aioresponses import aioresponses
 
-from src.bakalari_api.bakalari import Bakalari, Credentials, Schools
-from src.bakalari_api.const import EndPoint, Errors
-from src.bakalari_api.exceptions import Ex
-from src.bakalari_api.logger_api import api_logger
+from src.async_bakalari_api.bakalari import Bakalari, Credentials, Schools
+from src.async_bakalari_api.const import EndPoint, Errors
+from src.async_bakalari_api.exceptions import Ex
+from src.async_bakalari_api.logger_api import api_logger
 
 fs = "http://fake_server"
+
 
 @pytest.mark.asyncio
 async def test_bakalari_del_closes_session(monkeypatch):
     bakalari = Bakalari("http://fake_server", auto_cache_credentials=False)
-   
+
     # patch session.close to detect the call
     closed = False
+
     async def close_patch(*a, **k):
         nonlocal closed
         closed = True
+
     bakalari.session.close = close_patch
 
     # 'delete' and force garbage collect
@@ -36,18 +39,27 @@ async def test_bakalari_del_closes_session(monkeypatch):
 
     assert True
 
+
 async def test_bakalari_del_outside_loop(monkeypatch):
     bakalari = Bakalari("http://fake_server", auto_cache_credentials=False)
-    
+
     # patch event loop tak, že get_event_loop vyhodí výjimku
-    monkeypatch.setattr("asyncio.get_event_loop", lambda: (_ for _ in ()).throw(RuntimeError()))
+    monkeypatch.setattr(
+        "asyncio.get_event_loop", lambda: (_ for _ in ()).throw(RuntimeError())
+    )
     loop_ran = False
+
     def fake_run_until_complete(coro):
         nonlocal loop_ran
         loop_ran = True
+
     class FakeLoop:
-        def is_running(self): return False
-        def run_until_complete(self, coro): return fake_run_until_complete(coro)
+        def is_running(self):
+            return False
+
+        def run_until_complete(self, coro):
+            return fake_run_until_complete(coro)
+
     monkeypatch.setattr("asyncio.new_event_loop", lambda: FakeLoop())
     monkeypatch.setattr("asyncio.set_event_loop", lambda l: None)
 
@@ -57,6 +69,7 @@ async def test_bakalari_del_outside_loop(monkeypatch):
     del bakalari
     gc.collect()
     assert True
+
 
 async def test_unauth_request():
     """Test the unauthenticated request function."""
@@ -608,11 +621,13 @@ async def test_save_file_success():
     """Test the save_credentials method of the Bakalari class."""
 
     bakalari = Bakalari()
-    bakalari.credentials = bakalari.credentials.create_from_json({
-        "access_token": "test_access",
-        "refresh_token": "test_refresh",
-        "user_id": "test_user_id",
-    })
+    bakalari.credentials = bakalari.credentials.create_from_json(
+        {
+            "access_token": "test_access",
+            "refresh_token": "test_refresh",
+            "user_id": "test_user_id",
+        }
+    )
 
     with tempfile.TemporaryDirectory() as temp_dir:
         filename = temp_dir + "test_data"
@@ -643,11 +658,13 @@ async def test_save_file_cache_file():
     assert "Auto-cache is enabled, but no filename is provided!" in str(ex.value)
 
     bakalari = Bakalari("", auto_cache_credentials=True, cache_filename="fake_file")
-    bakalari.credentials = bakalari.credentials.create_from_json({
-        "access_token": "test_access",
-        "refresh_token": "test_refresh",
-        "user_id": "test_user_id",
-    })
+    bakalari.credentials = bakalari.credentials.create_from_json(
+        {
+            "access_token": "test_access",
+            "refresh_token": "test_refresh",
+            "user_id": "test_user_id",
+        }
+    )
 
     with tempfile.TemporaryDirectory() as temp_dir:
         filename = temp_dir + "test_data"

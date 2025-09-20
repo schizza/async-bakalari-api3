@@ -8,7 +8,8 @@ import aiofiles
 from logger import logging
 import orjson
 
-from .bakalari import Bakalari, Schools
+from .bakalari import Bakalari
+from .datastructure import Schools
 from .komens import Komens, MessageContainer
 from .logger_api import api_logger
 

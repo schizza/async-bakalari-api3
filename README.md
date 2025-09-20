@@ -16,14 +16,20 @@ Features that are stable and working:
 
 - automatically login with cached `Credentials`
 - fetching list of supported schools
-  
+
   - supports recursive search by town
   - fetch all school or schools by town
-  
+
 - fetching messages
   - unread messages
   - all messages
   - download attachments for fetched messages (with auto download support)
   - search messages by ID, date, date range
+
+- fetching grades
+  - all grades
+  - search grades by ID, date, date range
+  - search grades by subject
+
 
 Any suggestions are welcomed.

@@ -6,9 +6,9 @@ import logging
 import pytest
 from aioresponses import aioresponses
 
-from src.bakalari_api.bakalari import Bakalari
-from src.bakalari_api.const import EndPoint
-from src.bakalari_api.marks import Marks
+from src.async_bakalari_api.bakalari import Bakalari
+from src.async_bakalari_api.const import EndPoint
+from src.async_bakalari_api.marks import Marks
 
 fs = "http://fake_server"
 
