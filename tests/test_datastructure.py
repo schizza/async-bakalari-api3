@@ -5,8 +5,8 @@ from unittest.mock import patch
 
 import orjson
 import pytest
-from src.bakalari_api.bakalari import Credentials, Schools
-from src.bakalari_api.datastructure import UniqueTowns
+from src.async_bakalari_api.bakalari import Credentials, Schools
+from src.async_bakalari_api.datastructure import UniqueTowns
 
 
 @pytest.fixture

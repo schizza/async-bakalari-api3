@@ -1,6 +1,6 @@
 """Module contains test cases for the EndPoint class in the bakalari_api.const module."""
 
-from src.bakalari_api.const import EndPoint
+from src.async_bakalari_api.const import EndPoint
 
 
 def test_Endpoint_get():

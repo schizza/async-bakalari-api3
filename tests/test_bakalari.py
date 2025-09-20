@@ -12,22 +12,25 @@ import pytest
 from aiohttp import hdrs
 from aioresponses import aioresponses
 
-from src.bakalari_api.bakalari import Bakalari, Credentials, Schools
-from src.bakalari_api.const import EndPoint, Errors
-from src.bakalari_api.exceptions import Ex
-from src.bakalari_api.logger_api import api_logger
+from src.async_bakalari_api.bakalari import Bakalari, Credentials, Schools
+from src.async_bakalari_api.const import EndPoint, Errors
+from src.async_bakalari_api.exceptions import Ex
+from src.async_bakalari_api.logger_api import api_logger
 
 fs = "http://fake_server"
+
 
 @pytest.mark.asyncio
 async def test_bakalari_del_closes_session(monkeypatch):
     bakalari = Bakalari("http://fake_server", auto_cache_credentials=False)
-   
+
     # patch session.close to detect the call
     closed = False
+
     async def close_patch(*a, **k):
         nonlocal closed
         closed = True
+
     bakalari.session.close = close_patch
 
     # 'delete' and force garbage collect
