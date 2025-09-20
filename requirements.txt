@@ -4,32 +4,10 @@
 #
 #    pip-compile
 #
+
 aiofiles>=24.1.0
-    # via -r requirements.in
-
-aiohttp>=3.12.15
-
-
-    # via -r requirements.in
-attrs>=24.2.0
-    # via aiohttp
-frozenlist>=1.7.0
-    # via
-    #   aiohttp
-    #   aiosignal
-idna>=3.10
-    # via yarl
+aiohttp>=3.9.5
 logger>=1.4
-    # via -r requirements.in
-multidict>=6.6.4
-    # via
-    #   aiohttp
-    #   yarl
-orjson>=3.11.2
-    # via -r requirements.in
+orjson>=3.10.15
 python-dateutil>=2.9.0.post0
-    # via -r requirements.in
-six>=1.17.0
-    # via python-dateutil
 strenum>=0.4.15
-    # via -r requirements.in

@@ -44,29 +44,29 @@ iniconfig==2.1.0
     #   pytest
 logger==1.4
     # via -r requirements_dev.in
-multidict==6.6.4
+multidict==6.1.0
     # via
     #   -r requirements_dev.in
     #   aiohttp
     #   yarl
-orjson==3.11.3
+orjson==3.10.15
     # via -r requirements_dev.in
 packaging==24.2
     # via
     #   -r requirements_dev.in
     #   pytest
-pluggy==1.6.0
+pluggy==1.5.0
     # via
     #   -r requirements_dev.in
     #   pytest
-pytest==8.4.2
+pytest==8.3.4
     # via
     #   -r requirements_dev.in
     #   pytest-aiohttp
     #   pytest-asyncio
     #   pytest-cov
     #   pytest-mock
-pytest-aiohttp==1.1.0
+pytest-aiohttp==1.0.5
     # via -r requirements_dev.in
 pytest-async==0.1.1
     # via -r requirements_dev.in
