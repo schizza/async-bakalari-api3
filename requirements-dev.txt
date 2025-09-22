@@ -17,7 +17,7 @@ aiosignal>=1.4.0
     # via
     #   -r requirements_dev.in
     #   aiohttp
-asyncio==3.4.3
+asyncio==4.0.0
     # via -r requirements_dev.in
 attrs==24.2.0
     # via
