@@ -31,6 +31,7 @@ class Bakalari:
     def __init__(
         self,
         server: str | None = None,
+        credentials: Credentials | None = None,
         auto_cache_credentials: bool = False,
         cache_filename: str | None = None,
     ):
@@ -46,7 +47,7 @@ class Bakalari:
         """
 
         self.server = server
-        self.credentials = Credentials
+        self.credentials = Credentials()
         self.new_token = False
         self.auto_cache_credentials = auto_cache_credentials
         self.cache_filename = cache_filename
@@ -427,13 +428,13 @@ class Bakalari:
         try:
             with open(filename, "rb") as file:
                 data = orjson.loads(file.read())
+                self.credentials = Credentials.create_from_json(data)
+                return self.credentials
+
         except (OSError, orjson.JSONDecodeError):
             log.error(f"Error while loading credentials from file {filename}")
+            self.credentials = Credentials()
             return False
-
-        self.credentials = Credentials.create_from_json(data)
-
-        return self.credentials
 
     async def __aenter__(self) -> Self:
         """Async enter.
