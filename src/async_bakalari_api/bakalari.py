@@ -59,7 +59,7 @@ class Bakalari:
         self._refresh_lock: Lock = asyncio.Lock()
         self.schools: Schools = Schools()
 
-        if self._auto_cache_credentials and not self._cache_filename:
+        if self.auto_cache_credentials and not self.cache_filename:
             raise Ex.CacheError("Auto-cache is enabled, but no filename is provided!")
 
         if self._auto_cache_credentials and self._cache_filename:

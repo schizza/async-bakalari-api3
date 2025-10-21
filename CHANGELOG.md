@@ -25,6 +25,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
  - `Credentials` in `Bakalari` is instance, not reference to credentials. This fixes issue with multiple instances of `Bakalari` sharing the same credentials.
 
+ 
  ## [0.3.7]
 
 ### Fixed
