@@ -3,9 +3,10 @@
 import datetime as dt
 
 from aioresponses import aioresponses
-from src.async_bakalari_api.bakalari import Bakalari
-from src.async_bakalari_api.const import EndPoint
-from src.async_bakalari_api.komens import AttachmentsRegistry, Komens, Messages
+from async_bakalari_api.datastructure import Credentials
+from async_bakalari_api.bakalari import Bakalari
+from async_bakalari_api.const import EndPoint
+from async_bakalari_api.komens import AttachmentsRegistry, Komens, Messages
 
 fs = "http://fake_server"
 
@@ -142,6 +143,8 @@ payload_unread = """{
     }
    ]}"""
 
+cred:Credentials = Credentials(access_token="token", refresh_token="ref_token")
+
 
 def test_attributes_Att_registry():
     """Test the AttachmentsRegistry class attributes."""
@@ -157,9 +160,8 @@ def test_attributes_Att_registry():
 async def test_get_unread_messages():
     """Test the get_unread_messages method of the Komens class."""
 
-    bakalari = Bakalari(fs)
+    bakalari = Bakalari(server=fs, credentials=cred)
     komens = Komens(bakalari)
-    bakalari.credentials.access_token = "token"
 
     with aioresponses() as m:
         m.post(
@@ -187,9 +189,8 @@ async def test_get_unread_messages():
 async def test_komens_get_messages():
     """Test the Komens class and its methods."""
 
-    bakalari = Bakalari(fs)
+    bakalari = Bakalari(server=fs, credentials=cred)
     komens = Komens(bakalari)
-    bakalari.credentials.access_token = "token"
 
     with aioresponses() as m:
         m.post(
@@ -281,9 +282,8 @@ async def test_komens_get_messages():
 async def test_komens_count_unread_messages():
     """Test the count_unread_messages method of the Komens class."""
 
-    bakalari = Bakalari(fs)
+    bakalari = Bakalari(server=fs, credentials=cred)
     komens = Komens(bakalari)
-    bakalari.credentials.access_token = "token"
 
     with aioresponses() as m:
         m.get(
@@ -299,9 +299,8 @@ async def test_komens_count_unread_messages():
 async def test_komens_get_attachment():
     """Test the get_attachment method of the Komens class."""
 
-    bakalari = Bakalari(fs)
+    bakalari = Bakalari(server=fs, credentials=cred)
     komens = Komens(bakalari)
-    bakalari.credentials.access_token = "token"
 
     with aioresponses() as m:
         m.get(

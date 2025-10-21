@@ -2,7 +2,9 @@
 
 import datetime as dt
 import logging
+from weakref import ref
 
+from src.async_bakalari_api.datastructure import Credentials
 import pytest
 from aioresponses import aioresponses
 
@@ -11,6 +13,8 @@ from src.async_bakalari_api.const import EndPoint
 from src.async_bakalari_api.marks import Marks
 
 fs = "http://fake_server"
+
+cred: Credentials = Credentials(access_token="token", refresh_token="refresh_token")
 
 
 def _payload_marks():
@@ -80,11 +84,9 @@ def _payload_marks():
 
 async def _prepare_marks_instance(payload=None) -> Marks:
     """Create a Bakalari + Marks instance and feed fixtures via mocked API."""
-    bakalari = Bakalari(fs)
+    bakalari = Bakalari(fs, credentials=cred)
     marks = Marks(bakalari)
     # authorize
-    bakalari.credentials.access_token = "token"
-    bakalari.credentials.refresh_token = "refresh"
 
     data = payload or _payload_marks()
 
@@ -96,6 +98,8 @@ async def _prepare_marks_instance(payload=None) -> Marks:
             status=200,
         )
         await marks.fetch_marks()
+
+    await bakalari.__aexit__()
 
     return marks
 
@@ -429,7 +433,7 @@ async def test_marks_registry():
     assert "MarksBase" in repr(mat_marks.get("m2"))
     assert "Písemka 2" in repr(mat_marks.get("m2"))
     assert "subject_id='101'" in repr(mat_marks.get("m2"))
-    
+
 
 async def test_format_points():
     """Marks.format_points returns a string representation of the points."""
