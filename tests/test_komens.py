@@ -3,9 +3,10 @@
 import datetime as dt
 
 from aioresponses import aioresponses
-from src.async_bakalari_api.bakalari import Bakalari
-from src.async_bakalari_api.const import EndPoint
-from src.async_bakalari_api.komens import AttachmentsRegistry, Komens, Messages
+from async_bakalari_api.datastructure import Credentials
+from async_bakalari_api.bakalari import Bakalari
+from async_bakalari_api.const import EndPoint
+from async_bakalari_api.komens import AttachmentsRegistry, Komens, Messages
 
 fs = "http://fake_server"
 
@@ -142,6 +143,8 @@ payload_unread = """{
     }
    ]}"""
 
+cred:Credentials = Credentials(access_token="token", refresh_token="ref_token")
+
 
 def test_attributes_Att_registry():
     """Test the AttachmentsRegistry class attributes."""
@@ -157,9 +160,8 @@ def test_attributes_Att_registry():
 async def test_get_unread_messages():
     """Test the get_unread_messages method of the Komens class."""
 
-    bakalari = Bakalari(fs)
+    bakalari = Bakalari(server=fs, credentials=cred)
     komens = Komens(bakalari)
-    bakalari.credentials.access_token = "token"
 
     with aioresponses() as m:
         m.post(
@@ -182,14 +184,14 @@ async def test_get_unread_messages():
             "read: False\n"
             "attachments: id: fake_attachment_id1 name: fake_atachement_name1\n"
         )
+        await bakalari.__aexit__()
 
 
 async def test_komens_get_messages():
     """Test the Komens class and its methods."""
 
-    bakalari = Bakalari(fs)
+    bakalari = Bakalari(server=fs, credentials=cred)
     komens = Komens(bakalari)
-    bakalari.credentials.access_token = "token"
 
     with aioresponses() as m:
         m.post(
@@ -276,14 +278,14 @@ async def test_komens_get_messages():
         # Test isattachments
         assert msg[0].isattachments() is True
         assert msg[1].isattachments() is False
+        await bakalari.__aexit__()
 
 
 async def test_komens_count_unread_messages():
     """Test the count_unread_messages method of the Komens class."""
 
-    bakalari = Bakalari(fs)
+    bakalari = Bakalari(server=fs, credentials=cred)
     komens = Komens(bakalari)
-    bakalari.credentials.access_token = "token"
 
     with aioresponses() as m:
         m.get(
@@ -294,14 +296,13 @@ async def test_komens_count_unread_messages():
         )
 
         assert await komens.count_unread_messages() == 50
-
+    await bakalari.__aexit__()
 
 async def test_komens_get_attachment():
     """Test the get_attachment method of the Komens class."""
 
-    bakalari = Bakalari(fs)
+    bakalari = Bakalari(server=fs, credentials=cred)
     komens = Komens(bakalari)
-    bakalari.credentials.access_token = "token"
 
     with aioresponses() as m:
         m.get(
@@ -331,3 +332,4 @@ async def test_komens_get_attachment():
 
         test = await komens.get_attachment("1")
         assert not test
+    await bakalari.__aexit__()

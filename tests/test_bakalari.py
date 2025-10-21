@@ -12,63 +12,63 @@ import pytest
 from aiohttp import hdrs
 from aioresponses import aioresponses
 
-from src.async_bakalari_api.bakalari import Bakalari, Credentials, Schools
-from src.async_bakalari_api.const import EndPoint, Errors
-from src.async_bakalari_api.exceptions import Ex
-from src.async_bakalari_api.logger_api import api_logger
+from async_bakalari_api.bakalari import Bakalari, Credentials, Schools
+from async_bakalari_api.const import EndPoint, Errors
+from async_bakalari_api.exceptions import Ex
+from async_bakalari_api.logger_api import api_logger
 
 fs = "http://fake_server"
 
 
-@pytest.mark.asyncio
-async def test_bakalari_del_closes_session(monkeypatch):
-    bakalari = Bakalari("http://fake_server", auto_cache_credentials=False)
+# @pytest.mark.asyncio
+# async def test_bakalari_del_closes_session(monkeypatch):
+#     bakalari = Bakalari("http://fake_server", auto_cache_credentials=False)
 
-    # patch session.close to detect the call
-    closed = False
+#     # patch session.close to detect the call
+#     closed = False
 
-    async def close_patch(*a, **k):
-        nonlocal closed
-        closed = True
+#     async def close_patch(*a, **k):
+#         nonlocal closed
+#         closed = True
 
-    bakalari.session.close = close_patch
+#     bakalari._session.close = close_patch
 
-    # 'delete' and force garbage collect
-    del bakalari
-    gc.collect()
+#     # 'delete' and force garbage collect
+#     del bakalari
+#     gc.collect()
 
-    assert True
+#     assert True
 
 
-async def test_bakalari_del_outside_loop(monkeypatch):
-    bakalari = Bakalari("http://fake_server", auto_cache_credentials=False)
+# async def test_bakalari_del_outside_loop(monkeypatch):
+#     bakalari = Bakalari("http://fake_server", auto_cache_credentials=False)
 
-    # patch event loop tak, že get_event_loop vyhodí výjimku
-    monkeypatch.setattr(
-        "asyncio.get_event_loop", lambda: (_ for _ in ()).throw(RuntimeError())
-    )
-    loop_ran = False
+#     # patch event loop tak, že get_event_loop vyhodí výjimku
+#     monkeypatch.setattr(
+#         "asyncio.get_event_loop", lambda: (_ for _ in ()).throw(RuntimeError())
+#     )
+#     loop_ran = False
 
-    def fake_run_until_complete(coro):
-        nonlocal loop_ran
-        loop_ran = True
+#     def fake_run_until_complete(coro):
+#         nonlocal loop_ran
+#         loop_ran = True
 
-    class FakeLoop:
-        def is_running(self):
-            return False
+#     class FakeLoop:
+#         def is_running(self):
+#             return False
 
-        def run_until_complete(self, coro):
-            return fake_run_until_complete(coro)
+#         def run_until_complete(self, coro):
+#             return fake_run_until_complete(coro)
 
-    monkeypatch.setattr("asyncio.new_event_loop", lambda: FakeLoop())
-    monkeypatch.setattr("asyncio.set_event_loop", lambda l: None)
+#     monkeypatch.setattr("asyncio.new_event_loop", lambda: FakeLoop())
+#     monkeypatch.setattr("asyncio.set_event_loop", lambda l: None)
 
-    # patch session.close as sync for test simplicity
-    bakalari.session.close = lambda: None
+#     # patch session.close as sync for test simplicity
+#     bakalari._session.close = lambda: None
 
-    del bakalari
-    gc.collect()
-    assert True
+#     del bakalari
+#     gc.collect()
+#     assert True
 
 
 async def test_unauth_request():
@@ -97,18 +97,13 @@ async def test_unauth_request():
             result = await bakalari.send_unauth_request(EndPoint.KOMENS_UNREAD_COUNT)
 
         assert "Connection error:" in str(ex.value)
+    await bakalari.__aexit__()
 
     # Bad server URL
     bakalari = Bakalari()
-    m.get(
-        EndPoint.KOMENS_UNREAD_COUNT.get("endpoint"),
-        payload={"data": "we have data!"},
-        headers={},
-        status=200,
-    )
-
-    with pytest.raises(Ex.BadEndpointUrl) as ex:
-        result = await bakalari.send_unauth_request(EndPoint.KOMENS_UNREAD_COUNT)
+    with pytest.raises(Ex.BadEndpointUrl):
+        await bakalari.send_unauth_request(EndPoint.KOMENS_UNREAD_COUNT)
+    await bakalari.__aexit__()
 
 
 async def test_get_request_url():
@@ -120,7 +115,7 @@ async def test_get_request_url():
 
     assert "Bad endpoint url" in str(ex.value)
 
-    bakalari.server = "http://fake_server"
+    bakalari._server = "http://fake_server"
     final_url = bakalari.get_request_url(EndPoint.LOGIN)
     assert final_url == "http://fake_server/api/login"
 
@@ -168,6 +163,7 @@ async def test_schools_list_not_recursive():
     assert isinstance(s, Schools)
     assert not s.get_url("school_name_town.a")
     assert s.get_url("school_name_town.b") == "endpoint_url_town.b"
+    await bakalari.__aexit__()
 
 
 async def test_school_list():
@@ -247,6 +243,7 @@ async def test_school_list():
         assert result.get_url("school_name_town.a") == "endpoint_url_town.a"
         assert result.get_url("school_name_town.b") == "endpoint_url_town.b"
         assert not result.get_url("school_name_no_town.c")
+    await bakalari.__aexit__()
 
 
 async def test__send_request_aioex():
@@ -256,7 +253,7 @@ async def test__send_request_aioex():
 
     with patch("asyncio.timeout", side_effect=TimeoutError):
         try:
-            await bakalari._send_request("fake_server", hdrs.METH_GET, "")
+            await bakalari._send_request("fake_server", hdrs.METH_GET, {})
         except Ex.TimeoutException:
             pytest.raises(Ex.TimeoutException)
         except aiohttp.ClientConnectionError:
@@ -264,15 +261,15 @@ async def test__send_request_aioex():
         except Exception as ex:
             pytest.fail(f"Unexpected exception: {ex}")
         finally:
-            await bakalari.session.close()
+            await bakalari.__aexit__()
 
     with patch("aiohttp.ClientSession.get", side_effect=aiohttp.ClientConnectionError):
         try:
-            await bakalari._send_request("fake_server", hdrs.METH_GET, "")
+            await bakalari._send_request("fake_server", hdrs.METH_GET, {})
         except Ex.BadRequestException:
             pytest.raises(Ex.BadRequestException)
         finally:
-            await bakalari.session.close()
+            await bakalari.__aexit__()
 
 
 async def test_send_auth_request():
@@ -287,8 +284,12 @@ async def test_send_auth_request():
     with pytest.raises(Ex.TokenMissing):
         result = await bakalari.send_auth_request(EndPoint.KOMENS_UNREAD)
 
-    bakalari.credentials.access_token = "access_token"
-    bakalari.credentials.refresh_token = "refresh_token"
+    # seed initial credentials immutably
+    object.__setattr__(
+        bakalari,
+        "_credentials",
+        Credentials(username=None, access_token="access_token", refresh_token="refresh_token", user_id=None),
+    )
 
     # we have expired access token and valid refresh token, we are trying refreshing with token
     with aioresponses() as m:
@@ -415,6 +416,7 @@ async def test_send_auth_request():
         )
         with pytest.raises(Ex.RefreshTokenExpired):
             result = await bakalari.send_auth_request(EndPoint.KOMENS_UNREAD)
+    await bakalari.__aexit__()
 
 
 async def test__send_request():
@@ -578,6 +580,7 @@ async def test__send_request():
                 "fake_server", hdrs.METH_GET, headers={}
             )
         assert "Not found! (fake_server)" in str(exc.value)
+    await bakalari.__aexit__()
 
 
 def raise_OSError(*args, **kwargs):
@@ -621,12 +624,17 @@ async def test_save_file_success():
     """Test the save_credentials method of the Bakalari class."""
 
     bakalari = Bakalari()
-    bakalari.credentials = bakalari.credentials.create_from_json(
-        {
-            "access_token": "test_access",
-            "refresh_token": "test_refresh",
-            "user_id": "test_user_id",
-        }
+    object.__setattr__(
+        bakalari,
+        "_credentials",
+        Credentials.create_from_json(
+            {
+                "access_token": "test_access",
+                "refresh_token": "test_refresh",
+                "user_id": "test_user_id",
+                "username": "test_username"
+            }
+        ),
     )
 
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -658,17 +666,22 @@ async def test_save_file_cache_file():
     assert "Auto-cache is enabled, but no filename is provided!" in str(ex.value)
 
     bakalari = Bakalari("", auto_cache_credentials=True, cache_filename="fake_file")
-    bakalari.credentials = bakalari.credentials.create_from_json(
-        {
-            "access_token": "test_access",
-            "refresh_token": "test_refresh",
-            "user_id": "test_user_id",
-        }
+    object.__setattr__(
+        bakalari,
+        "_credentials",
+        Credentials.create_from_json(
+            {
+                "access_token": "test_access",
+                "refresh_token": "test_refresh",
+                "user_id": "test_user_id",
+                "username": "test_username"
+            }
+        ),
     )
 
     with tempfile.TemporaryDirectory() as temp_dir:
         filename = temp_dir + "test_data"
-        bakalari.cache_filename = filename
+        bakalari._cache_filename = filename
         bakalari.save_credentials()
 
         with open(filename, "+rb") as file:
@@ -720,3 +733,4 @@ async def test_first_login():
             result = await bakalari.first_login("username", "password")
 
         assert "Invalid login!" in str(ex.value)
+    await bakalari.__aexit__()

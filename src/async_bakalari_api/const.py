@@ -74,7 +74,7 @@ class EndPoint(Enum):
 class Token(StrEnum):
     """Token."""
 
-    USER_ID: str = "bak:UserId"
-    ACCESS_TOKEN: str = "access_token"
-    REFRESH_TOKEN: str = "refresh_token"
-    USERNAME: str = "username"
+    USER_ID = "bak:UserId"
+    ACCESS_TOKEN = "access_token"
+    REFRESH_TOKEN = "refresh_token"
+    USERNAME = "username"

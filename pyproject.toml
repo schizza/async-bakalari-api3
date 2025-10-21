@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "async_bakalari_api"
-version = "0.3.8"
+version = "0.4.0"
 dynamic = ["dependencies"]
 
 requires-python = ">=3.12"
@@ -47,7 +47,7 @@ Changelog = "https://github.com/schizza/bakalari-api3/blob/master/CHANGELOG.md"
 [project.scripts]
 bakalari = "async_bakalari_api:main"
 
-[tool.pylint.MAIN]
+[tool.pylint.main]
 py-version = "3.12"
 ignore = [
     "tests"
@@ -72,7 +72,6 @@ norecursedirs = [
 ]
 
 [tool.ruff]
-required-version = ">=0.4.2"
 
 [tool.ruff.lint]
 select = [

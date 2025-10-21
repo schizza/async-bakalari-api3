@@ -5,6 +5,7 @@ from __future__ import annotations
 from contextlib import suppress
 from dataclasses import dataclass
 from typing import Any
+from typing_extensions import override
 
 import orjson
 
@@ -14,23 +15,24 @@ from .logger_api import api_logger
 log = api_logger("Bakalari API").get()
 
 
-@dataclass
+@dataclass(frozen=True)
 class Credentials:
     """Credentials holder."""
 
-    username: str = None
-    access_token: str = None
-    refresh_token: str = None
-    user_id: str = None
+    username: str | None = None
+    access_token: str | None = None
+    refresh_token: str | None = None
+    user_id: str | None = None
 
     @classmethod
     def create(cls, data: dict[str, Any]) -> Credentials:
         """Create class object form data."""
 
         return cls(
-            user_id=data[Token.USER_ID],
-            access_token=data[Token.ACCESS_TOKEN],
-            refresh_token=data[Token.REFRESH_TOKEN],
+            username=data.get(Token.USERNAME),
+            user_id=data.get(Token.USER_ID),
+            access_token=data.get(Token.ACCESS_TOKEN),
+            refresh_token=data.get(Token.REFRESH_TOKEN)
         )
 
     @classmethod
@@ -41,17 +43,17 @@ class Credentials:
                 Token.USER_ID: data["user_id"],
                 Token.ACCESS_TOKEN: data["access_token"],
                 Token.REFRESH_TOKEN: data["refresh_token"],
+                Token.USERNAME: data["username"],
             }
         )
-
 
 @dataclass
 class School:
     """Data structure for one school item."""
 
-    name: str = None
-    api_point: str = None
-    town: str = None
+    name: str | None = None
+    api_point: str | None = None
+    town: str | None = None
 
 
 class UniqueTowns:
@@ -70,6 +72,7 @@ class UniqueTowns:
             self.list.append(town)
             self.set.add(town)
 
+    @override
     def __str__(self) -> str:
         """Return string representation of the list."""
         return str(self.list)
@@ -118,19 +121,19 @@ class Schools:
     ) -> bool:
         """Append new school to the school_list list."""
 
-        if name == "" or None:
+        if not name:
             log.error(
                 f"School's name should not be none or empty! (name={name}, api_point={api_point}, town={town})"
             )
             return False
 
-        if api_point == "" or None:
+        if not api_point:
             log.error(
                 f"School's API point should not be none or empty! (name={name}, api_point={api_point}, town={town})"
             )
             return False
 
-        if town == "" or None:
+        if not town:
             log.error(
                 f"School's town should not be none or empty! (name={name}, api_point={api_point}, town={town})"
             )
@@ -157,7 +160,7 @@ class Schools:
         """Return number of towns in the list."""
         return len(self.towns_list)
 
-    def get_url(self, name: str | None = None, idx: int | None = None) -> str | False:
+    def get_url(self, name: str | None = None, idx: int | None = None) -> str | bool:
         """Return url for school from name or index in dictionary.
 
         Only one must be specified - name or index, otherwise returns False
