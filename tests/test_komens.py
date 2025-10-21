@@ -184,6 +184,7 @@ async def test_get_unread_messages():
             "read: False\n"
             "attachments: id: fake_attachment_id1 name: fake_atachement_name1\n"
         )
+        await bakalari.__aexit__()
 
 
 async def test_komens_get_messages():
@@ -277,6 +278,7 @@ async def test_komens_get_messages():
         # Test isattachments
         assert msg[0].isattachments() is True
         assert msg[1].isattachments() is False
+        await bakalari.__aexit__()
 
 
 async def test_komens_count_unread_messages():
@@ -294,7 +296,7 @@ async def test_komens_count_unread_messages():
         )
 
         assert await komens.count_unread_messages() == 50
-
+    await bakalari.__aexit__()
 
 async def test_komens_get_attachment():
     """Test the get_attachment method of the Komens class."""
@@ -330,3 +332,4 @@ async def test_komens_get_attachment():
 
         test = await komens.get_attachment("1")
         assert not test
+    await bakalari.__aexit__()

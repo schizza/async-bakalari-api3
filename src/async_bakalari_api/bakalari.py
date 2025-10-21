@@ -67,12 +67,23 @@ class Bakalari:
 
     @property
     def credentials(self) -> Credentials:
-         return self._credentials
+        return self._credentials
 
     @credentials.setter
     def credentials(self, _value: Credentials) -> Never:
         raise AttributeError("Credentials are read-only. Use login/refresh methods.")
-          #self._credentials = replace(new_credentials)
+
+    @property
+    def auto_cache_credentials(self) -> bool:
+        return self._auto_cache_credentials
+
+    @property
+    def cache_filename(self) -> str | None:
+        return self._cache_filename
+
+    @property
+    def server(self) -> str | None:
+        return self._server
 
     async def _ensure_session(self) -> None:
         """Ensure aiohttp session exists (create if needed)."""

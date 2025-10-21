@@ -97,6 +97,7 @@ async def test_unauth_request():
             result = await bakalari.send_unauth_request(EndPoint.KOMENS_UNREAD_COUNT)
 
         assert "Connection error:" in str(ex.value)
+    await bakalari.__aexit__()
 
     # Bad server URL
     bakalari = Bakalari()
@@ -631,6 +632,7 @@ async def test_save_file_success():
                 "access_token": "test_access",
                 "refresh_token": "test_refresh",
                 "user_id": "test_user_id",
+                "username": "test_username"
             }
         ),
     )
@@ -672,6 +674,7 @@ async def test_save_file_cache_file():
                 "access_token": "test_access",
                 "refresh_token": "test_refresh",
                 "user_id": "test_user_id",
+                "username": "test_username"
             }
         ),
     )

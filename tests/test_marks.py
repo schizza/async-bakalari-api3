@@ -2,7 +2,6 @@
 
 import datetime as dt
 import logging
-from weakref import ref
 
 from src.async_bakalari_api.datastructure import Credentials
 import pytest
