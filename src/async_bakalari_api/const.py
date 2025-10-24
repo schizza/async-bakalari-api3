@@ -51,6 +51,14 @@ class EndPoint(Enum):
         "endpoint": "/api/3/marks",
         "method": "get",
     }
+    TIMETABLE_ACTUAL: Final = {
+        "endpoint": "/api/3/timetable/actual",
+        "method": "get",
+    }
+    TIMETABLE_PERMANENT: Final = {
+        "endpoint": "/api/3/timetable/permanent",
+        "method": "get",
+    }
 
     def get(self, key: str) -> Any:
         """Get key value."""

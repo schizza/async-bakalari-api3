@@ -3,15 +3,17 @@
 import argparse
 import asyncio
 import os
+from datetime import datetime
 
 import aiofiles
 from logger import logging
 import orjson
 
 from .bakalari import Bakalari
-from .datastructure import Schools
+from .datastructure import Credentials, Schools
 from .komens import Komens, MessageContainer
 from .logger_api import api_logger
+from .timetable import Timetable, TimetableContext
 
 
 async def w(name, data):
@@ -129,10 +131,44 @@ async def komens(args, bakalari):
         await wb(*(await Komens(bakalari=bakalari).get_attachment(args.attachment)))
 
 
+async def timetable(args, bakalari):
+    """Timetable command."""
+    # Build context if provided
+    ctx = None
+    if getattr(args, "tt_class", None):
+        ctx = TimetableContext("class", args.tt_class)
+    elif getattr(args, "tt_group", None):
+        ctx = TimetableContext("group", args.tt_group)
+    elif getattr(args, "tt_teacher", None):
+        ctx = TimetableContext("teacher", args.tt_teacher)
+    elif getattr(args, "tt_room", None):
+        ctx = TimetableContext("room", args.tt_room)
+    elif getattr(args, "tt_student", None):
+        ctx = TimetableContext("student", args.tt_student)
+
+    # Parse date if provided
+    date_val = None
+    if getattr(args, "tt_date", None):
+        try:
+            date_val = datetime.fromisoformat(args.tt_date).date()
+        except Exception as ex:
+            print(f"Neplatný formát data: {args.tt_date} (očekáváno YYYY-MM-DD) — {ex}")
+            return
+
+    tt = Timetable(bakalari=bakalari)
+    async with bakalari:
+        if getattr(args, "tt_permanent", False):
+            week = await tt.fetch_permanent(context=ctx)
+        else:
+            week = await tt.fetch_actual(for_date=date_val, context=ctx)
+
+    print(week.format_week())
+
+
 async def runme(args):
     """Run the main function."""
-    server = False
-    schools = False
+    server = None
+    schools = None
 
     if args.config and not args.first_login and not args.first_login_file:
         try:
@@ -154,15 +190,13 @@ async def runme(args):
             schools: Schools = await Schools().load_from_file(args.sf)
         except Exception as ex:
             os._exit(ex)
-    elif not server:
-        schools: Schools = await Bakalari().schools_list(town=args.town)
 
-    if not schools and not args.config:
-        print("Nenalezeny žádné školy")
-        os._exit(1)
+
 
     school = args.school
     if school and not server:
+        if not schools:
+            schools = await Bakalari().schools_list(town=args.town)
         server = schools.get_url(school)
 
     if args.no_login:
@@ -203,10 +237,11 @@ async def runme(args):
         )
     if args.credentials:
 
-        bakalari = Bakalari(server=server)
-        credentials = r(args.credentials_file)
-        bakalari.credentials.access_token = credentials["access_token"]
-        bakalari.credentials.refresh_token = credentials["refresh_token"]
+        cred = r(name=args.credentials_file)
+        bakalari = Bakalari(server=server, credentials=Credentials(
+            access_token = cred["access_token"],
+            refresh_token = cred["refresh_token"]
+        ))
 
     if args.auto_cache and not (
         args.first_login or args.first_login_file or args.credentials
@@ -375,6 +410,34 @@ def main() -> None:
     komens_parser.add_argument(
         "--attachment", nargs=None, metavar="ID_přílohy", help="Stáhne přílohu zprávy."
     )
+
+    # Timetable command
+    timetable_parser = subparser.add_parser("timetable", help="Rozvrh (timetable)")
+    timetable_parser.add_argument(
+        "-p",
+        "--permanent",
+        dest="tt_permanent",
+        action="store_true",
+        help="Načte pevný (permanentní) rozvrh místo aktuálního."
+    )
+    timetable_parser.add_argument(
+        "-d",
+        "--date",
+        dest="tt_date",
+        metavar="YYYY-MM-DD",
+        help="Datum týdne pro aktuální rozvrh ve formátu YYYY-MM-DD. Pokud není zadáno, použije se dnešní datum."
+    )
+    tt_ctx = timetable_parser.add_mutually_exclusive_group()
+    tt_ctx.add_argument("--class", dest="tt_class", metavar="ID", help="ID třídy (classId) pro zobrazení rozvrhu.")
+    tt_ctx.add_argument("--group", dest="tt_group", metavar="ID", help="ID skupiny (groupId) pro zobrazení rozvrhu.")
+    tt_ctx.add_argument("--teacher", dest="tt_teacher", metavar="ID", help="ID učitele (teacherId) pro zobrazení rozvrhu.")
+    tt_ctx.add_argument("--room", dest="tt_room", metavar="ID", help="ID místnosti (roomId) pro zobrazení rozvrhu.")
+    tt_ctx.add_argument("--student", dest="tt_student", metavar="ID", help="ID studenta (studentId) pro zobrazení rozvrhu.")
+    timetable_parser.set_defaults(func=timetable)
+
+    if len(os.sys.argv) == 1:
+        parser.print_help()
+        return
 
     args = parser.parse_args()
 
