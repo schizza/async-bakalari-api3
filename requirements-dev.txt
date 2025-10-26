@@ -11,7 +11,7 @@ aiohttp==3.12.15
     #   -r requirements_dev.in
     #   aioresponses
     #   pytest-aiohttp
-aioresponses==0.7.6
+aioresponses==0.7.8
     # via -r requirements_dev.in
 aiosignal>=1.4.0
     # via
