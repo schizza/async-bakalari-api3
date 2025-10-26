@@ -2,8 +2,8 @@
 
 import argparse
 import asyncio
-import os
 from datetime import datetime
+import os
 
 import aiofiles
 from logger import logging

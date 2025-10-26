@@ -1,6 +1,6 @@
 import logging
 
-from async_bakalari_api.logger_api import api_logger, CustomFormatter
+from async_bakalari_api.logger_api import CustomFormatter, api_logger
 
 
 def test_api_logger_streamhandler_dedup(monkeypatch):

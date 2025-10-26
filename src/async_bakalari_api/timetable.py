@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, date as date_cls
-from typing import Any, Dict, List, Optional, Tuple, Literal
+from datetime import date, datetime
+from types import TracebackType
+from typing import Any, Literal, Self, cast
 
 from dateutil import parser as dt_parser
 
@@ -30,14 +31,14 @@ class Hour:
 class Change:
     """Represents a change to an atom."""
 
-    change_subject: Optional[str]
+    change_subject: str | None
     day: datetime
-    hours: Optional[str]
-    change_type: Optional[str]
-    description: Optional[str]
-    time: Optional[str]
-    type_abbrev: Optional[str]
-    type_name: Optional[str]
+    hours: str | None
+    change_type: str | None
+    description: str | None
+    time: str | None
+    type_abbrev: str | None
+    type_name: str | None
 
 
 @dataclass(frozen=True)
@@ -45,14 +46,14 @@ class Atom:
     """Represents one timetable atom (lesson block or change placeholder)."""
 
     hour_id: int
-    group_ids: List[str]
-    subject_id: Optional[str]
-    teacher_id: Optional[str]
-    room_id: Optional[str]
-    cycle_ids: List[str]
-    change: Optional[Change]
-    homework_ids: List[str]
-    theme: Optional[str]
+    group_ids: list[str]
+    subject_id: str | None
+    teacher_id: str | None
+    room_id: str | None
+    cycle_ids: list[str]
+    change: Change | None
+    homework_ids: list[str]
+    theme: str | None
 
 
 @dataclass(frozen=True)
@@ -63,11 +64,13 @@ class DayEntry:
     date: datetime
     description: str
     day_type: str
-    atoms: List[Atom]
+    atoms: list[Atom]
 
 
 @dataclass(frozen=True)
 class ClassEntity:
+    """Represents a class entity."""
+
     id: str
     abbrev: str
     name: str
@@ -75,7 +78,9 @@ class ClassEntity:
 
 @dataclass(frozen=True)
 class GroupEntity:
-    class_id: Optional[str]
+    """Represents a group entity."""
+
+    class_id: str | None
     id: str
     abbrev: str
     name: str
@@ -83,6 +88,8 @@ class GroupEntity:
 
 @dataclass(frozen=True)
 class SubjectEntity:
+    """Represents a subject entity."""
+
     id: str
     abbrev: str
     name: str
@@ -90,6 +97,8 @@ class SubjectEntity:
 
 @dataclass(frozen=True)
 class TeacherEntity:
+    """Represents a teacher entity."""
+
     id: str
     abbrev: str
     name: str
@@ -97,6 +106,8 @@ class TeacherEntity:
 
 @dataclass(frozen=True)
 class RoomEntity:
+    """Represents a room entity."""
+
     id: str
     abbrev: str
     name: str
@@ -104,6 +115,8 @@ class RoomEntity:
 
 @dataclass(frozen=True)
 class CycleEntity:
+    """Represents a cycle entity."""
+
     id: str
     abbrev: str
     name: str
@@ -116,7 +129,7 @@ class TimetableContext:
     kind: Literal["class", "group", "teacher", "room", "student"]
     id: str
 
-    def to_params(self) -> Dict[str, str]:
+    def to_params(self) -> dict[str, str]:
         """Return query parameters for the selected context."""
         key = {
             "class": "classId",
@@ -132,16 +145,16 @@ class TimetableContext:
 class TimetableWeek:
     """Parsed timetable container for a week (actual or permanent)."""
 
-    hours: Dict[int, Hour] = field(default_factory=dict)
-    days: List[DayEntry] = field(default_factory=list)
-    classes: Dict[str, ClassEntity] = field(default_factory=dict)
-    groups: Dict[str, GroupEntity] = field(default_factory=dict)
-    subjects: Dict[str, SubjectEntity] = field(default_factory=dict)
-    teachers: Dict[str, TeacherEntity] = field(default_factory=dict)
-    rooms: Dict[str, RoomEntity] = field(default_factory=dict)
-    cycles: Dict[str, CycleEntity] = field(default_factory=dict)
+    hours: dict[int, Hour] = field(default_factory=dict)
+    days: list[DayEntry] = field(default_factory=list)
+    classes: dict[str, ClassEntity] = field(default_factory=dict)
+    groups: dict[str, GroupEntity] = field(default_factory=dict)
+    subjects: dict[str, SubjectEntity] = field(default_factory=dict)
+    teachers: dict[str, TeacherEntity] = field(default_factory=dict)
+    rooms: dict[str, RoomEntity] = field(default_factory=dict)
+    cycles: dict[str, CycleEntity] = field(default_factory=dict)
 
-    def get_day_by_date(self, day: datetime | date_cls) -> Optional[DayEntry]:
+    def get_day_by_date(self, day: datetime | date) -> DayEntry | None:
         """Return the DayEntry for the given date (date part only)."""
 
         target = day.date() if isinstance(day, datetime) else day
@@ -150,19 +163,26 @@ class TimetableWeek:
                 return d
         return None
 
-    def get_day_by_weekday(self, weekday: int) -> Optional[DayEntry]:
+    def get_day_by_weekday(self, weekday: int) -> DayEntry | None:
         """Return the DayEntry by weekday index from API (1=Mon ... 7=Sun if present)."""
         for d in self.days:
             if d.day_of_week == weekday:
                 return d
         return None
 
-    def resolve(self, atom: Atom) -> Tuple[Optional[SubjectEntity], Optional[TeacherEntity], Optional[RoomEntity], List[GroupEntity]]:
+    def resolve(
+        self, atom: Atom
+    ) -> tuple[
+        SubjectEntity | None,
+        TeacherEntity | None,
+        RoomEntity | None,
+        list[GroupEntity],
+    ]:
         """Resolve atom relations to entities by their IDs."""
         subj = self.subjects.get(atom.subject_id.strip()) if atom.subject_id else None
         teach = self.teachers.get(atom.teacher_id.strip()) if atom.teacher_id else None
         room = self.rooms.get(atom.room_id.strip()) if atom.room_id else None
-        groups = []
+        groups: list[GroupEntity] = []
         for gid in atom.group_ids or []:
             g = self.groups.get(gid.strip())
             if g:
@@ -171,7 +191,8 @@ class TimetableWeek:
 
     def format_day(self, day: DayEntry) -> str:
         """Return a formatted string of the day's timetable."""
-        lines: List[str] = []
+
+        lines: list[str] = []
         header = f"{day.date.date()} ({day.day_type})"
         if day.description:
             header += f" - {day.description}"
@@ -209,7 +230,9 @@ class TimetableWeek:
             # Change
             if atom.change:
                 ch = atom.change
-                ch_label = f"     změna: {ch.change_type or ''} | {ch.description or ''}"
+                ch_label = (
+                    f"     změna: {ch.change_type or ''} | {ch.description or ''}"
+                )
                 if ch.time:
                     ch_label += f" ({ch.time})"
                 lines.append(ch_label)
@@ -218,7 +241,7 @@ class TimetableWeek:
 
     def format_week(self) -> str:
         """Return formatted string of the entire week."""
-        parts: List[str] = []
+        parts: list[str] = []
         for d in sorted(self.days, key=lambda x: x.date):
             parts.append(self.format_day(d))
             parts.append("")  # blank line
@@ -230,27 +253,40 @@ class Timetable:
 
     def __init__(self, bakalari: Bakalari) -> None:
         """Initialize Timetable client."""
-        self.bakalari = bakalari
-        self._last_actual: Optional[TimetableWeek] = None
-        self._last_permanent: Optional[TimetableWeek] = None
+        self.bakalari: Bakalari = bakalari
+        self._last_actual: TimetableWeek | None = None
+        self._last_permanent: TimetableWeek | None = None
 
-    async def __aenter__(self) -> "Timetable":
-        """Support usage as an async context manager: `async with Timetable(b) as t:`"""
-        await self.bakalari.__aenter__()
+    async def __aenter__(self) -> Self:
+        """Support usage as an async context manager.
+
+        `async with Timetable(b) as t:`
+        """
+        _ = await self.bakalari._ensure_session()  # pyright: ignore [reportPrivateUsage]
         return self
 
-    async def __aexit__(self, exc_type, exc, tb) -> None:
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
         """Close underlying Bakalari session on context exit."""
         await self.bakalari.__aexit__(exc_type, exc, tb)
 
     # Public API
-    async def fetch_actual(self, for_date: Optional[datetime | date_cls] = None, context: Optional["TimetableContext | Dict[str, str]"] = None) -> TimetableWeek:
+    async def fetch_actual(
+        self,
+        for_date: datetime | date | None = None,
+        context: TimetableContext | dict[str, str] | None = None,
+    ) -> TimetableWeek:
         """Fetch actual timetable for a specific date (defaults to today).
 
         Args:
             for_date: date or datetime to fetch week for.
             context: timetable context (e.g., class/group/teacher/room/student).
                      You can pass TimetableContext or a dict of extra query params.
+
         """
         if for_date is None:
             for_date = datetime.now().date()
@@ -260,29 +296,32 @@ class Timetable:
             dt_value = for_date
         query_date = dt_value.strftime("%Y-%m-%d")
 
-        params: Dict[str, Any] = {"date": query_date}
+        params: dict[str, Any] = {"date": query_date}
         if context is not None:
             if isinstance(context, TimetableContext):
                 params.update(context.to_params())
-            elif isinstance(context, dict):
+            else:
                 params.update(context)
 
         log.debug(f"Fetching actual timetable for date={query_date} context={context}")
         data = await self.bakalari.send_auth_request(
-            EndPoint.TIMETABLE_ACTUAL,
+            request_endpoint=EndPoint.TIMETABLE_ACTUAL,
             params=params,
         )
-        week = self._parse_timetable(data)
+        week = self._parse_timetable(cast(dict[str, Any], data))
         self._last_actual = week
         return week
 
-    async def fetch_permanent(self, context: Optional["TimetableContext | Dict[str, str]"] = None) -> TimetableWeek:
+    async def fetch_permanent(
+        self, context: TimetableContext | dict[str, str] | None = None
+    ) -> TimetableWeek:
         """Fetch permanent timetable.
 
         Args:
             context: timetable context; pass TimetableContext or dict of extra query params.
+
         """
-        params: Optional[Dict[str, Any]] = None
+        params: dict[str, Any] | None = None
         if context is not None:
             params = {}
             if isinstance(context, TimetableContext):
@@ -292,23 +331,23 @@ class Timetable:
 
         log.debug(f"Fetching permanent timetable context={context}")
         data = await self.bakalari.send_auth_request(
-            EndPoint.TIMETABLE_PERMANENT,
+            request_endpoint=EndPoint.TIMETABLE_PERMANENT,
             params=params,
         )
-        week = self._parse_timetable(data)
+        week = self._parse_timetable(cast(dict[str, Any], data))
         self._last_permanent = week
         return week
 
-    def get_last_actual(self) -> Optional[TimetableWeek]:
+    def get_last_actual(self) -> TimetableWeek | None:
         """Return last fetched actual timetable week, if any."""
         return self._last_actual
 
-    def get_last_permanent(self) -> Optional[TimetableWeek]:
+    def get_last_permanent(self) -> TimetableWeek | None:
         """Return last fetched permanent timetable week, if any."""
         return self._last_permanent
 
     # Parsing
-    def _parse_timetable(self, data: Dict[str, Any]) -> TimetableWeek:
+    def _parse_timetable(self, data: dict[str, Any]) -> TimetableWeek:  # noqa: C901
         """Parse timetable JSON payload into structured TimetableWeek."""
         week = TimetableWeek()
 
@@ -339,7 +378,11 @@ class Timetable:
         for g in data.get("Groups", []) or []:
             try:
                 week.groups[str(g.get("Id")).strip()] = GroupEntity(
-                    class_id=(str(g.get("ClassId")).strip() if g.get("ClassId") is not None else None),
+                    class_id=(
+                        str(g.get("ClassId")).strip()
+                        if g.get("ClassId") is not None
+                        else None
+                    ),
                     id=str(g.get("Id")).strip(),
                     abbrev=str(g.get("Abbrev", "")),
                     name=str(g.get("Name", "")),
@@ -390,9 +433,9 @@ class Timetable:
         # Days + Atoms
         for d in data.get("Days", []) or []:
             try:
-                day_atoms: List[Atom] = []
+                day_atoms: list[Atom] = []
                 for a in d.get("Atoms", []) or []:
-                    change_obj = None
+                    change_obj: Change | None = None
                     raw_change = a.get("Change")
                     if raw_change:
                         try:
@@ -416,9 +459,21 @@ class Timetable:
                     atom = Atom(
                         hour_id=int(a.get("HourId")),
                         group_ids=[str(g) for g in (a.get("GroupIds") or [])],
-                        subject_id=(str(a.get("SubjectId")) if a.get("SubjectId") is not None else None),
-                        teacher_id=(str(a.get("TeacherId")) if a.get("TeacherId") is not None else None),
-                        room_id=(str(a.get("RoomId")) if a.get("RoomId") is not None else None),
+                        subject_id=(
+                            str(a.get("SubjectId"))
+                            if a.get("SubjectId") is not None
+                            else None
+                        ),
+                        teacher_id=(
+                            str(a.get("TeacherId"))
+                            if a.get("TeacherId") is not None
+                            else None
+                        ),
+                        room_id=(
+                            str(a.get("RoomId"))
+                            if a.get("RoomId") is not None
+                            else None
+                        ),
                         cycle_ids=[str(c) for c in (a.get("CycleIds") or [])],
                         change=change_obj,
                         homework_ids=[str(h) for h in (a.get("HomeworkIds") or [])],
@@ -428,7 +483,9 @@ class Timetable:
 
                 day_entry = DayEntry(
                     day_of_week=int(d.get("DayOfWeek")),
-                    date=dt_parser.parse(d.get("Date")) if d.get("Date") else datetime.now(),
+                    date=dt_parser.parse(d.get("Date"))
+                    if d.get("Date")
+                    else datetime.now(),
                     description=str(d.get("DayDescription", "")),
                     day_type=str(d.get("DayType", "")),
                     atoms=day_atoms,

@@ -3,12 +3,11 @@
 import datetime as dt
 import logging
 
-from src.async_bakalari_api.datastructure import Credentials
-import pytest
 from aioresponses import aioresponses
-
+import pytest
 from src.async_bakalari_api.bakalari import Bakalari
 from src.async_bakalari_api.const import EndPoint
+from src.async_bakalari_api.datastructure import Credentials
 from src.async_bakalari_api.marks import Marks
 
 fs = "http://fake_server"
@@ -154,7 +153,7 @@ async def test_marks_fetch_and_grouping():
     # Check __str__ of SubjectBase
     assert (
         subjects[0].__str__()
-        == f"name: Matematika\nid: 101\nabbr: MAT\nAverage: 1.5\npoints_only: False\n----\n"
+        == "name: Matematika\nid: 101\nabbr: MAT\nAverage: 1.5\npoints_only: False\n----\n"
     )
 
     # Check SubjectRegistry

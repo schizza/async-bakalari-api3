@@ -5,8 +5,7 @@ from __future__ import annotations
 import asyncio
 from asyncio.locks import Lock
 import logging
-from typing import Self
-from typing_extensions import Any, Never
+from typing import Never, Self
 from urllib import parse
 
 import aiohttp
@@ -526,4 +525,3 @@ class Bakalari:
 
         await self.aclose()
 
-        return  # pragma: no cover
