@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 🇨🇿 Full documentation (czech) on [this site](https://async-bakalari-api.schizza.cz)
 
+## [0.5.0]
+
+### Adds
+ - New `Timetable` module introduced
+   - This commit introduces the ability to fetch and parse timetable data from the Bakalari API, including actual and permanent timetables. It also defines data structures for representing timetable entities like lessons, changes, and other related information.
+
 ## [0.4.0]
 
 ### Breaking Changes
