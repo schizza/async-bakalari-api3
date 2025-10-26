@@ -1,21 +1,18 @@
 """Module contains test cases for the Bakalari API."""
 
-import asyncio
-import gc
 import re
 import tempfile
 from unittest.mock import patch
 
 import aiohttp
-import orjson
-import pytest
 from aiohttp import hdrs
 from aioresponses import aioresponses
-
 from async_bakalari_api.bakalari import Bakalari, Credentials, Schools
 from async_bakalari_api.const import EndPoint, Errors
 from async_bakalari_api.exceptions import Ex
 from async_bakalari_api.logger_api import api_logger
+import orjson
+import pytest
 
 fs = "http://fake_server"
 

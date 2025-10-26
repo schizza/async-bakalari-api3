@@ -2,6 +2,7 @@
 
 from .bakalari import Bakalari, Schools
 
+
 async def first_login():
     schools: Schools = Schools().load_from_file("schools_data.json")
 

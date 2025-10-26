@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "async_bakalari_api"
-version = "0.4.0"
+version = "0.5.0"
 dynamic = ["dependencies"]
 
 requires-python = ">=3.12"
@@ -71,7 +71,20 @@ norecursedirs = [
     "testing_config",
 ]
 
+[tool.pyright]
+pythonVersion = "3.12"
+typeCheckingMode = "basic"
+exclude = [".venv", "venv", "env", "tests"]
+reportMissingImports = true
+reportMissingTypeStubs = false
+reportUnusedImport = true
+reportUnusedVariable = true
+reportUnusedFunction = true
+reportUnusedClass = true
+reportOptionalMemberAccess = false
+
 [tool.ruff]
+target-version = "py312"
 
 [tool.ruff.lint]
 select = [
@@ -131,7 +144,6 @@ select = [
     "S317", # suspicious-xml-sax-usage
     "S318", # suspicious-xml-mini-dom-usage
     "S319", # suspicious-xml-pull-dom-usage
-    "S320", # suspicious-xmle-tree-usage
     "S601", # paramiko-call
     "S602", # subprocess-popen-with-shell-equals-true
     "S604", # call-with-shell-equals-true

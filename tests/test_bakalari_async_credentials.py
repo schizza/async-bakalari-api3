@@ -4,12 +4,11 @@ import asyncio
 from dataclasses import FrozenInstanceError
 from typing import Any
 
-import pytest
-
 from async_bakalari_api.bakalari import Bakalari
-from async_bakalari_api.datastructure import Credentials
 from async_bakalari_api.const import EndPoint
+from async_bakalari_api.datastructure import Credentials
 from async_bakalari_api.exceptions import Ex
+import pytest
 
 FS = "http://fake_server"
 

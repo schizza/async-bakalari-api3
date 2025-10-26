@@ -4,8 +4,7 @@ from __future__ import annotations
 
 from contextlib import suppress
 from dataclasses import dataclass
-from typing import Any
-from typing_extensions import override
+from typing import Any, override
 
 import orjson
 

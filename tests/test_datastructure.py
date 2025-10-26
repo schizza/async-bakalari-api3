@@ -3,10 +3,10 @@
 import tempfile
 from unittest.mock import patch
 
-import orjson
-import pytest
 from async_bakalari_api.bakalari import Credentials, Schools
 from async_bakalari_api.datastructure import UniqueTowns
+import orjson
+import pytest
 
 
 @pytest.fixture
