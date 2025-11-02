@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 from asyncio.locks import Lock
 import logging
-from typing import Never, Self
+from typing import Any, Never, Self
 from urllib import parse
 
 import aiohttp
@@ -26,7 +26,7 @@ class Bakalari:
     response: None
     response_json: None
 
-    _close_session:bool = False
+    _close_session: bool = False
 
     def __init__(
         self,
@@ -34,7 +34,7 @@ class Bakalari:
         credentials: Credentials | None = None,
         auto_cache_credentials: bool = False,
         cache_filename: str | None = None,
-        session: aiohttp.ClientSession | None = None
+        session: aiohttp.ClientSession | None = None,
     ):
         """Root class of Bakalari.
 
@@ -49,7 +49,9 @@ class Bakalari:
         """
 
         self._server: str | None = server
-        self._credentials: Credentials = credentials if isinstance(credentials, Credentials) else Credentials()
+        self._credentials: Credentials = (
+            credentials if isinstance(credentials, Credentials) else Credentials()
+        )
         self._new_token: bool = False
         self._auto_cache_credentials: bool = auto_cache_credentials
         self._cache_filename: str | None = cache_filename
@@ -88,8 +90,7 @@ class Bakalari:
         """Ensure aiohttp session exists (create if needed)."""
         if self._session is None or self._session.closed:
             self._session = aiohttp.ClientSession(
-                timeout=aiohttp.ClientTimeout(total=REQUEST_TIMEOUT),
-                trust_env=True
+                timeout=aiohttp.ClientTimeout(total=REQUEST_TIMEOUT), trust_env=True
             )
             self._session_owner = True
 
@@ -130,10 +131,12 @@ class Bakalari:
             "Authorization": f"Bearer {self.credentials.access_token}",
         }
 
-        #try access token
+        # try access token
         try:
             log.debug("Trying access token ...")
-            return await self._send_request(request, method=method, headers=headers_access_token, **kwargs)
+            return await self._send_request(
+                request, method=method, headers=headers_access_token, **kwargs
+            )
         except (Ex.AccessTokenExpired, Ex.InvalidToken):
             log.debug("Access token expired or invalid!")
             await self.refresh_access_token()
@@ -142,11 +145,12 @@ class Bakalari:
                 "Authorization": f"Bearer {self.credentials.access_token}",
             }
             try:
-                return await self._send_request(request, method=method, headers=headers_access_token, **kwargs)
+                return await self._send_request(
+                    request, method=method, headers=headers_access_token, **kwargs
+                )
             except Ex.RefreshTokenExpired as ex:
                 log.error("Refresh token expired! Login with username/password")
                 raise ex from ex
-
 
         # while True:
         #     if self.credentials.access_token and not access_token_invalid:
@@ -217,7 +221,7 @@ class Bakalari:
         method: hdrs.METH_POST | hdrs.METH_GET,
         headers: dict[str, str],
         **kwargs,
-    ) -> str:
+    ) -> Any:
         """Send request to server.
 
         Args:
@@ -422,8 +426,8 @@ class Bakalari:
 
             login_body = parse.urlencode(
                 {
-                "client_id": "ANDR",
-                "grant_type": "refresh_token",
+                    "client_id": "ANDR",
+                    "grant_type": "refresh_token",
                     "refresh_token": self.credentials.refresh_token,
                 }
             )
@@ -433,7 +437,7 @@ class Bakalari:
             try:
                 log.debug("Trying refresh token ... ")
                 _credentials = await self.send_unauth_request(
-                EndPoint.LOGIN, headers=headers, data=login_body
+                    EndPoint.LOGIN, headers=headers, data=login_body
                 )
             except Ex.RefreshTokenExpired as ex:
                 log.error("Refresh token expired! Login with username/password")
@@ -524,4 +528,3 @@ class Bakalari:
         """
 
         await self.aclose()
-

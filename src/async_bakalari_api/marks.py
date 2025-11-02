@@ -136,19 +136,22 @@ class MarksRegistry:
 
     @overload
     def get_marks_by_date(
-        self, date: datetime, date_to: datetime
+        self, *, date: datetime, date_to: datetime
     ) -> list[MarksBase]: ...
     @overload
-    def get_marks_by_date(self, date: datetime) -> list[MarksBase]: ...
+    def get_marks_by_date(self, *, date: datetime) -> list[MarksBase]: ...
     @overload
     def get_marks_by_date(
-        self, subject_id: str, date: datetime, date_to: datetime
+        self, *, subject_id: str, date: datetime, date_to: datetime
     ) -> list[MarksBase]: ...
     @overload
-    def get_marks_by_date(self, subject_id: str, date: datetime) -> list[MarksBase]: ...
+    def get_marks_by_date(
+        self, *, subject_id: str, date: datetime
+    ) -> list[MarksBase]: ...
 
     def get_marks_by_date(
         self,
+        *,
         subject_id: str | None = None,
         date: datetime | None = None,
         date_to: datetime | None = None,
@@ -263,7 +266,7 @@ class SubjectsRegistry:
         return self._subjects.get(id, None)
 
     def get_marks(self, subject_id: str) -> MarksRegistry:
-        """Get marks for subject"""
+        """Get marks for subject."""
 
         return self._subjects[subject_id].marks
 
@@ -350,9 +353,9 @@ class Marks:
         for option in options:
             self.marksoptions.append(
                 marksoptions=MarkOptionsBase(
-                    id=option.get("Id") or "",
-                    abbr=option.get("Abbrev") or "",
-                    text=option.get("Name") or "",
+                    id=option.get("Id", ""),
+                    abbr=option.get("Abbrev", ""),
+                    text=option.get("Name", ""),
                 )
             )
 
@@ -364,8 +367,8 @@ class Marks:
                 id=subjects["Subject"].get("Id"),
                 abbr=subjects["Subject"].get("Abbrev"),
                 name=subjects["Subject"].get("Name"),
-                average_text=subjects.get("AverageText"),
-                points_only=subjects.get("PointsOnly"),
+                average_text=subjects.get("AverageText", ""),
+                points_only=subjects.get("PointsOnly", ""),
             )
         )
         for mark in subjects["Marks"]:
@@ -396,7 +399,7 @@ class Marks:
 
     async def fetch_marks(self):
         """Fetch marks from Bakalari."""
-        response = await self.bakalari.send_auth_request(EndPoint.MARKS)
+        response: str = await self.bakalari.send_auth_request(EndPoint.MARKS)
 
         await self._parse_marks_options(response.get("MarkOptions"))
 
