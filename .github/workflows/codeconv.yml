@@ -3,15 +3,15 @@ name: Upload coverage reports to Codecov
 on:
   push:
     paths-ignore:
-      - 'docs/**'
-    branches-ignore: 
-      - 'release-**'
-    
+      - "docs/**"
+    branches-ignore:
+      - "release-**"
+
   pull_request:
     paths-ignore:
-      - 'docs/**'
-    branches-ignore: 
-      - 'release-**'
+      - "docs/**"
+    branches-ignore:
+      - "release-**"
 
 jobs:
   run:
