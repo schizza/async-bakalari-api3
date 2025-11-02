@@ -7,7 +7,7 @@ name = "async_bakalari_api"
 version = "0.5.0"
 dynamic = ["dependencies"]
 
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 authors = [
   {name = "Lukas Svoboda (@schizza)", email = "opensource@schizza.cz"}
 ]
@@ -24,14 +24,14 @@ classifiers = [
 ]
 license = { file ="LICENSE.md" }
 
-[tool.setuptools.dynamic]
-dependencies = { file = ["requirements.txt"] }
-
 [tool.setuptools]
 platforms = ["any"]
 zip-safe  = false
 include-package-data = true
 package-dir = {"" = "src"}
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -48,7 +48,7 @@ Changelog = "https://github.com/schizza/bakalari-api3/blob/master/CHANGELOG.md"
 bakalari = "async_bakalari_api:main"
 
 [tool.pylint.main]
-py-version = "3.12"
+py-version = "3.13"
 ignore = [
     "tests"
 ]
@@ -72,7 +72,7 @@ norecursedirs = [
 ]
 
 [tool.pyright]
-pythonVersion = "3.12"
+pythonVersion = "3.13"
 typeCheckingMode = "basic"
 exclude = [".venv", "venv", "env", "tests"]
 reportMissingImports = true
@@ -84,7 +84,7 @@ reportUnusedClass = true
 reportOptionalMemberAccess = false
 
 [tool.ruff]
-target-version = "py312"
+target-version = "py313"
 
 [tool.ruff.lint]
 select = [

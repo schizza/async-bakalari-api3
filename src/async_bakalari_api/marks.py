@@ -1,9 +1,10 @@
 """Module to handle marks from Bakalari."""
 
 import asyncio
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
-from datetime import date, datetime
-from typing import Any, Callable, Iterable, Literal, TypedDict, overload
+from datetime import datetime
+from typing import Any, Literal, TypedDict, overload
 
 from attr import asdict
 from dateutil import parser
@@ -399,7 +400,7 @@ class Marks:
 
     async def fetch_marks(self):
         """Fetch marks from Bakalari."""
-        response: str = await self.bakalari.send_auth_request(EndPoint.MARKS)
+        response: Any = await self.bakalari.send_auth_request(EndPoint.MARKS)
 
         await self._parse_marks_options(response.get("MarkOptions"))
 
@@ -441,7 +442,7 @@ class Marks:
 
     async def get_marks_all(
         self,
-        date: datetime | None = None,
+        date_from: datetime | None = None,
         date_to: datetime | None = None,
         subject_id: str | None = None,
     ) -> list[SubjectsBase]:
@@ -454,10 +455,10 @@ class Marks:
             if not subject:
                 return results
 
-            if date is None:
+            if date_from is None or date_to is None:
                 marks = list(subject.marks)
             else:
-                marks = subject.marks.get_marks_by_date(date=date, date_to=date_to)
+                marks = subject.marks.get_marks_by_date(date=date_from, date_to=date_to)
 
             if marks:
                 container = SubjectsBase(
@@ -473,10 +474,10 @@ class Marks:
             return results
 
         for subject in self.subjects._subjects.values():
-            if date is None:
+            if date_from is None or date_to is None:
                 marks = list(subject.marks)
             else:
-                marks = subject.marks.get_marks_by_date(date=date, date_to=date_to)
+                marks = subject.marks.get_marks_by_date(date=date_from, date_to=date_to)
 
             if marks:
                 container = SubjectsBase(
@@ -494,13 +495,13 @@ class Marks:
 
     async def format_all_marks(
         self,
-        date: datetime | None = None,
+        date_from: datetime | None = None,
         date_to: datetime | None = None,
         subject_id: str | None = None,
     ) -> str:
         """Return a nicely formatted string of all marks, grouped by subject."""
         groups = await self.get_marks_all(
-            date=date, date_to=date_to, subject_id=subject_id
+            date_from=date_from, date_to=date_to, subject_id=subject_id
         )
         lines: list[str] = []
         for subj in groups:
@@ -527,8 +528,8 @@ class Marks:
 
     async def get_new_marks_by_date(
         self,
-        date: datetime,
-        date_to: datetime | None = None,
+        date_from: datetime,
+        date_to: datetime,
         subject_id: str | None = None,
     ) -> list[SubjectsBase]:
         """Get new marks by date or date range. Optionally for a specific subject."""
@@ -541,7 +542,9 @@ class Marks:
                 return new_marks
             marks = [
                 m
-                for m in subject.marks.get_marks_by_date(date=date, date_to=date_to)
+                for m in subject.marks.get_marks_by_date(
+                    date=date_from, date_to=date_to
+                )
                 if m.is_new
             ]
             if marks:
@@ -560,7 +563,9 @@ class Marks:
         for subject in self.subjects._subjects.values():
             marks = [
                 m
-                for m in subject.marks.get_marks_by_date(date=date, date_to=date_to)
+                for m in subject.marks.get_marks_by_date(
+                    date=date_from, date_to=date_to
+                )
                 if m.is_new
             ]
             if marks:
@@ -637,8 +642,7 @@ class Marks:
             subject_id=subject_id,
             predicate=predicate,
         ):
-            for m in marks:
-                items.append(self._mark_to_flat(subj, m))
+            items.extend(self._mark_to_flat(subj, m) for m in marks)
         items.sort(key=lambda x: x.date, reverse=(order == "desc"))
         return items
 
@@ -693,10 +697,11 @@ class Marks:
             )
             grouped[subj.id] = arr
 
-        flat.sort(
-            key=lambda it: it["date"] if to_dict else it.date.isoformat(),
-            reverse=(order == "desc"),
-        )
+        if to_dict:
+            flat.sort(key=lambda it: it["date"], reverse=(order == "desc"))  # pyright: ignore[reportIndexIssue]
+        else:
+            flat.sort(key=lambda it: it.date.isoformat(), reverse=(order == "desc"))  # pyright: ignore[reportAttributeAccessIssue]
+
         return {"subjects": subjects_dict, "marks_grouped": grouped, "marks_flat": flat}
 
     async def get_snapshot_for_school_year(
