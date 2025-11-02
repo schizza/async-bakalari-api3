@@ -47,7 +47,7 @@ install: venv
 	$(PYTHON) -m pip install -e .
 	$(PYTHON) -m pip install \
 		ruff pre-commit \
-		pytest pytest-asyncio \
+		pytest pytest-asyncio pytest-cov \
 		bumpversion \
 		validate-pyproject packaging==24.2
 update:
@@ -56,7 +56,7 @@ update:
 	$(MAKE) install
 	@echo "✅ Hotovo."
 
-all: ci coverage validate-local check-versions show-version
+all: ci coverage validate-local show-version
 
 # ====== Lint & test ======
 lint:
@@ -73,21 +73,11 @@ test:
 	$(PYTEST) -q
 
 coverage:
-	$(PYTEST) --cov --cov-report=term-missing
+	$(PYTEST)
 
 ci: lint test coverage
 
 validate-all: ci validate-local
-
-# ====== Spouštění Home Assistanta z venvu ======
-run:
-	$(PYTHON) -m homeassistant --config $(HA_CONFIG)
-
-run-debug:
-	$(PYTHON) -m homeassistant --config $(HA_CONFIG) --debug
-
-run-no-cache:
-	$(PYTHON) -m homeassistant --config $(HA_CONFIG) --skip-pip
 
 # ====== Úklid ======
 clean:
@@ -105,8 +95,5 @@ bump-version:
 	bumpversion --new-version "$(NEW)"
 
 show-version:
-	@bumpversion --dry-run --list patch | grep current_version | cut -d= -f2
-
-check-versions:
-	@echo "🔍 Kontrola konzistence verzí..."
-	@$(PYTHON) script/validate_version.py
+	@echo "🔍 Aktuální verze:"
+	@bumpversion --dry-run --list --allow-dirty patch | grep current_version | cut -d= -f2

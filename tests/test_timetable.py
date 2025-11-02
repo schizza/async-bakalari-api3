@@ -4,14 +4,13 @@ from __future__ import annotations
 
 from datetime import date, datetime
 
-import pytest
-
 from async_bakalari_api.const import EndPoint
 from async_bakalari_api.timetable import (
     Atom,
     Timetable,
     TimetableContext,
 )
+import pytest
 
 
 def build_sample_payload() -> dict:
@@ -84,10 +83,13 @@ class DummyBakalari:
     """A minimal stub of Bakalari to capture requests."""
 
     def __init__(self, payload: dict | None = None):
+        """Initialize the DummyBakalari instance."""
+
         self.calls: list[tuple[EndPoint, dict | None]] = []
         self.payload = payload if payload is not None else {}
 
     async def send_auth_request(self, request_endpoint: EndPoint, **kwargs):
+        """Send an authentication request."""
         # store only what we assert in tests (endpoint + params)
         self.calls.append((request_endpoint, kwargs.get("params")))
         return self.payload
@@ -97,10 +99,12 @@ class DummyBakalari:
         return None
 
     async def __aexit__(self, *_):
+        """Exit the context manager."""
         return None
 
 
 def test_timetable_context_to_params_mapping():
+    """Test mapping of TimetableContext to parameters."""
     assert TimetableContext("class", "C1").to_params() == {"classId": "C1"}
     assert TimetableContext("group", "G1").to_params() == {"groupId": "G1"}
     assert TimetableContext("teacher", "T1").to_params() == {"teacherId": "T1"}
@@ -109,11 +113,13 @@ def test_timetable_context_to_params_mapping():
 
 
 def test_parse_timetable_and_resolve_and_formatting():
+    """Test parsing timetable and resolving entities."""
+
     payload = build_sample_payload()
 
     # Use real Timetable parser by injecting stub Bakalari that returns our payload
     dummy = DummyBakalari(payload)
-    tt = Timetable(dummy)
+    tt = Timetable(dummy)  # pyright: ignore[]
 
     # Private method call is fine in tests
     week = tt._parse_timetable(payload)  # noqa: SLF001
@@ -199,8 +205,9 @@ def test_parse_timetable_and_resolve_and_formatting():
 
 @pytest.mark.asyncio
 async def test_fetch_actual_builds_params_and_sets_last():
+    """Test fetching actual timetable with various parameters."""
     dummy = DummyBakalari(payload={})  # empty payload is OK for parser
-    tt = Timetable(dummy)
+    tt = Timetable(dummy)  # pyright: ignore[]
 
     # Explicit date + TimetableContext
     d = date(2023, 1, 2)
@@ -210,7 +217,7 @@ async def test_fetch_actual_builds_params_and_sets_last():
     assert len(dummy.calls) == 1
     ep, params = dummy.calls[-1]
     assert ep is EndPoint.TIMETABLE_ACTUAL
-    assert params["date"] == "2023-01-02" and params["classId"] == "C1"
+    assert params["date"] == "2023-01-02" and params["classId"] == "C1"  # pyright: ignore[]
     assert tt.get_last_actual() is week
 
     # Datetime date + dict context
@@ -219,22 +226,24 @@ async def test_fetch_actual_builds_params_and_sets_last():
     assert tt.get_last_actual() is week2
     ep2, params2 = dummy.calls[-1]
     assert ep2 is EndPoint.TIMETABLE_ACTUAL
-    assert params2["date"] == "2024-01-06" and params2["teacherId"] == "T9"
+    assert params2["date"] == "2024-01-06" and params2["teacherId"] == "T9"  # pyright: ignore[]
 
     # None date -> today
     week3 = await tt.fetch_actual()
     assert tt.get_last_actual() is week3
     ep3, params3 = dummy.calls[-1]
     assert ep3 is EndPoint.TIMETABLE_ACTUAL
-    assert "date" in params3 and params3["date"] == datetime.now().date().strftime(
+    assert "date" in params3 and params3["date"] == datetime.now().date().strftime(  # pyright: ignore[]
         "%Y-%m-%d"
     )
 
 
 @pytest.mark.asyncio
 async def test_fetch_permanent_builds_params_and_sets_last():
+    """Test fetching permanent timetable and setting last permanent."""
+
     dummy = DummyBakalari(payload={})
-    tt = Timetable(dummy)
+    tt = Timetable(dummy)  # pyright: ignore[]
 
     # No context -> params None
     week = await tt.fetch_permanent()
@@ -252,7 +261,7 @@ async def test_fetch_permanent_builds_params_and_sets_last():
     assert params2 == {"roomId": "R99"}
 
     # With dict context
-    week3 = await tt.fetch_permanent(context={"studentId": "S777"})
+    await tt.fetch_permanent(context={"studentId": "S777"})
     ep3, params3 = dummy.calls[-1]
     assert ep3 is EndPoint.TIMETABLE_PERMANENT
     assert params3 == {"studentId": "S777"}
@@ -260,6 +269,8 @@ async def test_fetch_permanent_builds_params_and_sets_last():
 
 @pytest.mark.asyncio
 async def test_timetable_async_context_manager_calls_bakalari():
+    """Test TimetableContextManager calls bakalari."""
+
     called = {"ensure": 0, "exit": 0}
 
     class CtxBakalari(DummyBakalari):
@@ -269,7 +280,7 @@ async def test_timetable_async_context_manager_calls_bakalari():
         async def __aexit__(self, *args):
             called["exit"] += 1
 
-    async with Timetable(CtxBakalari(payload={})) as t:
+    async with Timetable(CtxBakalari(payload={})) as t:  # pyright: ignore[]
         assert isinstance(t, Timetable)
 
     assert called["ensure"] == 1
@@ -277,6 +288,8 @@ async def test_timetable_async_context_manager_calls_bakalari():
 
 
 def test_parser_handles_invalid_entries_and_change_and_day_skip():
+    """Test parser handles invalid entries and change and day skip."""
+
     # Craft payload to trigger exception branches in parser:
     # - Invalid types in entity lists (no .get -> AttributeError)
     # - Invalid hour Id (int conversion fails)
@@ -316,7 +329,7 @@ def test_parser_handles_invalid_entries_and_change_and_day_skip():
         ],
     }
 
-    tt = Timetable(DummyBakalari({}))
+    tt = Timetable(DummyBakalari({}))  # pyright: ignore[]
     week = tt._parse_timetable(data)  # noqa: SLF001
 
     # Hours/Entities with invalid entries are skipped, valid day still parsed

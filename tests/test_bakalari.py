@@ -156,7 +156,7 @@ async def test_schools_list_not_recursive():
             body="""{"name": "town name.a", "schools": [{"name": "school_name_town.a","schoolUrl": "endpoint_url_town.a"}]}""",
         )
 
-        s: Schools = await bakalari.schools_list(town="name", recursive=False)
+        s: Schools = await bakalari.schools_list(town="name", recursive=False)  # pyright: ignore[]
     assert isinstance(s, Schools)
     assert not s.get_url("school_name_town.a")
     assert s.get_url("school_name_town.b") == "endpoint_url_town.b"
@@ -285,7 +285,12 @@ async def test_send_auth_request():
     object.__setattr__(
         bakalari,
         "_credentials",
-        Credentials(username=None, access_token="access_token", refresh_token="refresh_token", user_id=None),
+        Credentials(
+            username=None,
+            access_token="access_token",
+            refresh_token="refresh_token",
+            user_id=None,
+        ),
     )
 
     # we have expired access token and valid refresh token, we are trying refreshing with token
@@ -629,7 +634,7 @@ async def test_save_file_success():
                 "access_token": "test_access",
                 "refresh_token": "test_refresh",
                 "user_id": "test_user_id",
-                "username": "test_username"
+                "username": "test_username",
             }
         ),
     )
@@ -671,7 +676,7 @@ async def test_save_file_cache_file():
                 "access_token": "test_access",
                 "refresh_token": "test_refresh",
                 "user_id": "test_user_id",
-                "username": "test_username"
+                "username": "test_username",
             }
         ),
     )

@@ -1,6 +1,7 @@
 """Tests enforcing await-safe session handling, immutable credentials, and per-instance refresh behavior."""
 
 import asyncio
+import contextlib
 from dataclasses import FrozenInstanceError
 from typing import Any
 
@@ -15,6 +16,7 @@ FS = "http://fake_server"
 
 @pytest.mark.asyncio
 async def test_session_context_manager_closes_session():
+    """Test session context manager closes session."""
     # The context manager should create and close the aiohttp session await-safely
     async with Bakalari(FS) as b:
         assert b._session is not None
@@ -34,52 +36,59 @@ async def test_session_context_manager_closes_session():
 
 
 def test_credentials_property_is_readonly():
+    """Test that the credentials property is read-only."""
     b = Bakalari(FS)
 
     # Attempt to reassign the credentials property should fail
     with pytest.raises(AttributeError):
-        b.credentials = Credentials(username="x", access_token="a", refresh_token="r", user_id="id")
+        b.credentials = Credentials(
+            username="x", access_token="a", refresh_token="r", user_id="id"
+        )
 
 
 def test_credentials_object_is_immutable():
+    """Test that the credentials object is immutable."""
     c = Credentials(username="u", access_token="a", refresh_token="r", user_id="id")
 
     # Modifying the credential fields should be disallowed (frozen dataclass)
     with pytest.raises((AttributeError, FrozenInstanceError)):
         # type: ignore[attr-defined] - we intentionally try to mutate to ensure immutability
-        c.access_token = "new"  # noqa: B015
+        c.access_token = "new"  # noqa: B015 # pyright: ignore[]
 
 
 @pytest.mark.asyncio
 async def test_credentials_attributes_cannot_be_mutated_through_instance():
+    """Test that the credentials attributes cannot be mutated through the instance reference."""
     b = Bakalari(FS)
 
     # Seed credentials in a way that works for both current and future implementation
-    seeded = Credentials(username="u", access_token="a", refresh_token="r", user_id="id")
+    seeded = Credentials(
+        username="u", access_token="a", refresh_token="r", user_id="id"
+    )
     if hasattr(b, "_credentials"):
         # new implementation detail (private attr)
         object.__setattr__(b, "_credentials", seeded)
     else:
         # legacy implementation (public, mutable) - this should eventually fail if property is read-only
-        try:
+        with contextlib.suppress(AttributeError):
             b.credentials = seeded  # type: ignore[assignment]
-        except AttributeError:
-            # If read-only already, we are fine
-            pass
 
     # Attempt to mutate underlying token through the instance reference must fail
     cred_ref = b.credentials
     with pytest.raises((AttributeError, FrozenInstanceError)):
         # type: ignore[attr-defined]
-        cred_ref.refresh_token = "mutated"  # noqa: B015
+        cred_ref.refresh_token = "mutated"  # noqa: B015 # pyright: ignore[]
 
 
 @pytest.mark.asyncio
-async def test_concurrent_send_auth_request_triggers_single_refresh(monkeypatch):
+async def test_concurrent_send_auth_request_triggers_single_refresh(monkeypatch):  # noqa: C901
+    """Test that concurrent send_auth_request calls trigger a single refresh."""
     b = Bakalari(FS)
 
     # Seed expired credentials
-    creds = Credentials(username="u", access_token="expired", refresh_token="r", user_id="id")
+    creds = Credentials(
+        username="u", access_token="expired", refresh_token="r", user_id="id"
+    )
     if hasattr(b, "_credentials"):
         object.__setattr__(b, "_credentials", creds)
     else:
@@ -106,7 +115,9 @@ async def test_concurrent_send_auth_request_triggers_single_refresh(monkeypatch)
             calls["refresh"] += 1
             # Simulate some work to enforce overlap between two concurrent calls
             await asyncio.sleep(0.05)
-            new = Credentials(username="u", access_token="ok", refresh_token="r", user_id="id")
+            new = Credentials(
+                username="u", access_token="ok", refresh_token="r", user_id="id"
+            )
             # Seed back the new credentials (support both impls)
             if hasattr(self, "_credentials"):
                 object.__setattr__(self, "_credentials", new)
@@ -119,7 +130,11 @@ async def test_concurrent_send_auth_request_triggers_single_refresh(monkeypatch)
             return new
 
     async def fake_send(
-        self: Bakalari, url: str, method: str, headers: dict[str, str] | None = None, **kwargs: Any
+        self: Bakalari,
+        url: str,
+        method: str,
+        headers: dict[str, str] | None = None,
+        **kwargs: Any,
     ):
         headers = headers or {}
         # Emulate a protected endpoint that needs a valid access token
@@ -147,11 +162,17 @@ async def test_concurrent_send_auth_request_triggers_single_refresh(monkeypatch)
 
 @pytest.mark.asyncio
 async def test_multiple_instances_do_not_share_credentials(monkeypatch):
+    """Test that multiple instances do not share credentials."""
+
     b1 = Bakalari(FS)
     b2 = Bakalari(FS)
 
-    c1 = Credentials(username="u1", access_token="a1", refresh_token="r1", user_id="id1")
-    c2 = Credentials(username="u2", access_token="a2", refresh_token="r2", user_id="id2")
+    c1 = Credentials(
+        username="u1", access_token="a1", refresh_token="r1", user_id="id1"
+    )
+    c2 = Credentials(
+        username="u2", access_token="a2", refresh_token="r2", user_id="id2"
+    )
 
     # Seed credentials into instances (support both impls)
     if hasattr(b1, "_credentials"):
@@ -168,7 +189,9 @@ async def test_multiple_instances_do_not_share_credentials(monkeypatch):
     # Refresh only b1 and ensure b2 remains intact
     async def fake_refresh(self: Bakalari) -> Credentials:
         # return a different token for this instance
-        new = Credentials(username="u1", access_token="a1_new", refresh_token="r1_new", user_id="id1")
+        new = Credentials(
+            username="u1", access_token="a1_new", refresh_token="r1_new", user_id="id1"
+        )
         if hasattr(self, "_credentials"):
             object.__setattr__(self, "_credentials", new)
         else:
@@ -183,6 +206,9 @@ async def test_multiple_instances_do_not_share_credentials(monkeypatch):
     await b1.refresh_access_token()
 
     # b1 updated
-    assert b1.credentials.access_token in {"a1_new", "ok"}  # allow "ok" if another test's impl reused
+    assert b1.credentials.access_token in {
+        "a1_new",
+        "ok",
+    }  # allow "ok" if another test's impl reused
     # b2 unchanged
     assert b2.credentials.access_token == "a2"

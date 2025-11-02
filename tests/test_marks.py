@@ -191,25 +191,29 @@ async def test_marks_new_and_date_filters():
     assert {"101", "202"}.issubset(ids)
 
     # By date - one day containing only m1 (2024-01-01)
-    by_day = await marks.get_new_marks_by_date(date=dt.datetime(2024, 1, 1))
+    date_from = dt.datetime(2024, 1, 1)
+    date_to = dt.datetime(2024, 1, 1)
+    by_day = await marks.get_new_marks_by_date(date_from, date_to)
     # only MAT group present, because AJ's m3 is on 2024-01-03
     assert len(by_day) == 1
     assert by_day[0].id == "101"
     assert len(list(by_day[0].marks)) == 1
     assert list(by_day[0].marks)[0].id == "m1"
 
+    date_to = dt.datetime(2024, 1, 2)
     # By range 2024-01-01 to 2024-01-02: only m1
-    by_range = await marks.get_new_marks_by_date(
-        date=dt.datetime(2024, 1, 1), date_to=dt.datetime(2024, 1, 2)
-    )
+    by_range = await marks.get_new_marks_by_date(date_from=date_from, date_to=date_to)
     assert len(by_range) == 1
     assert by_range[0].id == "101"
     assert len(list(by_range[0].marks)) == 1
     assert list(by_range[0].marks)[0].id == "m1"
 
+    date_from = dt.datetime(2024, 1, 2)
+    date_to = dt.datetime(2024, 1, 4)
+
     # Only for specific subject in a range
     by_subject = await marks.get_new_marks_by_date(
-        date=dt.datetime(2024, 1, 2), date_to=dt.datetime(2024, 1, 4), subject_id="202"
+        date_from=date_from, date_to=date_to, subject_id="202"
     )
     # AJ only, with m3
     assert len(by_subject) == 1
@@ -218,19 +222,24 @@ async def test_marks_new_and_date_filters():
     assert list(by_subject[0].marks)[0].id == "m3"
 
     by_subject_non_exist = await marks.get_new_marks_by_date(
-        date=dt.datetime(2024, 1, 2), date_to=dt.datetime(2024, 1, 4), subject_id="999"
+        date_from=date_from, date_to=date_to, subject_id="999"
     )
     assert len(by_subject_non_exist) == 0
 
     # get_marks_all filter: single day containing m2 only (2024-01-05)
-    all_day = await marks.get_marks_all(date=dt.datetime(2024, 1, 5))
+    date_from = dt.datetime(2024, 1, 5)
+    all_day = await marks.get_marks_all(date_from=date_from)
     assert len(all_day) == 1
     assert all_day[0].id == "101"
     mm = list(all_day[0].marks)
     assert len(mm) == 1 and mm[0].id == "m2"
 
     # get_marks_all filter: single day, specified with subjectcontaining m2 only (2024-01-05)
-    all_day = await marks.get_marks_all(subject_id="101", date=dt.datetime(2024, 1, 5))
+    date_from = dt.datetime(2024, 1, 5)
+    date_to = date_from
+    all_day = await marks.get_marks_all(
+        subject_id="101", date_from=date_from, date_to=date_to
+    )
     assert len(all_day) == 1
     assert all_day[0].id == "101"
     mm = list(all_day[0].marks)
@@ -256,7 +265,7 @@ async def test_format_and_print_all_marks(capsys):
 async def test_missing_markoptions_logs_warning(caplog: pytest.LogCaptureFixture):
     """If MarkText is missing in options, a warning is logged and placeholder is used."""
     with caplog.at_level(logging.WARNING, logger="Bakalari API"):
-        marks = await _prepare_marks_instance()
+        await _prepare_marks_instance()
     # Verify the warning about MarkOptions not found is present
     assert any(
         "MarkOptions not found for MarkText" in rec.message for rec in caplog.records
@@ -412,13 +421,15 @@ async def test_marks_markoptionsregistry():
 
 
 async def test_marks_registry():
-    """Test date functions"""
+    """Test date functions."""
 
     marks = await _prepare_marks_instance()
 
     mat_marks = marks.subjects.get_marks("101")
 
-    assert mat_marks.get_marks_by_date(date=None) == []
+    assert (
+        mat_marks.get_marks_by_date(date=None) == []  # pyright: ignore[reportArgumentType]
+    )
     assert (
         "id='m2'"
         in mat_marks.get_marks_by_date(

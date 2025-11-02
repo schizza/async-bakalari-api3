@@ -64,7 +64,7 @@ asyncio_mode = "auto"
 testpaths = [
     "tests"
 ]
-addopts = "--cov=async_bakalari_api --cov-report html"
+addopts = "--cov=async_bakalari_api --cov-report html --cov-report=term-missing"
 
 norecursedirs = [
     ".git",
@@ -167,6 +167,7 @@ ignore = [
     "D407", # Section name underlining
     "E501", # line too long
     "G004",
+    "T201",
 
     "PLC1901", # {existing} can be simplified to {replacement} as an empty string is falsey; too many false positives
     "PLR0911", # Too many return statements ({returns} > {max_returns})

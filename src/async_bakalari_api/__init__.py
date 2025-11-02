@@ -8,4 +8,13 @@ from .komens import Komens
 from .marks import Marks
 from .timetable import Timetable
 
-__all__ = ["Bakalari", "Credentials", "Ex", "main", "Schools", "Komens", "Marks", "Timetable"]
+__all__ = [
+    "Bakalari",
+    "Credentials",
+    "Ex",
+    "main",
+    "Schools",
+    "Komens",
+    "Marks",
+    "Timetable",
+]

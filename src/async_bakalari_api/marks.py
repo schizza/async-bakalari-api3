@@ -440,13 +440,16 @@ class Marks:
                     new_marks[-1].marks.append(mark)
         return new_marks
 
-    async def get_marks_all(
+    async def get_marks_all(  # noqa: C901
         self,
         date_from: datetime | None = None,
         date_to: datetime | None = None,
         subject_id: str | None = None,
     ) -> list[SubjectsBase]:
         """Get all marks grouped by subject. Optionally filter by date or date range and/or subject."""
+
+        if not date_to:
+            date_to = date_from
 
         results: list[SubjectsBase] = []
 
