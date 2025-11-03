@@ -163,3 +163,4 @@ config.json
 credentials.json
 
 src/async_bakalari_api/tests.py
+gen.sh
