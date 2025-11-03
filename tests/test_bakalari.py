@@ -260,7 +260,9 @@ async def test__send_request_aioex():
         finally:
             await bakalari.__aexit__()
 
-    with patch("aiohttp.ClientSession.get", side_effect=aiohttp.ClientConnectionError):
+    with patch(
+        "aiohttp.ClientSession.request", side_effect=aiohttp.ClientConnectionError
+    ):
         try:
             await bakalari._send_request("fake_server", hdrs.METH_GET, {})
         except Ex.BadRequestException:

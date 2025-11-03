@@ -19,20 +19,15 @@ async def test_session_context_manager_closes_session():
     """Test session context manager closes session."""
     # The context manager should create and close the aiohttp session await-safely
     async with Bakalari(FS) as b:
-        assert b._session is not None
+        client = b._api_client  # noqa: SLF001 - accessing private for verification
+        assert client._session is not None  # pyright: ignore[reportPrivateUsage]
         # session must be open inside the context
-        assert getattr(b._session, "closed", False) is False
+        assert getattr(client._session, "closed", False) is False  # noqa: SLF001
 
-    # after context exit, the session should be closed (or cleared to None)
-    # allow either closed session or cleared session object
-    # to support the implementation that sets session to None after closing
-    # or just closes it and keeps the reference
-    try:
-        # if session reference is retained
-        assert b._session is None or getattr(b._session, "closed", True) is True
-    except AttributeError:
-        # if implementation removes the attribute
-        assert True
+    client = b._api_client  # noqa: SLF001
+    assert client._session is None or getattr(  # noqa: SLF001
+        client._session, "closed", True
+    ) is True
 
 
 def test_credentials_property_is_readonly():

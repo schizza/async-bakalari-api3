@@ -262,7 +262,7 @@ class Timetable:
 
         `async with Timetable(b) as t:`
         """
-        _ = await self.bakalari._ensure_session()  # pyright: ignore [reportPrivateUsage]
+        await self.bakalari.__aenter__()
         return self
 
     async def __aexit__(

@@ -94,9 +94,8 @@ class DummyBakalari:
         self.calls.append((request_endpoint, kwargs.get("params")))
         return self.payload
 
-    # Timetable.__aenter__/__aexit__ call these; keep as no-ops if needed
-    async def _ensure_session(self):
-        return None
+    async def __aenter__(self):
+        return self
 
     async def __aexit__(self, *_):
         """Exit the context manager."""
@@ -271,11 +270,12 @@ async def test_fetch_permanent_builds_params_and_sets_last():
 async def test_timetable_async_context_manager_calls_bakalari():
     """Test TimetableContextManager calls bakalari."""
 
-    called = {"ensure": 0, "exit": 0}
+    called = {"enter": 0, "exit": 0}
 
     class CtxBakalari(DummyBakalari):
-        async def _ensure_session(self):
-            called["ensure"] += 1
+        async def __aenter__(self):
+            called["enter"] += 1
+            return self
 
         async def __aexit__(self, *args):
             called["exit"] += 1
@@ -283,7 +283,7 @@ async def test_timetable_async_context_manager_calls_bakalari():
     async with Timetable(CtxBakalari(payload={})) as t:  # pyright: ignore[]
         assert isinstance(t, Timetable)
 
-    assert called["ensure"] == 1
+    assert called["enter"] == 1
     assert called["exit"] == 1
 
 
