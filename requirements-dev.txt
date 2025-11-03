@@ -17,13 +17,13 @@ aiosignal>=1.4.0
     # via
     #   -r requirements_dev.in
     #   aiohttp
-asyncio==3.4.3
+asyncio==4.0.0
     # via -r requirements_dev.in
 attrs==24.2.0
     # via
     #   -r requirements_dev.in
     #   aiohttp
-coverage[toml]==7.7.1
+coverage[toml]==7.11.0
     # via
     #   -r requirements_dev.in
     #   pytest-cov
@@ -66,7 +66,7 @@ pytest==8.3.4
     #   pytest-asyncio
     #   pytest-cov
     #   pytest-mock
-pytest-aiohttp==1.0.5
+pytest-aiohttp==1.1.0
     # via -r requirements_dev.in
 pytest-async==0.1.1
     # via -r requirements_dev.in

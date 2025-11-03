@@ -1,9 +1,12 @@
+"""Test that the logger is created correctly."""
+
 import logging
 
-from src.async_bakalari_api.logger_api import api_logger, CustomFormatter
+from async_bakalari_api.logger_api import CustomFormatter, api_logger
 
 
 def test_api_logger_streamhandler_dedup(monkeypatch):
+    """Test that the logger has a StreamHandler."""
 
     logger_name = "UNITTEST-LOGGER"
     logger = logging.getLogger(logger_name)
@@ -19,14 +22,16 @@ def test_api_logger_streamhandler_dedup(monkeypatch):
     assert isinstance(inst.get(), logging.Logger)
 
 
-def test_api_logger_level_prefers_verbose(monkeypatch):
+def test_api_logger_level_prefers_verbose():
+    """Test that the logger level is set to verbose if the level is not specified."""
     name = "BAK-VRB"
-    logg1 = api_logger(name, logging.DEBUG)
+    api_logger(name, logging.DEBUG)
     logg2 = api_logger(name, logging.ERROR)
     assert logg2.logger.level == logging.DEBUG
 
 
 def test_formatter_formats_each_level():
+    """Test that the formatter formats each level correctly."""
     # CustomFormatter řádně vrací barevné řetězce všech úrovní
     formatter = CustomFormatter()
     record = logging.LogRecord(
@@ -59,6 +64,7 @@ def test_formatter_formats_each_level():
 
 
 def test_api_logger_create_classmethod():
+    """Test that the logger is created correctly."""
     logger_name = "BAK-CLASS"
     logger = api_logger.create(logger_name, loglevel=logging.INFO)
     assert isinstance(logger, logging.Logger)
