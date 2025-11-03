@@ -2,11 +2,10 @@
 
 import asyncio
 from collections.abc import Callable, Iterable
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from datetime import datetime
 from typing import Any, Literal, TypedDict, overload
 
-from attr import asdict
 from dateutil import parser
 
 from .bakalari import Bakalari

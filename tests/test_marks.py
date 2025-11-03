@@ -499,3 +499,96 @@ async def test_format_points():
     assert "[2024-01-15] Points 2" in formatted
     assert "points: 10" in formatted
     assert "points: 20 / 100" in formatted
+
+
+async def test_get_flat_ordering_and_predicate():
+    """Test flat view ordering (asc/desc) and predicate filtering."""
+    marks = await _prepare_marks_instance()
+
+    flat_desc = await marks.get_flat(order="desc")
+    ids_desc = [m.id for m in flat_desc]
+    assert ids_desc == ["m2", "m3", "m1"]
+
+    flat_asc = await marks.get_flat(order="asc")
+    ids_asc = [m.id for m in flat_asc]
+    assert ids_asc == ["m1", "m3", "m2"]
+
+    # Only new marks, ascending
+    flat_new = await marks.get_flat(predicate=lambda m: m.is_new, order="asc")
+    ids_new = [m.id for m in flat_new]
+    assert ids_new == ["m1", "m3"]
+
+
+async def test_get_snapshot_dict_and_nondict():
+    """Test snapshot in dict mode and object mode, including ordering."""
+    marks = await _prepare_marks_instance()
+
+    snapshot = await marks.get_snapshot(to_dict=True, order="desc")
+    assert set(snapshot["subjects"].keys()) == {"101", "202"}
+    assert set(snapshot["marks_grouped"].keys()) == {"101", "202"}
+    assert len(snapshot["marks_flat"]) == 3
+    # newest first in desc
+    assert snapshot["marks_flat"][0]["id"] == "m2"
+
+    snapshot_nd = await marks.get_snapshot(to_dict=False, order="asc")
+    assert len(snapshot_nd["marks_flat"]) == 3
+    first_item = snapshot_nd["marks_flat"][0]
+    assert not isinstance(first_item, dict)
+    assert hasattr(first_item, "id")
+    # oldest first in asc
+    assert first_item.id == "m1"
+
+
+async def test_get_snapshot_for_school_year():
+    """Test snapshot for a given school year range."""
+    marks = await _prepare_marks_instance()
+
+    school_year = (dt.datetime(2024, 1, 1), dt.datetime(2024, 1, 31))
+    snap = await marks.get_snapshot_for_school_year(
+        school_year=school_year, order="desc"
+    )
+    assert len(snap["marks_flat"]) == 3
+
+
+async def test_diff_ids_detection():
+    """Test diff of mark IDs against previous set."""
+    marks = await _prepare_marks_instance()
+
+    previous = {"m1", "m2"}
+    new_ids, new_items = await marks.diff_ids(previous_ids=previous)
+    assert new_ids == {"m3"}
+    assert [m.id for m in new_items] == ["m3"]
+
+
+async def test_get_subjects_map_and_iter_grouped_filters():
+    """Test subjects map and iter_grouped with subject filter and predicate."""
+    marks = await _prepare_marks_instance()
+
+    subs = marks.get_subjects_map()
+    assert subs["101"].abbr == "MAT"
+    assert subs["202"].abbr == "AJ"
+
+    grouped = list(marks.iter_grouped(subject_id="101"))
+    assert len(grouped) == 1
+    subj, marks_list = grouped[0]
+    assert subj.id == "101"
+    assert len(marks_list) == 2
+
+    grouped_new = list(
+        marks.iter_grouped(subject_id="101", predicate=lambda m: m.is_new)
+    )
+    assert len(grouped_new) == 1
+    _, marks_list_new = grouped_new[0]
+    assert [m.id for m in marks_list_new] == ["m1"]
+
+
+async def test_get_flat_subject_filter_and_range():
+    """Test flat view filtered by subject and date range."""
+    marks = await _prepare_marks_instance()
+
+    date_from = dt.datetime(2024, 1, 5)
+    date_to = dt.datetime(2024, 1, 5)
+    flat = await marks.get_flat(
+        subject_id="101", date_from=date_from, date_to=date_to, order="desc"
+    )
+    assert [m.id for m in flat] == ["m2"]
