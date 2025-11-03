@@ -31,5 +31,7 @@ Features that are stable and working:
   - search grades by ID, date, date range
   - search grades by subject
 
+- fetching timetable
+
 
 Any suggestions are welcomed.

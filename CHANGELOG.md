@@ -4,6 +4,34 @@ All notable changes to this project will be documented in this file.
 
 🇨🇿 Full documentation (czech) on [this site](https://async-bakalari-api.schizza.cz)
 
+## [0.6.0]
+
+### Adds
+- Adds marks helpers for data manipulation, including flat mark
+representation and snapshot creation, grouping.
+- Implements session handling and refresh token logic to ensure thread
+safety.
+
+This change introduces:
+- `FlatMark` dataclass for a simplified mark representation.
+- Functions to convert between `MarksBase` and `FlatMark`.
+- Methods for iterating over grouped marks.
+- A `get_snapshot` method to create a structured snapshot of marks data.
+
+### Refactor
+Refactors and improves API client (#129)
+- Upgrades Python version to 3.13 in CI and `pyproject.toml`
+- Applies minor formatting changes
+- Implements more robust error handling and data validation.
+
+
+### Tests
+- Adds tests to cover various error branches and edge cases
+in Bakalari and Komens modules, increasing overall test
+coverage and robustness.
+
+
+
 ## [0.5.0]
 
 ### Adds
@@ -31,7 +59,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
  - `Credentials` in `Bakalari` is instance, not reference to credentials. This fixes issue with multiple instances of `Bakalari` sharing the same credentials.
 
- 
+
  ## [0.3.7]
 
 ### Fixed
