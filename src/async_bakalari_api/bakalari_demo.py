@@ -3,7 +3,7 @@
 import argparse
 import asyncio
 from datetime import datetime
-import os
+import sys
 
 import aiofiles
 from logger import logging
@@ -38,7 +38,7 @@ def r(name):
         return orjson.loads(fi.read())
 
 
-async def schools(args, bakalari: Bakalari):
+async def schools(args, bakalari: Bakalari):  # noqa: C901
     """Run school func.
 
     Args:
@@ -47,8 +47,13 @@ async def schools(args, bakalari: Bakalari):
 
     """
     if args.schoollist and not args.town:
-        schools: Schools = await bakalari.schools_list()
-        for school in schools.school_list:
+        schools_res = await bakalari.schools_list(
+            recursive=getattr(args, "recursive", True)
+        )
+        if not schools_res:
+            print("Nepodařilo se načíst seznam škol.")
+            return
+        for school in schools_res.school_list:
             print(f"Jméno školy: {school.name}")
             print(f"Město: {school.town}")
             print(f"api_point: {school.api_point}")
@@ -56,8 +61,13 @@ async def schools(args, bakalari: Bakalari):
 
     elif args.schoollist and args.town:
         try:
-            schools: Schools = await bakalari.schools_list(town=args.town)
-            for school in schools.school_list:
+            schools_res = await bakalari.schools_list(
+                town=args.town, recursive=getattr(args, "recursive", True)
+            )
+            if not schools_res:
+                print("Nepodařilo se načíst seznam škol.")
+                return
+            for school in schools_res.school_list:
                 print(f"Jméno školy: {school.name}")
                 print(f"Město: {school.town}")
                 print(f"api_point: {school.api_point}")
@@ -66,13 +76,18 @@ async def schools(args, bakalari: Bakalari):
             print(ex)
     elif args.schools_file:
         try:
-            _schools: Schools = await bakalari.schools_list(town=args.town)
+            _schools = await bakalari.schools_list(
+                town=args.town, recursive=getattr(args, "recursive", True)
+            )
+            if not _schools:
+                print("Nepodařilo se načíst seznam škol.")
+                return
             await w(args.schools_file, _schools.school_list)
         except Exception as ex:
             print(ex)
 
 
-async def komens(args, bakalari):
+async def komens(args, bakalari):  # noqa: C901
     """Komens command."""
 
     async def create_attachment_task(message: MessageContainer):
@@ -94,7 +109,7 @@ async def komens(args, bakalari):
             print(str(msg))
             tasks = await create_attachment_task(msg)
 
-        asyncio.gather(*tasks)
+        await asyncio.gather(*tasks)
 
     async def msgs_w(messages):
         """Save messages and attachments if needed."""
@@ -119,7 +134,7 @@ async def komens(args, bakalari):
 
     if args.extend:
         messages = await Komens(bakalari=bakalari).fetch_messages()
-        msgs([messages.get_message_by_id(args.extend)])
+        await msgs([messages.get_message_by_id(args.extend)])
 
     if args.komens_save:
         if not args.komens_unread:
@@ -156,19 +171,19 @@ async def timetable(args, bakalari):
             return
 
     tt = Timetable(bakalari=bakalari)
-    async with bakalari:
-        if getattr(args, "tt_permanent", False):
-            week = await tt.fetch_permanent(context=ctx)
-        else:
-            week = await tt.fetch_actual(for_date=date_val, context=ctx)
+    if getattr(args, "tt_permanent", False):
+        week = await tt.fetch_permanent(context=ctx)
+    else:
+        week = await tt.fetch_actual(for_date=date_val, context=ctx)
 
     print(week.format_week())
 
 
-async def runme(args):
+async def runme(args):  # noqa: C901
     """Run the main function."""
     server = None
-    schools = None
+    schools_data = None
+    bakalari = Bakalari()
 
     if args.config and not args.first_login and not args.first_login_file:
         try:
@@ -178,33 +193,41 @@ async def runme(args):
                     data = orjson.loads(data)
                 except Exception as ex:
                     print(f"Neplatný konfigurační soubor. ({ex})")
-                    os._exit(1)
+                    sys.exit(1)
                 server = data["school"]
                 args.auto_cache = "credentials.json"
         except FileNotFoundError:
             print("Konfigurační soubor nenalezen.")
-            os._exit(1)
+            sys.exit(1)
 
     if args.sf and not server:
         try:
-            schools: Schools = await Schools().load_from_file(args.sf)
-        except Exception as ex:
-            os._exit(ex)
-
-
+            schools_data = await Schools().load_from_file(args.sf)
+        except Exception:
+            sys.exit(1)
 
     school = args.school
     if school and not server:
-        if not schools:
-            schools = await Bakalari().schools_list(town=args.town)
-        server = schools.get_url(school)
+        if not schools_data:
+            async with Bakalari() as _bak:
+                schools_res = await _bak.schools_list(
+                    town=args.town, recursive=getattr(args, "recursive", True)
+                )
+            if not schools_res:
+                print("Nepodařilo se načíst seznam škol.")
+                return
+            schools_data = schools_res
+        server_candidate = schools_data.get_url(school)
+        if not isinstance(server_candidate, str):
+            print("Škola nebyla nalezena nebo není jednoznačná.")
+            return
+        server = server_candidate
 
     if args.no_login:
         bakalari = Bakalari()
 
     if args.first_login or args.first_login_file:
-
-        cache = True if args.auto_cache else False
+        cache = bool(args.auto_cache)
 
         bakalari = Bakalari(
             server=server, auto_cache_credentials=cache, cache_filename=args.auto_cache
@@ -218,7 +241,8 @@ async def runme(args):
             login = args.first_login[0]
             passw = args.first_login[1]
 
-        credentials = await bakalari.first_login(login, passw)
+        async with bakalari:
+            credentials = await bakalari.first_login(login, passw)
 
         if args.credentials_file and not args.config:
             await w(args.credentials_file, credentials)
@@ -236,12 +260,13 @@ async def runme(args):
             f"Cahce: {bakalari.auto_cache_credentials}  cache_filename={bakalari.cache_filename} server: {bakalari.server}"
         )
     if args.credentials:
-
         cred = r(name=args.credentials_file)
-        bakalari = Bakalari(server=server, credentials=Credentials(
-            access_token = cred["access_token"],
-            refresh_token = cred["refresh_token"]
-        ))
+        bakalari = Bakalari(
+            server=server,
+            credentials=Credentials(
+                access_token=cred["access_token"], refresh_token=cred["refresh_token"]
+            ),
+        )
 
     if args.auto_cache and not (
         args.first_login or args.first_login_file or args.credentials
@@ -251,8 +276,9 @@ async def runme(args):
         )
         bakalari.load_credentials(args.auto_cache)
 
-    if "func" in args:
-        await args.func(args, bakalari=bakalari)
+    if hasattr(args, "func"):
+        async with bakalari:
+            await args.func(args, bakalari=bakalari)
 
 
 def main() -> None:
@@ -339,6 +365,22 @@ def main() -> None:
     )
     action_school.set_defaults(func=schools)
 
+    # Globální volby rekurzivního (podřetězcového) filtrování názvu města/školy
+    parser.add_argument(
+        "-r--recursive",
+        dest="recursive",
+        action="store_true",
+        default=True,
+        help="Povolí rekurzivní (podřetězcové) vyhledávání (výchozí).",
+    )
+    parser.add_argument(
+        "-nr",
+        "--no-recursive",
+        dest="recursive",
+        action="store_false",
+        help="Zakáže rekurzivní vyhledávání (použije se pouze prefix).",
+    )
+
     parser.add_argument(
         "-t",
         "--town",
@@ -418,33 +460,58 @@ def main() -> None:
         "--permanent",
         dest="tt_permanent",
         action="store_true",
-        help="Načte pevný (permanentní) rozvrh místo aktuálního."
+        help="Načte pevný (permanentní) rozvrh místo aktuálního.",
     )
     timetable_parser.add_argument(
         "-d",
         "--date",
         dest="tt_date",
         metavar="YYYY-MM-DD",
-        help="Datum týdne pro aktuální rozvrh ve formátu YYYY-MM-DD. Pokud není zadáno, použije se dnešní datum."
+        help="Datum týdne pro aktuální rozvrh ve formátu YYYY-MM-DD. Pokud není zadáno, použije se dnešní datum.",
     )
     tt_ctx = timetable_parser.add_mutually_exclusive_group()
-    tt_ctx.add_argument("--class", dest="tt_class", metavar="ID", help="ID třídy (classId) pro zobrazení rozvrhu.")
-    tt_ctx.add_argument("--group", dest="tt_group", metavar="ID", help="ID skupiny (groupId) pro zobrazení rozvrhu.")
-    tt_ctx.add_argument("--teacher", dest="tt_teacher", metavar="ID", help="ID učitele (teacherId) pro zobrazení rozvrhu.")
-    tt_ctx.add_argument("--room", dest="tt_room", metavar="ID", help="ID místnosti (roomId) pro zobrazení rozvrhu.")
-    tt_ctx.add_argument("--student", dest="tt_student", metavar="ID", help="ID studenta (studentId) pro zobrazení rozvrhu.")
+    tt_ctx.add_argument(
+        "--class",
+        dest="tt_class",
+        metavar="ID",
+        help="ID třídy (classId) pro zobrazení rozvrhu.",
+    )
+    tt_ctx.add_argument(
+        "--group",
+        dest="tt_group",
+        metavar="ID",
+        help="ID skupiny (groupId) pro zobrazení rozvrhu.",
+    )
+    tt_ctx.add_argument(
+        "--teacher",
+        dest="tt_teacher",
+        metavar="ID",
+        help="ID učitele (teacherId) pro zobrazení rozvrhu.",
+    )
+    tt_ctx.add_argument(
+        "--room",
+        dest="tt_room",
+        metavar="ID",
+        help="ID místnosti (roomId) pro zobrazení rozvrhu.",
+    )
+    tt_ctx.add_argument(
+        "--student",
+        dest="tt_student",
+        metavar="ID",
+        help="ID studenta (studentId) pro zobrazení rozvrhu.",
+    )
     timetable_parser.set_defaults(func=timetable)
 
-    if len(os.sys.argv) == 1:
+    if len(sys.argv) == 1:
         parser.print_help()
         return
 
     args = parser.parse_args()
 
     if args.verbose:
-        log = api_logger("Bakalari API", loglevel=logging.DEBUG).get()
+        api_logger("Bakalari API", loglevel=logging.DEBUG).get()
     else:
-        log = api_logger("Bakalari API").get()
+        api_logger("Bakalari API").get()
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(runme(args))

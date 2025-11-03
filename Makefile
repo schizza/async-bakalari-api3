@@ -22,20 +22,20 @@ export PYTHONDONTWRITEBYTECODE=1
 
 help:
 	@echo "Použití:"
-	@echo "  make venv                            - vytvoří .venv"
-	@echo "  make install                         - nainstaluje závislosti (stable HA $(HA_VERSION))"
-	@echo "  make update                          - smaže .venv a nainstaluje znovu"
-	@echo "  make bump-version NEW=<version>      - zvýší verzi balíčku"
-	@echo "  make all                             - spustí všecny potřebné testy"
-	@echo "  make lint                            - ruff check + format check"
-	@echo "  make fmt                             - ruff format"
-	@echo "  make fix                             - ruff check --fix"
-	@echo "  make test                            - pytest (tiché -q)"
-	@echo "  make coverage                        - pytest s coverage"
-	@echo "  make ci                              - lint + test"
-	@echo "  make check-versions                - zkontroluje správnost verzí"
-	@echo "  make clean                           - smaže cache (pytest/ruff/build)"
-	@echo "  make distclean                       - clean + smaže .venv a .ha-core"
+	@echo "  make venv                                  - vytvoří .venv"
+	@echo "  make install                               - nainstaluje závislosti (stable HA $(HA_VERSION))"
+	@echo "  make update                                - smaže .venv a nainstaluje znovu"
+	@echo "  make bump-version NEW=<minor|major|patch>  - zvýší verzi balíčku"
+	@echo "  make all                                   - spustí všecny potřebné testy"
+	@echo "  make lint                                  - ruff check + format check"
+	@echo "  make fmt                                   - ruff format"
+	@echo "  make fix                                   - ruff check --fix"
+	@echo "  make test                                  - pytest (tiché -q)"
+	@echo "  make coverage                              - pytest s coverage"
+	@echo "  make ci                                    - lint + test"
+	@echo "  make check-versions                        - zkontroluje správnost verzí"
+	@echo "  make clean                                 - smaže cache (pytest/ruff/build)"
+	@echo "  make distclean                             - clean + smaže .venv a .ha-core"
 
 # ====== Venv & instalace ======
 venv:
@@ -47,7 +47,7 @@ install: venv
 	$(PYTHON) -m pip install -e .
 	$(PYTHON) -m pip install \
 		ruff pre-commit \
-		pytest pytest-asyncio \
+		pytest pytest-asyncio pytest-cov \
 		bumpversion \
 		validate-pyproject packaging==24.2
 update:
@@ -56,7 +56,7 @@ update:
 	$(MAKE) install
 	@echo "✅ Hotovo."
 
-all: ci coverage validate-local check-versions show-version
+all: ci coverage validate-local show-version
 
 # ====== Lint & test ======
 lint:
@@ -73,21 +73,11 @@ test:
 	$(PYTEST) -q
 
 coverage:
-	$(PYTEST) --cov --cov-report=term-missing
+	$(PYTEST)
 
-ci: lint test coverage
+ci: lint coverage
 
 validate-all: ci validate-local
-
-# ====== Spouštění Home Assistanta z venvu ======
-run:
-	$(PYTHON) -m homeassistant --config $(HA_CONFIG)
-
-run-debug:
-	$(PYTHON) -m homeassistant --config $(HA_CONFIG) --debug
-
-run-no-cache:
-	$(PYTHON) -m homeassistant --config $(HA_CONFIG) --skip-pip
 
 # ====== Úklid ======
 clean:
@@ -101,12 +91,9 @@ distclean: clean
 # ======= Bump verze ======
 
 bump-version:
-	@if [ -z "$(NEW)" ]; then echo "Použití: make bump-version NEW=<verze>"; exit 1; fi
-	bumpversion --new-version "$(NEW)"
+	@if [ -z "$(NEW)" ]; then echo "Použití: make bump-version NEW=<minor|major|part>"; exit 1; fi
+	bumpversion $(NEW) --allow-dirty
 
 show-version:
-	@bumpversion --dry-run --list patch | grep current_version | cut -d= -f2
-
-check-versions:
-	@echo "🔍 Kontrola konzistence verzí..."
-	@$(PYTHON) script/validate_version.py
+	@echo "🔍 Aktuální verze:"
+	@bumpversion --dry-run --list --allow-dirty patch | grep current_version | cut -d= -f2

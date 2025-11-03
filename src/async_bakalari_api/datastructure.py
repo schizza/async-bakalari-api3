@@ -31,7 +31,7 @@ class Credentials:
             username=data.get(Token.USERNAME),
             user_id=data.get(Token.USER_ID),
             access_token=data.get(Token.ACCESS_TOKEN),
-            refresh_token=data.get(Token.REFRESH_TOKEN)
+            refresh_token=data.get(Token.REFRESH_TOKEN),
         )
 
     @classmethod
@@ -45,6 +45,7 @@ class Credentials:
                 Token.USERNAME: data["username"],
             }
         )
+
 
 @dataclass
 class School:
