@@ -22,20 +22,20 @@ export PYTHONDONTWRITEBYTECODE=1
 
 help:
 	@echo "Použití:"
-	@echo "  make venv                            - vytvoří .venv"
-	@echo "  make install                         - nainstaluje závislosti (stable HA $(HA_VERSION))"
-	@echo "  make update                          - smaže .venv a nainstaluje znovu"
-	@echo "  make bump-version NEW=<version>      - zvýší verzi balíčku"
-	@echo "  make all                             - spustí všecny potřebné testy"
-	@echo "  make lint                            - ruff check + format check"
-	@echo "  make fmt                             - ruff format"
-	@echo "  make fix                             - ruff check --fix"
-	@echo "  make test                            - pytest (tiché -q)"
-	@echo "  make coverage                        - pytest s coverage"
-	@echo "  make ci                              - lint + test"
-	@echo "  make check-versions                - zkontroluje správnost verzí"
-	@echo "  make clean                           - smaže cache (pytest/ruff/build)"
-	@echo "  make distclean                       - clean + smaže .venv a .ha-core"
+	@echo "  make venv                                  - vytvoří .venv"
+	@echo "  make install                               - nainstaluje závislosti (stable HA $(HA_VERSION))"
+	@echo "  make update                                - smaže .venv a nainstaluje znovu"
+	@echo "  make bump-version NEW=<minor|major|patch>  - zvýší verzi balíčku"
+	@echo "  make all                                   - spustí všecny potřebné testy"
+	@echo "  make lint                                  - ruff check + format check"
+	@echo "  make fmt                                   - ruff format"
+	@echo "  make fix                                   - ruff check --fix"
+	@echo "  make test                                  - pytest (tiché -q)"
+	@echo "  make coverage                              - pytest s coverage"
+	@echo "  make ci                                    - lint + test"
+	@echo "  make check-versions                        - zkontroluje správnost verzí"
+	@echo "  make clean                                 - smaže cache (pytest/ruff/build)"
+	@echo "  make distclean                             - clean + smaže .venv a .ha-core"
 
 # ====== Venv & instalace ======
 venv:
@@ -91,8 +91,8 @@ distclean: clean
 # ======= Bump verze ======
 
 bump-version:
-	@if [ -z "$(NEW)" ]; then echo "Použití: make bump-version NEW=<verze>"; exit 1; fi
-	bumpversion --new-version "$(NEW)"
+	@if [ -z "$(NEW)" ]; then echo "Použití: make bump-version NEW=<minor|major|part>"; exit 1; fi
+	bumpversion $(NEW) --allow-dirty
 
 show-version:
 	@echo "🔍 Aktuální verze:"
