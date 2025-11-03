@@ -75,7 +75,7 @@ test:
 coverage:
 	$(PYTEST)
 
-ci: lint test coverage
+ci: lint coverage
 
 validate-all: ci validate-local
 
