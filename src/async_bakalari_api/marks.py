@@ -1,593 +1,190 @@
-"""Module to handle marks from Bakalari."""
+"""High level service for working with Bakaláři marks."""
 
-import asyncio
-from collections.abc import Callable, Iterable
-from dataclasses import asdict, dataclass
+from __future__ import annotations
+
+from dataclasses import replace
 from datetime import datetime
-from typing import Any, Literal, TypedDict, overload
+from operator import attrgetter
+from typing import Any, Callable, Iterable, Literal
 
 from dateutil import parser
 
 from .bakalari import Bakalari
 from .const import EndPoint
 from .logger_api import api_logger
+from .marks_models import (
+    FlatMark,
+    FlatSnapshot,
+    Mark,
+    MarkOption,
+    MarksDataset,
+    Subject,
+    SubjectSummary,
+)
 
 log = api_logger("Bakalari API").get()
 
 
-@dataclass
-class MarkOptionsBase:
-    """Mark options base."""
-
-    id: str
-    abbr: str
-    text: str
-
-
-class MarkOptionsRegistry:
-    """Mark options registry."""
-
-    def __init__(self):
-        """Initialize MarkOptionsRegistry."""
-
-        self._data: dict[str, MarkOptionsBase] = {}
-        self._index: set = set()
-
-    def append(self, marksoptions: MarkOptionsBase):
-        """Set mark options."""
-        if marksoptions.id not in self._index:
-            self._data[marksoptions.id] = marksoptions
-            self._index.add(marksoptions.id)
-
-    def get(self, id: str) -> MarkOptionsBase | None:
-        """Get mark options."""
-        return self._data.get(id, None)
-
-    def __repr__(self) -> str:
-        """Representation of MarkOptionsRegistry."""
-
-        items = ", ".join(
-            f"(id={mo.id!r}, abbr={mo.abbr!r}, text={mo.text!r})"
-            for mo in self._data.values()
-        )
-        return f"<MarkOptionsRegistry {items}>"
-
-    def __str__(self) -> str:
-        """Return string representation of data."""
-        return "\n".join(
-            f"id: {idx} abbrev: {self._data[idx].abbr} text: {self._data[idx].text}"
-            for idx in self._index
-        )
-
-
-class MarkOptions(MarkOptionsRegistry):
-    """Mark options."""
-
-    def __init__(self):
-        """Initialize MarkOptions."""
-        self.registry = MarkOptionsRegistry()
-
-    def append(self, marksoptions: MarkOptionsBase):
-        """Append mark options."""
-        self.registry.append(marksoptions=marksoptions)
-
-    def __str__(self) -> str:
-        """Return string representation of data."""
-        return f"{self.registry}"
-
-    def __getitem__(self, key: str) -> MarkOptionsBase | None:
-        """Get mark options."""
-        return self.registry.get(key)
-
-    def __format__(self, format_spec: str) -> str:
-        """Format string representation of data."""
-        return self.__str__()
-
-
-@dataclass
-class MarksBase:
-    """Marks base."""
-
-    id: str
-    date: datetime
-    caption: str
-    theme: str | None
-    marktext: MarkOptionsBase | None
-    teacher: str | None
-    subject_id: str
-    is_new: bool
-    is_points: bool
-    points_text: str | None
-    max_points: int | None
-
-    def __str__(self) -> str:
-        """Return string representation of data."""
-
-        return (
-            f"theme: {(self.theme or '').rstrip('\n')}: {' ' * 5}{(self.marktext.text if self.marktext else '')}\n"
-            f"date: {self.date.date()}\n"
-            f"id: {self.id}\n"
-            f"is_new: {self.is_new}\n"
-            f"is_points: {self.is_points}\n"
-            f"points_text: {self.points_text}\n"
-            f"max_points: {self.max_points}\n\n"
-        )
-
-
-class MarksRegistry:
-    """Marks registry."""
-
-    def __init__(self):
-        """Initialize MarksRegistry."""
-
-        self._data: dict[str, MarksBase] = {}
-        self._index: set = set()
-
-    def append(self, marks: MarksBase):
-        """Set marks."""
-        if marks.id not in self._index:
-            self._data[marks.id] = marks
-            self._index.add(marks.id)
-
-    def find_new_marks(self) -> list[MarksBase]:
-        """Find new marks."""
-
-        return [mark for mark in self._data.values() if mark.is_new]
-
-    @overload
-    def get_marks_by_date(
-        self, *, date: datetime, date_to: datetime
-    ) -> list[MarksBase]: ...
-    @overload
-    def get_marks_by_date(self, *, date: datetime) -> list[MarksBase]: ...
-    @overload
-    def get_marks_by_date(
-        self, *, subject_id: str, date: datetime, date_to: datetime
-    ) -> list[MarksBase]: ...
-    @overload
-    def get_marks_by_date(
-        self, *, subject_id: str, date: datetime
-    ) -> list[MarksBase]: ...
-
-    def get_marks_by_date(
-        self,
-        *,
-        subject_id: str | None = None,
-        date: datetime | None = None,
-        date_to: datetime | None = None,
-    ) -> list[MarksBase]:
-        """Get marks by date or date range. Or for subject by date or date range."""
-        if date is None:
-            return []
-
-        start = date.date()
-        end = date_to.date() if date_to is not None else start
-
-        if subject_id is not None:
-            return [
-                mark
-                for mark in self._data.values()
-                if mark.subject_id == subject_id and start <= mark.date.date() <= end
-            ]
-
-        return [
-            mark for mark in self._data.values() if start <= mark.date.date() <= end
-        ]
-
-    def get(self, id: str) -> MarksBase | None:
-        """Get marks."""
-        return self._data.get(id, None)
-
-    def __repr__(self) -> str:
-        """Representation of MarksRegistry."""
-        items = ", ".join(
-            f"(id={data.id!r}, date={data.date!r}, caption={data.caption!r}, theme={data.theme!r}, marktext={data.marktext!r}, teacher={data.teacher!r}, subject_id={data.subject_id!r}, is_new={data.is_new!r}, is_points={data.is_points!r}, points_text={data.points_text!r}, max_points={data.max_points!r})"
-            for data in self._data.values()
-        )
-        return f"<MarksRegistry {items}>"
-
-    def __iter__(self):
-        """Iterate over marks."""
-        yield from self._data.values()
-
-    def __str__(self) -> str:
-        """Return string representation of data."""
-        return "\n".join(
-            f"id: {idx} date: {self._data[idx].date} caption: {self._data[idx].caption} theme: {self._data[idx].theme} marktext: {self._data[idx].marktext} teacher: {self._data[idx].teacher} subject_id: {self._data[idx].subject_id} is_new: {self._data[idx].is_new} is_points: {self._data[idx].is_points} points_text: {self._data[idx].points_text} max_points: {self._data[idx].max_points}"
-            for idx in self._index
-        )
-
-
-class SubjectsBase:
-    """Subjects base."""
-
-    id: str
-    abbr: str
-    name: str
-    average_text: str
-    points_only: bool
-    marks: MarksRegistry
+class SubjectBuilder:
+    """Mutable helper used while parsing payloads."""
 
     def __init__(
-        self, *, id: str, abbr: str, name: str, average_text: str, points_only: bool
+        self,
+        *,
+        subject_id: str,
+        abbr: str,
+        name: str,
+        average_text: str,
+        points_only: bool,
     ) -> None:
-        """Initialize SubjectsBase."""
-        self.marks = MarksRegistry()
-        self._data: dict[str, Any] = {}
+        self.id = subject_id
+        self.abbr = abbr
+        self.name = name
+        self.average_text = average_text
+        self.points_only = points_only
+        self._marks: list[Mark] = []
 
-        _setter = object.__setattr__
-        _setter(self, "id", id)
-        _setter(self, "abbr", abbr)
-        _setter(self, "average_text", average_text)
-        _setter(self, "points_only", points_only)
-        _setter(self, "name", name)
+    def add_mark(self, mark: Mark) -> None:
+        self._marks.append(mark)
 
-    def __repr__(self) -> str:
-        """Representation of SubjectsBase."""
-        return f"<SubjectsBase id={self.id} abbr={self.abbr} name={self.name}>"
-
-    def __str__(self) -> str:
-        """Return string representation of data."""
-        return (
-            f"name: {self.name}\n"
-            f"id: {self.id}\n"
-            f"abbr: {self.abbr}\n"
-            f"Average: {self.average_text}\n"
-            f"points_only: {self.points_only}\n"
-            f"----\n"
+    def build(self) -> Subject:
+        return Subject(
+            id=self.id,
+            abbr=self.abbr,
+            name=self.name,
+            average_text=self.average_text,
+            points_only=self.points_only,
+            marks=tuple(sorted(self._marks, key=attrgetter("date"))),
         )
 
 
-class SubjectsRegistry:
-    """Subjects registry."""
+class MarksAssembler:
+    """Builder that constructs immutable :class:`MarksDataset`."""
 
-    def __init__(self):
-        """Initialize SubjectsRegistry."""
+    def __init__(self) -> None:
+        self._options: dict[str, MarkOption] = {}
+        self._subjects: dict[str, SubjectBuilder] = {}
 
-        self._subjects: dict[str, SubjectsBase] = {}
-        self._index: set = set()
+    def add_option(self, *, option_id: str, abbr: str, text: str) -> None:
+        if option_id not in self._options:
+            self._options[option_id] = MarkOption(id=option_id, abbr=abbr, text=text)
 
-    def append_subject(self, subjects: SubjectsBase):
-        """Set subjects."""
-        if subjects.id not in self._index:
-            self._subjects[subjects.id] = subjects
-            self._index.add(subjects.id)
-
-    def append_marks(self, marks: MarksBase):
-        """Set marks."""
-        subject = self._subjects.get(marks.subject_id)
-        if subject:
-            subject.marks.append(marks)
-        else:
-            log.warning(f"Subject {marks.subject_id} not found for mark {marks.id}")
-
-    def get_subject(self, id: str) -> SubjectsBase | None:
-        """Get subjects."""
-        return self._subjects.get(id, None)
-
-    def get_marks(self, subject_id: str) -> MarksRegistry:
-        """Get marks for subject."""
-
-        return self._subjects[subject_id].marks
-
-    def __repr__(self) -> str:
-        """Representation of SubjectsRegistry."""
-        items = ", ".join(
-            f"(id={s.id!r}, abbr={s.abbr!r}, name={s.name!r})"
-            for s in self._subjects.values()
-        )
-        return f"<SubjectsRegistry {items}>"
-
-    def __str__(self) -> str:
-        """Return string representation of data."""
-        return "\n".join(
-            f"id: {idx} abbr: {self._subjects[idx].abbr} name: {self._subjects[idx].name} average_text: {self._subjects[idx].average_text} points_only: {self._subjects[idx].points_only}"
-            for idx in self._index
-        )
-
-
-@dataclass(slots=True, frozen=True)
-class FlatMark:
-    """Flat mark."""
-
-    id: str
-    date: datetime
-    subject_id: str
-    subject_abbr: str
-    subject_name: str
-    caption: str | None
-    theme: str | None
-    mark_text: str | None
-    is_new: bool
-    is_points: bool
-    points_text: str | None
-    max_points: int | None
-    teacher: str | None
-
-
-class FlatSnapshot(TypedDict):
-    """Flat snapshot."""
-
-    subjects: dict[str, dict[str, Any]]
-    marks_grouped: dict[str, list[dict[str, Any]]]
-    marks_flat: list[dict[str, Any]]
-
-
-class Marks:
-    """Marks class."""
-
-    def __init__(self, bakalari: Bakalari):
-        """Initialize Marks."""
-        self.bakalari = bakalari
-        self.marksoptions = MarkOptions()
-        self.subjects = SubjectsRegistry()
-
-    def _mark_to_flat(self, subj: SubjectsBase, mark: MarksBase) -> FlatMark:
-        """Convert mark to flat mark."""
-
-        return FlatMark(
-            id=mark.id,
-            date=mark.date,
-            subject_id=mark.subject_id,
-            subject_abbr=subj.abbr,
-            subject_name=subj.name,
-            caption=mark.caption,
-            theme=(mark.theme or "").strip() if mark.theme else None,
-            mark_text=(mark.marktext.text if mark.marktext else None),
-            is_new=mark.is_new,
-            is_points=mark.is_points,
-            points_text=mark.points_text,
-            max_points=mark.max_points,
-            teacher=mark.teacher,
-        )
-
-    def _flat_to_dict(self, fm: FlatMark) -> dict[str, Any]:
-        """Convert flat mark to dictionary."""
-
-        d = asdict(fm)
-        d["date"] = fm.date.isoformat()
-        return d
-
-    async def _parse_marks_options(self, options: list[dict[str, str]]):
-        """Parse mark options."""
-        for option in options:
-            self.marksoptions.append(
-                marksoptions=MarkOptionsBase(
-                    id=option.get("Id", ""),
-                    abbr=option.get("Abbrev", ""),
-                    text=option.get("Name", ""),
-                )
+    def ensure_subject(
+        self,
+        *,
+        subject_id: str,
+        abbr: str,
+        name: str,
+        average_text: str,
+        points_only: bool,
+    ) -> SubjectBuilder:
+        subject = self._subjects.get(subject_id)
+        if subject is None:
+            subject = SubjectBuilder(
+                subject_id=subject_id,
+                abbr=abbr,
+                name=name,
+                average_text=average_text,
+                points_only=points_only,
             )
+            self._subjects[subject_id] = subject
+        return subject
 
-    async def _parse_subjects(self, subjects: dict[str, Any]):
-        """Parse subjects."""
+    def add_mark(
+        self,
+        *,
+        mark_id: str,
+        mark_date: datetime,
+        caption: str | None,
+        theme: str | None,
+        mark_text_id: str | None,
+        teacher: str | None,
+        subject_id: str,
+        is_new: bool,
+        is_points: bool,
+        points_text: str | None,
+        max_points: int | None,
+    ) -> None:
+        subject = self._subjects.get(subject_id)
+        if subject is None:
+            log.warning(f"Subject {subject_id} not found for mark {mark_id}")
+            return
 
-        self.subjects.append_subject(
-            subjects=SubjectsBase(
-                id=subjects["Subject"].get("Id"),
-                abbr=subjects["Subject"].get("Abbrev"),
-                name=subjects["Subject"].get("Name"),
-                average_text=subjects.get("AverageText", ""),
-                points_only=subjects.get("PointsOnly", ""),
-            )
-        )
-        for mark in subjects["Marks"]:
-            raw_mt_id = mark.get("MarkText")
-            opt = self.marksoptions[raw_mt_id]
-            if opt is None:
+        option = None
+        if mark_text_id:
+            option = self._options.get(mark_text_id)
+            if option is None:
                 log.warning(
-                    f"MarkOptions not found for MarkText={raw_mt_id!r}; using placeholder"
+                    "MarkOptions not found for MarkText=%r; using placeholder",
+                    mark_text_id,
                 )
-                opt = MarkOptionsBase(
-                    id=raw_mt_id, abbr=raw_mt_id or "", text=raw_mt_id or ""
+                option = MarkOption(
+                    id=mark_text_id,
+                    abbr=mark_text_id,
+                    text=mark_text_id,
                 )
-            self.subjects.append_marks(
-                marks=MarksBase(
-                    id=mark.get("Id"),
-                    date=parser.parse(mark.get("MarkDate")),
-                    caption=mark.get("Caption"),
-                    theme=mark.get("Theme"),
-                    marktext=opt,
-                    teacher=mark.get("Teacher"),
-                    subject_id=mark.get("SubjectId"),
-                    is_new=mark.get("IsNew"),
-                    is_points=mark.get("IsPoints"),
-                    points_text=mark.get("PointsText"),
-                    max_points=mark.get("MaxPoints"),
-                )
-            )
+                self._options[mark_text_id] = option
 
-    async def fetch_marks(self):
-        """Fetch marks from Bakalari."""
-        response: Any = await self.bakalari.send_auth_request(EndPoint.MARKS)
-
-        await self._parse_marks_options(response.get("MarkOptions"))
-
-        tasks = [
-            asyncio.create_task(self._parse_subjects(subjects))
-            for subjects in response.get("Subjects")
-        ]
-
-        await asyncio.gather(*tasks)
-
-    async def get_subjects(self) -> list[SubjectsBase]:
-        """Get list subjects."""
-        return list(self.subjects._subjects.values())
-
-    async def get_marks_by_subject(self, subject_id: str) -> list[MarksBase]:
-        """Get marks for subject."""
-        subject = self.subjects.get_subject(subject_id)
-        return list(subject.marks) if subject else []
-
-    async def get_new_marks(self) -> list[SubjectsBase]:
-        """Get new marks for subject."""
-
-        new_marks: list[SubjectsBase] = []
-
-        for subject in self.subjects._subjects.values():
-            if len(found := subject.marks.find_new_marks()) != 0:
-                new_marks.append(
-                    SubjectsBase(
-                        id=subject.id,
-                        abbr=subject.abbr,
-                        name=subject.name,
-                        average_text=subject.average_text,
-                        points_only=subject.points_only,
-                    )
-                )
-                for mark in found:
-                    new_marks[-1].marks.append(mark)
-        return new_marks
-
-    async def get_marks_all(  # noqa: C901
-        self,
-        date_from: datetime | None = None,
-        date_to: datetime | None = None,
-        subject_id: str | None = None,
-    ) -> list[SubjectsBase]:
-        """Get all marks grouped by subject. Optionally filter by date or date range and/or subject."""
-
-        if not date_to:
-            date_to = date_from
-
-        results: list[SubjectsBase] = []
-
-        if subject_id is not None:
-            subject = self.subjects.get_subject(subject_id)
-            if not subject:
-                return results
-
-            if date_from is None or date_to is None:
-                marks = list(subject.marks)
-            else:
-                marks = subject.marks.get_marks_by_date(date=date_from, date_to=date_to)
-
-            if marks:
-                container = SubjectsBase(
-                    id=subject.id,
-                    abbr=subject.abbr,
-                    name=subject.name,
-                    average_text=subject.average_text,
-                    points_only=subject.points_only,
-                )
-                for mark in marks:
-                    container.marks.append(mark)
-                results.append(container)
-            return results
-
-        for subject in self.subjects._subjects.values():
-            if date_from is None or date_to is None:
-                marks = list(subject.marks)
-            else:
-                marks = subject.marks.get_marks_by_date(date=date_from, date_to=date_to)
-
-            if marks:
-                container = SubjectsBase(
-                    id=subject.id,
-                    abbr=subject.abbr,
-                    name=subject.name,
-                    average_text=subject.average_text,
-                    points_only=subject.points_only,
-                )
-                for mark in marks:
-                    container.marks.append(mark)
-                results.append(container)
-
-        return results
-
-    async def format_all_marks(
-        self,
-        date_from: datetime | None = None,
-        date_to: datetime | None = None,
-        subject_id: str | None = None,
-    ) -> str:
-        """Return a nicely formatted string of all marks, grouped by subject."""
-        groups = await self.get_marks_all(
-            date_from=date_from, date_to=date_to, subject_id=subject_id
+        mark = Mark(
+            id=mark_id,
+            date=mark_date,
+            caption=caption,
+            theme=theme,
+            mark_option=option,
+            teacher=teacher,
+            subject_id=subject_id,
+            is_new=is_new,
+            is_points=is_points,
+            points_text=points_text,
+            max_points=max_points,
         )
-        lines: list[str] = []
-        for subj in groups:
-            header = f"{subj.name} ({subj.abbr}) | average: {subj.average_text} | points_only: {subj.points_only}"
-            lines.append(header)
-            lines.append("-" * len(header))
-            for m in subj.marks:
-                mark_text = m.marktext.text if m.marktext else ""
-                caption = m.caption or ""
-                line = f"  [{m.date.date()}] {caption} -> {mark_text}"
-                if m.is_new:
-                    line += " [NEW]"
-                lines.append(line)
-                if m.theme:
-                    lines.append(f"    theme: {m.theme.strip()}")
-                if m.is_points:
-                    pt = m.points_text or ""
-                    if m.max_points is not None:
-                        lines.append(f"    points: {pt} / {m.max_points}")
-                    else:
-                        lines.append(f"    points: {pt}")
-            lines.append("")  # blank line between subjects
-        return "\n".join(lines).rstrip()
+        subject.add_mark(mark)
 
-    async def get_new_marks_by_date(
+    def build(self) -> MarksDataset:
+        return MarksDataset({sid: subj.build() for sid, subj in self._subjects.items()})
+
+
+class MarksService:
+    """Pure service operating on immutable :class:`MarksDataset`."""
+
+    def __init__(self, dataset: MarksDataset) -> None:
+        self.dataset = dataset
+
+    def _iter_subjects(self, subject_id: str | None) -> Iterable[Subject]:
+        if subject_id is None:
+            return self.dataset.iter_subjects()
+        subject = self.dataset.get_subject(subject_id)
+        return (subject,) if subject else tuple()
+
+    @staticmethod
+    def _mark_in_range(
+        mark: Mark,
+        *,
+        date_from: datetime | None,
+        date_to: datetime | None,
+    ) -> bool:
+        if date_from is None:
+            return True
+        end = date_to or date_from
+        mdate = mark.date.date()
+        return date_from.date() <= mdate <= end.date()
+
+    def _filter_marks(
         self,
-        date_from: datetime,
-        date_to: datetime,
-        subject_id: str | None = None,
-    ) -> list[SubjectsBase]:
-        """Get new marks by date or date range. Optionally for a specific subject."""
-
-        new_marks: list[SubjectsBase] = []
-
-        if subject_id is not None:
-            subject = self.subjects.get_subject(subject_id)
-            if not subject:
-                return new_marks
-            marks = [
-                m
-                for m in subject.marks.get_marks_by_date(
-                    date=date_from, date_to=date_to
-                )
-                if m.is_new
-            ]
-            if marks:
-                container = SubjectsBase(
-                    id=subject.id,
-                    abbr=subject.abbr,
-                    name=subject.name,
-                    average_text=subject.average_text,
-                    points_only=subject.points_only,
-                )
-                for mark in marks:
-                    container.marks.append(mark)
-                new_marks.append(container)
-            return new_marks
-
-        for subject in self.subjects._subjects.values():
-            marks = [
-                m
-                for m in subject.marks.get_marks_by_date(
-                    date=date_from, date_to=date_to
-                )
-                if m.is_new
-            ]
-            if marks:
-                container = SubjectsBase(
-                    id=subject.id,
-                    abbr=subject.abbr,
-                    name=subject.name,
-                    average_text=subject.average_text,
-                    points_only=subject.points_only,
-                )
-                for mark in marks:
-                    container.marks.append(mark)
-                new_marks.append(container)
-
-        return new_marks
-
-    def get_subjects_map(self) -> dict[str, SubjectsBase]:
-        """Return a dictionary mapping subject IDs to SubjectsBase objects."""
-
-        return dict(self.subjects._subjects)
+        marks: Iterable[Mark],
+        *,
+        date_from: datetime | None,
+        date_to: datetime | None,
+        predicate: Callable[[Mark], bool] | None,
+    ) -> list[Mark]:
+        items = [
+            mark
+            for mark in marks
+            if self._mark_in_range(mark, date_from=date_from, date_to=date_to)
+        ]
+        if predicate is not None:
+            items = [mark for mark in items if predicate(mark)]
+        return items
 
     def iter_grouped(
         self,
@@ -595,34 +192,276 @@ class Marks:
         date_from: datetime | None = None,
         date_to: datetime | None = None,
         subject_id: str | None = None,
-        predicate: Callable[[MarksBase], bool] | None = None,
-    ) -> Iterable[tuple[SubjectsBase, list[MarksBase]]]:
-        """Iterace skupin (předmět -> známky) s volitelnými filtry."""
+        predicate: Callable[[Mark], bool] | None = None,
+    ) -> Iterable[tuple[Subject, list[Mark]]]:
+        for subject in self._iter_subjects(subject_id):
+            if subject is None:
+                continue
+            filtered = self._filter_marks(
+                subject.marks,
+                date_from=date_from,
+                date_to=date_to,
+                predicate=predicate,
+            )
+            if filtered:
+                yield subject, filtered
 
-        if subject_id is not None:
-            subj = self.subjects.get_subject(subject_id)
-            if not subj:
-                return []
-            marks = (
-                list(subj.marks)
-                if date_from is None or date_to is None
-                else subj.marks.get_marks_by_date(date=date_from, date_to=date_to)
+    def get_marks_all(
+        self,
+        *,
+        date_from: datetime | None = None,
+        date_to: datetime | None = None,
+        subject_id: str | None = None,
+        predicate: Callable[[Mark], bool] | None = None,
+    ) -> list[Subject]:
+        groups: list[Subject] = []
+        for subject, marks in self.iter_grouped(
+            date_from=date_from,
+            date_to=date_to,
+            subject_id=subject_id,
+            predicate=predicate,
+        ):
+            groups.append(replace(subject, marks=tuple(marks)))
+        return groups
+
+    def get_new_marks(self) -> list[Subject]:
+        return self.get_marks_all(predicate=lambda mark: mark.is_new)
+
+    def get_new_marks_by_date(
+        self,
+        *,
+        date_from: datetime,
+        date_to: datetime | None = None,
+        subject_id: str | None = None,
+    ) -> list[Subject]:
+        return self.get_marks_all(
+            date_from=date_from,
+            date_to=date_to,
+            subject_id=subject_id,
+            predicate=lambda mark: mark.is_new,
+        )
+
+    def _to_flat_mark(self, subject: Subject, mark: Mark) -> FlatMark:
+        mark_text = mark.mark_option.text if mark.mark_option else None
+        theme = (mark.theme or "").strip() or None
+        return FlatMark(
+            id=mark.id,
+            date=mark.date,
+            subject_id=subject.id,
+            subject_abbr=subject.abbr,
+            subject_name=subject.name,
+            caption=mark.caption,
+            theme=theme,
+            mark_text=mark_text,
+            is_new=mark.is_new,
+            is_points=mark.is_points,
+            points_text=mark.points_text,
+            max_points=mark.max_points,
+            teacher=mark.teacher,
+        )
+
+    def get_flat(
+        self,
+        *,
+        date_from: datetime | None = None,
+        date_to: datetime | None = None,
+        subject_id: str | None = None,
+        predicate: Callable[[Mark], bool] | None = None,
+        order: Literal["asc", "desc"] = "desc",
+    ) -> list[FlatMark]:
+        items: list[FlatMark] = []
+        for subject, marks in self.iter_grouped(
+            date_from=date_from,
+            date_to=date_to,
+            subject_id=subject_id,
+            predicate=predicate,
+        ):
+            items.extend(self._to_flat_mark(subject, mark) for mark in marks)
+        items.sort(key=attrgetter("date"), reverse=(order == "desc"))
+        return items
+
+    def get_snapshot(
+        self,
+        *,
+        date_from: datetime | None = None,
+        date_to: datetime | None = None,
+        subject_id: str | None = None,
+        predicate: Callable[[Mark], bool] | None = None,
+        order: Literal["asc", "desc"] = "desc",
+    ) -> FlatSnapshot:
+        grouped: dict[str, tuple[FlatMark, ...]] = {}
+        flat_items: list[FlatMark] = []
+        for subject, marks in self.iter_grouped(
+            date_from=date_from,
+            date_to=date_to,
+            subject_id=subject_id,
+            predicate=predicate,
+        ):
+            flat_marks = tuple(self._to_flat_mark(subject, mark) for mark in marks)
+            grouped[subject.id] = tuple(
+                sorted(flat_marks, key=attrgetter("date"), reverse=(order == "desc"))
             )
-            if predicate:
-                marks = [m for m in marks if predicate(m)]
-            return [(subj, marks)]
-        out: list[tuple[SubjectsBase, list[MarksBase]]] = []
-        for subj in self.subjects._subjects.values():
-            marks = (
-                list(subj.marks)
-                if date_from is None or date_to is None
-                else subj.marks.get_marks_by_date(date=date_from, date_to=date_to)
+            flat_items.extend(flat_marks)
+
+        flat_items.sort(key=attrgetter("date"), reverse=(order == "desc"))
+
+        summaries = {
+            subject.id: SubjectSummary(
+                id=subject.id,
+                abbr=subject.abbr,
+                name=subject.name,
+                average_text=subject.average_text,
+                points_only=subject.points_only,
             )
-            if predicate:
-                marks = [m for m in marks if predicate(m)]
-            if marks:
-                out.append((subj, marks))
-        return out
+            for subject in self._iter_subjects(subject_id)
+            if subject is not None
+        }
+
+        return FlatSnapshot(
+            subjects=summaries,
+            marks_grouped=grouped,
+            marks_flat=tuple(flat_items),
+        )
+
+
+class Marks:
+    """Facade combining Bakaláři client with :class:`MarksService`."""
+
+    def __init__(self, bakalari: Bakalari):
+        self.bakalari = bakalari
+        self._service: MarksService | None = None
+
+    def _require_service(self) -> MarksService:
+        if self._service is None:
+            raise RuntimeError("fetch_marks must be called before accessing data")
+        return self._service
+
+    async def fetch_marks(self) -> None:
+        """Fetch marks from Bakaláři and populate immutable dataset."""
+
+        response: Any = await self.bakalari.send_auth_request(EndPoint.MARKS)
+        assembler = MarksAssembler()
+
+        for option in response.get("MarkOptions", []):
+            assembler.add_option(
+                option_id=option.get("Id", ""),
+                abbr=option.get("Abbrev", ""),
+                text=option.get("Name", ""),
+            )
+
+        for subject in response.get("Subjects", []):
+            subj_meta = subject.get("Subject", {})
+            assembler.ensure_subject(
+                subject_id=subj_meta.get("Id", ""),
+                abbr=subj_meta.get("Abbrev", ""),
+                name=subj_meta.get("Name", ""),
+                average_text=subject.get("AverageText", ""),
+                points_only=subject.get("PointsOnly", False),
+            )
+            for mark in subject.get("Marks", []):
+                assembler.add_mark(
+                    mark_id=mark.get("Id", ""),
+                    mark_date=parser.parse(mark.get("MarkDate")),
+                    caption=mark.get("Caption"),
+                    theme=mark.get("Theme"),
+                    mark_text_id=mark.get("MarkText"),
+                    teacher=mark.get("Teacher"),
+                    subject_id=mark.get("SubjectId", ""),
+                    is_new=mark.get("IsNew", False),
+                    is_points=mark.get("IsPoints", False),
+                    points_text=mark.get("PointsText"),
+                    max_points=mark.get("MaxPoints"),
+                )
+
+        self._service = MarksService(assembler.build())
+
+    async def get_subjects(self) -> list[Subject]:
+        return list(self._require_service().dataset.iter_subjects())
+
+    async def get_marks_by_subject(self, subject_id: str) -> list[Mark]:
+        subject = self._require_service().dataset.get_subject(subject_id)
+        return list(subject.marks) if subject else []
+
+    async def get_new_marks(self) -> list[Subject]:
+        return self._require_service().get_new_marks()
+
+    async def get_new_marks_by_date(
+        self,
+        date_from: datetime,
+        date_to: datetime | None = None,
+        subject_id: str | None = None,
+    ) -> list[Subject]:
+        return self._require_service().get_new_marks_by_date(
+            date_from=date_from,
+            date_to=date_to,
+            subject_id=subject_id,
+        )
+
+    async def get_marks_all(
+        self,
+        date_from: datetime | None = None,
+        date_to: datetime | None = None,
+        subject_id: str | None = None,
+    ) -> list[Subject]:
+        return self._require_service().get_marks_all(
+            date_from=date_from,
+            date_to=date_to,
+            subject_id=subject_id,
+        )
+
+    async def format_all_marks(
+        self,
+        date_from: datetime | None = None,
+        date_to: datetime | None = None,
+        subject_id: str | None = None,
+    ) -> str:
+        groups = await self.get_marks_all(
+            date_from=date_from, date_to=date_to, subject_id=subject_id
+        )
+        lines: list[str] = []
+        for subject in groups:
+            header = (
+                f"{subject.name} ({subject.abbr}) | average: {subject.average_text} | "
+                f"points_only: {subject.points_only}"
+            )
+            lines.append(header)
+            lines.append("-" * len(header))
+            for mark in subject.marks:
+                mark_text = mark.mark_option.text if mark.mark_option else ""
+                caption = mark.caption or ""
+                line = f"  [{mark.date.date()}] {caption} -> {mark_text}"
+                if mark.is_new:
+                    line += " [NEW]"
+                lines.append(line)
+                if mark.theme:
+                    lines.append(f"    theme: {mark.theme.strip()}")
+                if mark.is_points:
+                    suffix = (
+                        f"{mark.points_text} / {mark.max_points}"
+                        if mark.max_points is not None
+                        else f"{mark.points_text}"
+                    )
+                    lines.append(f"    points: {suffix}")
+        return "\n".join(lines)
+
+    def get_subjects_map(self) -> dict[str, Subject]:
+        service = self._require_service()
+        return {subject.id: subject for subject in service.dataset.iter_subjects()}
+
+    def iter_grouped(
+        self,
+        *,
+        date_from: datetime | None = None,
+        date_to: datetime | None = None,
+        subject_id: str | None = None,
+        predicate: Callable[[Mark], bool] | None = None,
+    ) -> Iterable[tuple[Subject, list[Mark]]]:
+        return self._require_service().iter_grouped(
+            date_from=date_from,
+            date_to=date_to,
+            subject_id=subject_id,
+            predicate=predicate,
+        )
 
     async def get_flat(
         self,
@@ -630,23 +469,16 @@ class Marks:
         date_from: datetime | None = None,
         date_to: datetime | None = None,
         subject_id: str | None = None,
+        predicate: Callable[[Mark], bool] | None = None,
         order: Literal["asc", "desc"] = "desc",
-        predicate: Callable[[MarksBase], bool] | None = None,
     ) -> list[FlatMark]:
-        """Return flat list of marks with merged subject metadata.
-
-        Assumeed `fetch_marks()` has been called.
-        """
-        items: list[FlatMark] = []
-        for subj, marks in self.iter_grouped(
+        return self._require_service().get_flat(
             date_from=date_from,
             date_to=date_to,
             subject_id=subject_id,
             predicate=predicate,
-        ):
-            items.extend(self._mark_to_flat(subj, m) for m in marks)
-        items.sort(key=lambda x: x.date, reverse=(order == "desc"))
-        return items
+            order=order,
+        )
 
     async def get_snapshot(
         self,
@@ -654,57 +486,18 @@ class Marks:
         date_from: datetime | None = None,
         date_to: datetime | None = None,
         subject_id: str | None = None,
+        predicate: Callable[[Mark], bool] | None = None,
         order: Literal["asc", "desc"] = "desc",
-        predicate: Callable[[MarksBase], bool] | None = None,
-        to_dict: bool = True,
+        to_dict: bool = False,
     ) -> FlatSnapshot | dict[str, Any]:
-        """Create compact snapshot.
-
-        - subjects: {id: {abbr, name, average_text, points_only}}
-        - marks_grouped: {subject_id: [flat_dict...]}
-        - marks_flat: [flat_dict...]
-        """
-        subs = self.get_subjects_map()
-        subjects_dict = {
-            sid: {
-                "id": sid,
-                "abbr": s.abbr,
-                "name": s.name,
-                "average_text": s.average_text,
-                "points_only": s.points_only,
-            }
-            for sid, s in subs.items()
-        }
-
-        grouped: dict[str, list[dict[str, Any]]] = {}
-        flat: list[dict[str, Any] | FlatMark] = []
-
-        for subj, marks in self.iter_grouped(
+        snapshot = self._require_service().get_snapshot(
             date_from=date_from,
             date_to=date_to,
             subject_id=subject_id,
             predicate=predicate,
-        ):
-            arr = []
-            for m in marks:
-                fm: FlatMark = self._mark_to_flat(subj, m)
-                d: dict[str, Any] | FlatMark = self._flat_to_dict(fm) if to_dict else fm
-                arr.append(d)
-                flat.append(d)
-
-            # defaultně jsou marks v původním pořadí – seřadíme
-            arr.sort(
-                key=lambda it: it["date"] if to_dict else it.date.isoformat(),
-                reverse=(order == "desc"),
-            )
-            grouped[subj.id] = arr
-
-        if to_dict:
-            flat.sort(key=lambda it: it["date"], reverse=(order == "desc"))  # pyright: ignore[reportIndexIssue]
-        else:
-            flat.sort(key=lambda it: it.date.isoformat(), reverse=(order == "desc"))  # pyright: ignore[reportAttributeAccessIssue]
-
-        return {"subjects": subjects_dict, "marks_grouped": grouped, "marks_flat": flat}
+            order=order,
+        )
+        return snapshot.to_dict() if to_dict else snapshot
 
     async def get_snapshot_for_school_year(
         self,
@@ -712,10 +505,7 @@ class Marks:
         school_year: tuple[datetime, datetime],
         order: Literal["asc", "desc"] = "desc",
     ) -> FlatSnapshot | dict[str, Any]:
-        """Return a snapshot of marks for the school year starting from the given date."""
-
         start, end = school_year
-
         return await self.get_snapshot(date_from=start, date_to=end, order=order)
 
     async def diff_ids(
@@ -725,10 +515,8 @@ class Marks:
         date_from: datetime | None = None,
         date_to: datetime | None = None,
         subject_id: str | None = None,
-        predicate: Callable[[MarksBase], bool] | None = None,
+        predicate: Callable[[Mark], bool] | None = None,
     ) -> tuple[set[str], list[FlatMark]]:
-        """Detect changes across marks."""
-
         flat = await self.get_flat(
             date_from=date_from,
             date_to=date_to,
@@ -736,7 +524,8 @@ class Marks:
             predicate=predicate,
             order="desc",
         )
-        curr_ids = {m.id for m in flat}
+        curr_ids = {mark.id for mark in flat}
         new_ids = curr_ids - previous_ids
-        new_items = [m for m in flat if m.id in new_ids]
+        new_items = [mark for mark in flat if mark.id in new_ids]
         return new_ids, new_items
+
