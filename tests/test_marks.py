@@ -592,3 +592,10 @@ async def test_get_flat_subject_filter_and_range():
         subject_id="101", date_from=date_from, date_to=date_to, order="desc"
     )
     assert [m.id for m in flat] == ["m2"]
+
+
+async def test_iter_grouped_unknown_subject_returns_empty():
+    """Ensure iter_grouped returns empty list for unknown subject_id (early return branch)."""
+    marks = await _prepare_marks_instance()
+    grouped = list(marks.iter_grouped(subject_id="999"))
+    assert grouped == []

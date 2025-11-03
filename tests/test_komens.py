@@ -7,6 +7,7 @@ from async_bakalari_api.bakalari import Bakalari
 from async_bakalari_api.const import EndPoint
 from async_bakalari_api.datastructure import Credentials
 from async_bakalari_api.komens import AttachmentsRegistry, Komens, Messages
+import pytest
 
 fs = "http://fake_server"
 
@@ -335,3 +336,12 @@ async def test_komens_get_attachment():
         test = await komens.get_attachment("1")
         assert not test
     await bakalari.__aexit__()
+
+
+async def test_komens_messages_get_messages_by_date_invalid_range():
+    """Ensure invalid date range in Messages.get_messages_by_date raises ValueError (Komens coverage)."""
+
+    msgs = Messages()
+    with pytest.raises(ValueError):
+        # to_date earlier than date -> should raise
+        msgs.get_messages_by_date(datetime(2024, 1, 2), to_date=datetime(2024, 1, 1))

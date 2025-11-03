@@ -736,3 +736,96 @@ async def test_first_login():
 
         assert "Invalid login!" in str(ex.value)
     await bakalari.__aexit__()
+
+
+async def test_refresh_access_token_no_token():
+    """refresh_access_token raises when no refresh token is available."""
+    bakalari = Bakalari(fs)
+    # Seed credentials without refresh token
+    object.__setattr__(
+        bakalari,
+        "_credentials",
+        Credentials(username=None, access_token="at", refresh_token=None, user_id=None),
+    )
+    with pytest.raises(Ex.RefreshTokenExpired):
+        await bakalari.refresh_access_token()
+    await bakalari.__aexit__()
+
+
+async def test_schools_list_error_branches(monkeypatch):
+    """Cover error branches in schools_list for various invalid town responses."""
+    bak = Bakalari()
+
+    # Initial list of towns (valid response from SCHOOL_LIST)
+    towns = [
+        {"name": "T1"},
+        {"name": "T2"},
+        {"name": "T3"},
+        {"name": "T4"},
+        {"name": "T5"},
+    ]
+
+    async def fake_send_unauth(self, endpoint, *a, **k):
+        if endpoint is EndPoint.SCHOOL_LIST:
+            return towns
+        raise AssertionError("Unexpected unauth call")
+
+    async def fake_send(self, url, method, headers, **kwargs):
+        # T1 -> raises exception (covered: isinstance(response_town, Exception))
+        if "T1" in url:
+            raise RuntimeError("boom")
+        # T2 -> returns non-dict (covered: not isinstance(response_town, dict))
+        if "T2" in url:
+            return "not a dict"
+        # T3 -> dict but schools is not a list (covered: not isinstance(schools, list))
+        if "T3" in url:
+            return {"name": "T3", "schools": "not a list"}
+        # T4 -> dict with schools list containing non-dict entries (covered: inner skip)
+        if "T4" in url:
+            return {"name": "T4", "schools": [123, {"bad": "entry"}]}
+        # T5 -> valid payload, should be appended
+        if "T5" in url:
+            return {
+                "name": "T5",
+                "schools": [{"name": "Good", "schoolUrl": "endpoint"}],
+            }
+        return {}
+
+    monkeypatch.setattr(Bakalari, "send_unauth_request", fake_send_unauth)
+    monkeypatch.setattr(Bakalari, "_send_request", fake_send)
+
+    result = await bak.schools_list()
+    assert result.get_url("Good") == "endpoint"
+    await bak.__aexit__()
+
+
+async def test_get_request_url_absolute_endpoint():
+    """Absolute endpoint should be returned as-is, even without server set."""
+    bak = Bakalari()
+    # EndPoint.SCHOOL_LIST is absolute (https://...)
+    url = bak.get_request_url(EndPoint.SCHOOL_LIST)
+    assert url == EndPoint.SCHOOL_LIST.endpoint
+
+    # Even if server is set, absolute endpoints remain unchanged
+    bak2 = Bakalari("http://irrelevant")
+    url2 = bak2.get_request_url(EndPoint.SCHOOL_LIST)
+    assert url2 == EndPoint.SCHOOL_LIST.endpoint
+    await bak.__aexit__()
+    await bak2.__aexit__()
+
+
+async def test_bakalari_property_getters():
+    """Cover simple property getters for coverage."""
+    bak = Bakalari("http://srv")
+    assert bak.server == "http://srv"
+    assert bak.auto_cache_credentials is False
+    assert bak.cache_filename is None
+
+    bak2 = Bakalari(
+        "http://srv2", auto_cache_credentials=True, cache_filename="cf.json"
+    )
+    assert bak2.server == "http://srv2"
+    assert bak2.auto_cache_credentials is True
+    assert bak2.cache_filename == "cf.json"
+    await bak.__aexit__()
+    await bak2.__aexit__()
