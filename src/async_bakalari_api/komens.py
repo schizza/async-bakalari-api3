@@ -1,6 +1,6 @@
 """Module for working with Komens."""
 
-from datetime import datetime as dt
+from datetime import date, datetime
 from typing import Any
 
 import dateutil
@@ -60,7 +60,7 @@ class MessageContainer:
     mid: str
     title: str
     text: str
-    sent: dt
+    sent: datetime
     sender: dict[str, str]
     read: bool
     attachments: list[AttachmentsRegistry]
@@ -71,16 +71,17 @@ class MessageContainer:
         mid: str,
         title: str,
         text: str,
-        sent: dt,
+        sent: datetime,
         sender: dict[str, str],
         read: bool,
-        attachments: list[AttachmentsRegistry] = {},
+        attachments: list[AttachmentsRegistry] = [],
     ):
         """Initialize MessagesContainer."""
 
         if attachments != {}:
             attachments = [
-                AttachmentsRegistry(id=i["Id"], name=i["Name"]) for i in attachments
+                AttachmentsRegistry(id=i.get("Id"), name=i.get("Name"))
+                for i in attachments
             ]
 
         _setter = object.__setattr__
@@ -127,14 +128,14 @@ class MessageContainer:
             f"sent: {self.sent}\n"
             f"sender: {self.sender}\n"
             f"read: {self.read}\n"
-            f"attachments: {"".join(att)}\n"
+            f"attachments: {''.join(att)}\n"
         )
 
     def __format__(self, format_spec: str) -> str:
         """Format string representation of data."""
         return self.__str__()
 
-    def attachments_as_json(self) -> str:
+    def attachments_as_json(self) -> list[str]:
         """Return JSON fragment of attachments."""
         return [a.as_json() for a in self.attachments]
 
@@ -160,25 +161,32 @@ class Messages(list[MessageContainer]):
 
         return [orjson.loads(m.as_json()) for m in self]
 
-    def get_message_by_id(self, id: str) -> MessageContainer:
+    def get_message_by_id(self, id: str) -> MessageContainer:  # pyright: ignore[]
         """Get message by id."""
         for i in self:
             if i.mid == id:
                 return i
 
     def get_messages_by_date(
-        self, date: dt, to_date: dt | None = None
+        self, date: datetime | date, to_date: datetime | date | None = None
     ) -> list[MessageContainer]:
         """Get messages by date.
 
         If `to_date` is set, then returns list of range from `date` to `to_date`
         """
 
-        to_date = to_date or date
+        if isinstance(date, datetime):
+            date = date.date()
 
-        messages = [i for i in self if date <= i.sent <= to_date]
+        if not to_date:
+            to_date = date
+        elif isinstance(to_date, datetime):
+            to_date = to_date.date()
 
-        return messages if messages else None
+        if to_date < date:
+            raise ValueError("to_date` must be after or equal to `date`")
+
+        return [i for i in self if date <= i.sent <= to_date]
 
     def count_messages(self) -> int:
         """Count messages."""

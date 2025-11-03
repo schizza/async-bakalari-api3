@@ -1,7 +1,7 @@
 """Constants."""
 
 from enum import Enum
-from typing import Any, Final
+from typing import Any
 
 from strenum import StrEnum
 
@@ -15,30 +15,30 @@ REQUEST_TIMEOUT: int = 10
 class Errors(StrEnum):
     """Returned errors."""
 
-    INVALID_METHOD: str = "ID2084"
-    INVALID_LOGIN: str = "ID2024"
-    MISSING_LOGIN: str = "ID2059"
-    ACCESS_TOKEN_EXPIRED: str = "ID2019"
-    INVALID_TOKEN: str = "ID2004"
-    REFRESH_TOKEN_EXPIRED: str = "ID2012"
-    INVALID_REFRESH_TOKEN: str = "ID2003"
-    REFRESH_TOKEN_REDEEMD: str = "ID2012"
+    INVALID_METHOD = "ID2084"
+    INVALID_LOGIN = "ID2024"
+    MISSING_LOGIN = "ID2059"
+    ACCESS_TOKEN_EXPIRED = "ID2019"
+    INVALID_TOKEN = "ID2004"
+    REFRESH_TOKEN_EXPIRED = "ID2012"
+    INVALID_REFRESH_TOKEN = "ID2003"
+    REFRESH_TOKEN_REDEEMD = "ID2012"
 
 
 class EndPoint(Enum):
     """List of endpoints."""
 
-    VERSION: Final = {"endpoint": "/api", "method": "get"}
-    LOGIN: Final = {"endpoint": "/api/login", "method": "post"}
-    SCHOOL_LIST: Final = {
+    VERSION = {"endpoint": "/api", "method": "get"}
+    LOGIN = {"endpoint": "/api/login", "method": "post"}
+    SCHOOL_LIST = {
         "endpoint": "https://sluzby.bakalari.cz/api/v1/municipality",
         "method": "get",
     }
-    KOMENS_UNREAD: Final = {
+    KOMENS_UNREAD = {
         "endpoint": "/api/3/komens/messages/received",
         "method": "post",
     }
-    KOMENS_UNREAD_COUNT: Final = {
+    KOMENS_UNREAD_COUNT = {
         "endpoint": "/api/3/komens/messages/received/unread",
         "method": "get",
     }
@@ -47,8 +47,16 @@ class EndPoint(Enum):
         "method": "get",
     }
 
-    MARKS: Final = {
+    MARKS = {
         "endpoint": "/api/3/marks",
+        "method": "get",
+    }
+    TIMETABLE_ACTUAL = {
+        "endpoint": "/api/3/timetable/actual",
+        "method": "get",
+    }
+    TIMETABLE_PERMANENT = {
+        "endpoint": "/api/3/timetable/permanent",
         "method": "get",
     }
 
@@ -74,7 +82,7 @@ class EndPoint(Enum):
 class Token(StrEnum):
     """Token."""
 
-    USER_ID: str = "bak:UserId"
-    ACCESS_TOKEN: str = "access_token"
-    REFRESH_TOKEN: str = "refresh_token"
-    USERNAME: str = "username"
+    USER_ID = "bak:UserId"
+    ACCESS_TOKEN = "access_token"
+    REFRESH_TOKEN = "refresh_token"
+    USERNAME = "username"

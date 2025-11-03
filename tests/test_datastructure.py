@@ -3,10 +3,10 @@
 import tempfile
 from unittest.mock import patch
 
+from async_bakalari_api.bakalari import Credentials, Schools
+from async_bakalari_api.datastructure import UniqueTowns
 import orjson
 import pytest
-from src.async_bakalari_api.bakalari import Credentials, Schools
-from src.async_bakalari_api.datastructure import UniqueTowns
 
 
 @pytest.fixture
@@ -146,6 +146,7 @@ def test_credentials():
         "user_id": "test_user_id",
         "access_token": "test_token",
         "refresh_token": "test_refresh_token",
+        "username": "test_username",
     }
 
     credentials = Credentials.create_from_json(data_json)
@@ -154,6 +155,7 @@ def test_credentials():
     assert credentials.access_token == "test_token"
     assert credentials.refresh_token == "test_refresh_token"
     assert credentials.user_id == "test_user_id"
+    assert credentials.username == "test_username"
 
 
 def test_append_unique_town():
