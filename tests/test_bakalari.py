@@ -829,3 +829,95 @@ async def test_bakalari_property_getters():
     assert bak2.cache_filename == "cf.json"
     await bak.__aexit__()
     await bak2.__aexit__()
+
+
+async def test_send_auth_request_get_with_extend():
+    """Cover GET method selection and `extend` path handling in send_auth_request."""
+    bak = Bakalari(fs)
+    # Seed valid tokens
+    object.__setattr__(
+        bak,
+        "_credentials",
+        Credentials(username=None, access_token="AT", refresh_token="RT", user_id=None),
+    )
+    with aioresponses() as m:
+        # MARKS is GET endpoint; ensure extend gets appended
+        m.get(
+            fs + EndPoint.MARKS.endpoint + "/extra",
+            headers={},
+            payload={"ok": True},
+            status=200,
+        )
+        res = await bak.send_auth_request(EndPoint.MARKS, extend="/extra")
+        assert res == {"ok": True}
+    await bak.__aexit__()
+
+
+async def test_save_credentials_missing_filename_returns_false():
+    """Cover branch where save_credentials is called without filename and no cache filename is set."""
+    bak = Bakalari(fs)  # no cache filename set
+    # Seed credentials so serialization would succeed, filename branch is what we test
+    object.__setattr__(
+        bak,
+        "_credentials",
+        Credentials(username="u", access_token="at", refresh_token="rt", user_id="id"),
+    )
+    assert bak.save_credentials() is False
+
+
+async def test_schools_list_invalid_towns_response(monkeypatch):
+    """Return None when towns_json is not a list."""
+    bak = Bakalari()
+
+    async def fake_send_unauth(self, endpoint, *a, **k):
+        if endpoint is EndPoint.SCHOOL_LIST:
+            return {"unexpected": "dict"}  # invalid type
+        raise AssertionError("Unexpected endpoint")
+
+    monkeypatch.setattr(Bakalari, "send_unauth_request", fake_send_unauth)
+
+    result = await bak.schools_list()
+    assert result is None
+    await bak.__aexit__()
+
+
+async def test_send_auth_request_refresh_then_second_call_refresh_expired():
+    """Cover branch where second request after refresh raises RefreshTokenExpired (lines 146-148)."""
+    bak = Bakalari(fs)
+    # Seed valid tokens
+    object.__setattr__(
+        bak,
+        "_credentials",
+        Credentials(username=None, access_token="AT", refresh_token="RT", user_id=None),
+    )
+
+    with aioresponses() as m:
+        # First attempt: access token expired -> triggers refresh flow
+        m.post(
+            fs + EndPoint.KOMENS_UNREAD.endpoint,
+            headers={"WWW-Authenticate": Errors.ACCESS_TOKEN_EXPIRED},
+            status=401,
+        )
+        # Refresh succeeds and sets new tokens
+        m.post(
+            fs + EndPoint.LOGIN.endpoint,
+            headers={},
+            payload={
+                "bak:UserId": "uid",
+                "access_token": "newAT",
+                "refresh_token": "newRT",
+            },
+            status=200,
+        )
+        # Second attempt after refresh: simulate refresh token expired header on endpoint
+        # to raise Ex.RefreshTokenExpired inside the inner try/except
+        m.post(
+            fs + EndPoint.KOMENS_UNREAD.endpoint,
+            headers={"WWW-Authenticate": Errors.REFRESH_TOKEN_EXPIRED},
+            status=401,
+        )
+
+        with pytest.raises(Ex.RefreshTokenExpired):
+            await bak.send_auth_request(EndPoint.KOMENS_UNREAD)
+
+    await bak.__aexit__()
