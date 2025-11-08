@@ -1,0 +1,76 @@
+name-template: "v$RESOLVED_VERSION"
+tag-template: "v$RESOLVED_VERSION"
+filter-by-commitish: false
+
+version-resolver:
+  major:
+    labels: ["breaking-change", "semver:major"]
+  minor:
+    labels: ["feature", "feat", "enhancement", "semver:minor"]
+  patch:
+    labels: ["bug", "fix", "chore", "refactor", "semver:patch"]
+  default: patch
+
+categories:
+  - title: "✨ Nové funkce"
+    labels: ["feature", "enhancement", "feat"]
+  - title: "🐛 Opravy chyb"
+    labels: ["bug", "fix"]
+  - title: "🧹 Refaktoring / Údržba"
+    labels: ["refactor", "chore", "maintenance"]
+  - title: "📝 Dokumentace"
+    labels: ["docs", "documentation"]
+  - title: "🧪 Testy"
+    labels: ["test", "tests"]
+  - title: "⚠️ Breaking changes"
+    labels: ["breaking-change", "semver:major"]
+
+autolabeler:
+  - label: "feature"
+    branch:
+      - "/^feat\\//"
+      - "/^feature\\//"
+    title:
+      - "/^feat(\\(.+\\))?:/i"
+  - label: "fix"
+    branch: ["/^fix\\//", "/^bug\\//"]
+    title: ["/^fix(\\(.+\\))?:/i"]
+  - label: "chore"
+    branch: ["/^chore\\//"]
+    title: ["/^chore(\\(.+\\))?:/i"]
+  - label: "docs"
+    branch: ["/^docs\\//"]
+    title: ["/^docs(\\(.+\\))?:/i"]
+  - label: "breaking-change"
+    title: ["/!:/"] # conventional commits: feat!: …
+
+exclude-labels:
+  - "skip-changelog"
+
+change-template: |
+  - $TITLE (#$NUMBER) @$AUTHOR
+    $BODY
+
+change-title-escapes: '\<*_&'
+
+replacers:
+  - search: "/^(feat|feature|fix|chore|docs|refactor|test|bug|fix|enhancement|enhance)(\\(.+\\))?:\\s*/i"
+    replace: ""
+
+sort-by: merged_at
+sort-direction: descending
+
+exclude-contributors:
+  - "dependabot[bot]"
+  - "renovate[bot]"
+  - "Copilot[bot]"
+  - "Codex[bod]"
+
+template: |
+  $CHANGES
+
+  ---
+  ## 📦 Technické
+  - Verze: `v$RESOLVED_VERSION`
+  - Předchozí tag: `$PREVIOUS_TAG`
+  - Autoři: $CONTRIBUTORS

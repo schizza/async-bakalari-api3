@@ -1,0 +1,16 @@
+name: Feature request
+description: Návrh zlepšení, přidání nové funkce
+labels: [feature]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Popis co by se mělo zlepšit, návrh na přidání funkce.
+  - type: textarea
+    id: solution
+    attributes:
+      label: Návrh řešení
+  - type: textarea
+    id: extra
+    attributes:
+      label: Další kontext / mockup
