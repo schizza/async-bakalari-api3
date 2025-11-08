@@ -96,4 +96,4 @@ bump-version:
 
 show-version:
 	@echo "🔍 Aktuální verze:"
-	@bumpversion --dry-run --list --allow-dirty patch | grep current_version | cut -d= -f2
+	@bumpversion --dry-run --list --allow-dirty part | grep current_version | cut -d= -f2
