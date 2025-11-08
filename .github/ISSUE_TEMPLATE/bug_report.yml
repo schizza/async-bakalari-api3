@@ -1,0 +1,24 @@
+name: Bug report
+description: Nahlásit chybu
+labels: [bug]
+body:
+  - type: textarea
+    id: desc
+    attributes:
+      label: Popis chyby
+      description: Co se stalo, očekávané chování?
+  - type: input
+    id: version
+    attributes:
+      label: Verze
+      placeholder: v0.1.0
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reprodukce
+      description: Kroky ...
+  - type: textarea
+    id: logs
+    attributes:
+      label: Konzole / logy
+      render: shell
