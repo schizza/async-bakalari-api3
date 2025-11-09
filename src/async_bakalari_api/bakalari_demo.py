@@ -3,17 +3,19 @@
 import argparse
 import asyncio
 from datetime import datetime
+import logging
 import sys
 
 import aiofiles
-from logger import logging
 import orjson
 
 from .bakalari import Bakalari
 from .datastructure import Credentials, Schools
 from .komens import Komens, MessageContainer
-from .logger_api import api_logger
+from .logger_api import configure_logging
 from .timetable import Timetable, TimetableContext
+
+log = logging.getLogger(__name__)
 
 
 async def w(name, data):
@@ -21,7 +23,7 @@ async def w(name, data):
     async with aiofiles.open(name, "+wb") as fi:
         await fi.write(orjson.dumps(data, option=orjson.OPT_INDENT_2))
         await fi.flush()
-        logging.debug(f"File {name} written")
+        log.debug(f"File {name} written")
 
 
 async def wb(name, data):
@@ -29,7 +31,7 @@ async def wb(name, data):
     async with aiofiles.open(name, "wb") as fi:
         await fi.write(data)
         await fi.flush()
-    logging.debug(f"File {name} written")
+    log.debug(f"File {name} written")
 
 
 def r(name):
@@ -509,9 +511,9 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.verbose:
-        api_logger("Bakalari API", loglevel=logging.DEBUG).get()
+        configure_logging(logging.DEBUG)
     else:
-        api_logger("Bakalari API").get()
+        configure_logging(logging.ERROR)
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(runme(args))

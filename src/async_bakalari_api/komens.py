@@ -1,6 +1,7 @@
 """Module for working with Komens."""
 
 from datetime import date, datetime
+import logging
 from typing import Any
 
 import dateutil
@@ -9,9 +10,8 @@ import orjson
 
 from .bakalari import Bakalari
 from .const import EndPoint
-from .logger_api import api_logger
 
-log = api_logger("Bakalari API").get()
+log = logging.getLogger(__name__)
 
 
 class AttachmentsRegistry:

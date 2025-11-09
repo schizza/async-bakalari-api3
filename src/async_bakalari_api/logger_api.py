@@ -1,7 +1,7 @@
 """Bakalari API logger."""
 
 import logging
-import logging.handlers
+import os
 
 
 class CustomFormatter(logging.Formatter):
@@ -19,7 +19,13 @@ class CustomFormatter(logging.Formatter):
     cyan = "\u001b[36m"
     white = "\u001b[37m"
 
-    _format = f"%(asctime)s - %(name)s - %(levelname)s - %(threadName)s:\n   {cyan}Message: %(message)s\n{magenta}@(%(filename)s:%(lineno)d)"
+    _format = (
+        f"%(asctime)s - %(name)s - %(levelname)s - %(threadName)s:\n"
+        f"   {cyan}Message: %(message)s\n"
+        f"   {blue}event=%(event)s method=%(method)s url=%(url)s "
+        f"latency=%(latency_ms)s ms retries=%(retries)s status=%(status)s error=%(error)s\n"
+        f"{magenta}@(%(filename)s:%(lineno)d)"
+    )
     dateformat = "%d/%m/%Y %H:%M:%S"
 
     FORMATS = {
@@ -33,9 +39,58 @@ class CustomFormatter(logging.Formatter):
     def format(self, record):
         """Format string."""
 
+        for key, default in (
+            ("event", "-"),
+            ("url", "-"),
+            ("method", "-"),
+            ("latency_ms", "-"),
+            ("retries", "-"),
+            ("status", "-"),
+            ("error", "-"),
+        ):
+            if not hasattr(record, key):
+                setattr(record, key, default)
+
         log_fmt = self.FORMATS.get(record.levelno)
         formatter = logging.Formatter(log_fmt, datefmt=self.dateformat)
         return formatter.format(record)
+
+
+def _parse_level(level: int | str | None, default: int = logging.ERROR) -> int:
+    """Parse log level."""
+
+    if isinstance(level, int):
+        return level
+    if isinstance(level, str):
+        return getattr(logging, level.upper(), default)
+
+    env = os.getenv("BAKALARI_LOG_LEVEL")
+    if env:
+        return getattr(logging, env.upper(), default)
+    return default
+
+
+def configure_logging(level: int | str | None) -> logging.Logger:
+    """Configure logging."""
+
+    pkg_root = logging.getLogger("async_bakalari_api")
+    pkg_root.propagate = False
+    pkg_root.setLevel(_parse_level(level))
+
+    handler = None
+    for h in pkg_root.handlers:
+        if isinstance(h, logging.StreamHandler):
+            handler = h
+            break
+    if handler is None:
+        handler = logging.StreamHandler()
+        pkg_root.addHandler(handler)
+
+    handler.setFormatter(CustomFormatter())
+    handler.setLevel(logging.NOTSET)
+    handler.setFormatter(CustomFormatter())
+
+    return pkg_root
 
 
 class api_logger:
@@ -49,37 +104,15 @@ class api_logger:
 
     def __init__(self, name, loglevel: int = logging.ERROR):
         """Create API logger."""
-        self.name = name
-        self.loglevel = loglevel
 
-        self.console_formatter = CustomFormatter()
+        if name == "async_bakalari_api":
+            self.logger = configure_logging(loglevel)
+            return
+
         self.logger = logging.getLogger(name)
-
-        # Reuse existing stream handler if present; avoid duplicates
-        stream_handler = None
-        for h in self.logger.handlers:
-            if isinstance(h, logging.StreamHandler):
-                stream_handler = h
-                break
-        if stream_handler is None:
-            stream_handler = logging.StreamHandler()
-            self.logger.addHandler(stream_handler)
-
-        # Expose handler on instance
-        self.console_logger = stream_handler
-
-        # Always use our formatter and let logger level control filtering
-        stream_handler.setFormatter(self.console_formatter)
-        stream_handler.setLevel(logging.NOTSET)
-
-        # Prefer the most verbose (lowest) level across repeated initializations
-        current_level = self.logger.level
-        if current_level == logging.NOTSET:
-            new_level = loglevel
-        else:
-            new_level = min(current_level, loglevel)
-        self.logger.setLevel(new_level)
+        if self.logger.level == logging.NOTSET and loglevel is not None:
+            self.logger.setLevel(loglevel)
 
     def get(self):
-        "Get."
+        """Get the logger instance."""
         return self.logger

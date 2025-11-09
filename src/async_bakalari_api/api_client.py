@@ -3,19 +3,19 @@
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Awaitable, Callable
+from contextlib import AsyncExitStack
 import logging
 import time
-from contextlib import AsyncExitStack
-from typing import Any, Awaitable, Callable
+from typing import Any, Self
 from urllib import parse
 
 import aiohttp
 
 from .const import REQUEST_TIMEOUT, Errors
 from .exceptions import Ex
-from .logger_api import api_logger
 
-log = api_logger("Bakalari API", loglevel=logging.ERROR).get()
+log = logging.getLogger(__name__)
 
 
 class ApiClient:
@@ -26,20 +26,22 @@ class ApiClient:
         *,
         session: aiohttp.ClientSession | None = None,
         timeout: float = REQUEST_TIMEOUT,
-        logger: logging.Logger | None = None,
     ) -> None:
+        """Thin wrapper around :mod:`aiohttp` with structured logging and metrics."""
+
         self._timeout = timeout
-        self._logger = logger or log
         self._external_session = session
         self._session: aiohttp.ClientSession | None = session
         self._session_owner = session is None
         self._exit_stack = AsyncExitStack()
 
-    async def __aenter__(self) -> "ApiClient":
+    async def __aenter__(self) -> Self:
+        """Enter the async context manager."""
         await self._ensure_session()
         return self
 
     async def __aexit__(self, *_exc_info: object) -> None:
+        """Exit the async context manager."""
         await self.close()
 
     async def _ensure_session(self) -> aiohttp.ClientSession:
@@ -62,7 +64,7 @@ class ApiClient:
         self._session = None
         self._session_owner = False
 
-    async def request(
+    async def request(  # noqa: C901
         self,
         url: str,
         method: str,
@@ -163,12 +165,16 @@ class ApiClient:
         headers: dict[str, str] | None = None,
         **kwargs: Any,
     ) -> Any:
+        """Make unauthorized request."""
         if not getattr(credentials, "access_token", None) and not getattr(
             credentials, "refresh_token", None
         ):
             raise Ex.TokenMissing("Access token or Refresh token is missing!")
 
-        headers = {"Content-Type": "application/x-www-form-urlencoded", **(headers or {})}
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded",
+            **(headers or {}),
+        }
         if credentials.access_token:
             headers["Authorization"] = f"Bearer {credentials.access_token}"
         else:
@@ -184,10 +190,10 @@ class ApiClient:
                 )
                 latency = (time.perf_counter() - total_start) * 1000
                 self._log_request_summary(url, method, latency, retries)
-                return result
+
             except (Ex.AccessTokenExpired, Ex.InvalidToken):
                 retries += 1
-                self._logger.warning(
+                log.warning(
                     "access_token_refresh",
                     extra={
                         "event": "token_refresh",
@@ -203,8 +209,12 @@ class ApiClient:
                     headers.pop("Authorization", None)
             except Ex.RefreshTokenExpired:
                 latency = (time.perf_counter() - total_start) * 1000
-                self._log_request_summary(url, method, latency, retries, error="refresh_expired")
+                self._log_request_summary(
+                    url, method, latency, retries, error="refresh_expired"
+                )
                 raise
+            else:
+                return result
 
     async def close_and_wait(self) -> None:
         """Alias for :meth:`close` for backwards compatibility."""
@@ -232,7 +242,7 @@ class ApiClient:
             extra["status"] = status
         if error is not None:
             extra["error"] = error
-        self._logger.info("api_request", extra=extra)
+        log.info("api_request", extra=extra)
 
     def _log_request_summary(
         self,
@@ -252,4 +262,4 @@ class ApiClient:
         }
         if error:
             extra["error"] = error
-        self._logger.info("authorized_request", extra=extra)
+        log.info("authorized_request", extra=extra)

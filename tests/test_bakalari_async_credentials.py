@@ -25,9 +25,13 @@ async def test_session_context_manager_closes_session():
         assert getattr(client._session, "closed", False) is False  # noqa: SLF001
 
     client = b._api_client  # noqa: SLF001
-    assert client._session is None or getattr(  # noqa: SLF001
-        client._session, "closed", True
-    ) is True
+    assert (
+        client._session is None
+        or getattr(  # noqa: SLF001
+            client._session, "closed", True
+        )
+        is True
+    )
 
 
 def test_credentials_property_is_readonly():

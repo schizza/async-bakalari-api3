@@ -16,9 +16,8 @@ from .api_client import ApiClient
 from .const import REQUEST_TIMEOUT, EndPoint
 from .datastructure import Credentials, Schools
 from .exceptions import Ex
-from .logger_api import api_logger
 
-log = api_logger("Bakalari API", loglevel=logging.ERROR).get()
+log = logging.getLogger(__name__)
 
 
 class Town(TypedDict):
@@ -67,7 +66,7 @@ class Bakalari:
         self._auto_cache_credentials: bool = auto_cache_credentials
         self._cache_filename: str | None = cache_filename
         self._api_client: ApiClient = ApiClient(
-            session=session, timeout=REQUEST_TIMEOUT, logger=log
+            session=session, timeout=REQUEST_TIMEOUT
         )
         self._refresh_lock: Lock = asyncio.Lock()
         self.schools: Schools = Schools()
@@ -132,40 +131,6 @@ class Bakalari:
             refresh_callback=self.refresh_access_token,
             **kwargs,
         )
-
-        # while True:
-        #     if self.credentials.access_token and not access_token_invalid:
-        #         log.debug("Trying access token ...")
-        #         try:
-        #             headers_access_token = {
-        #                 "Content-Type": "application/x-www-form-urlencoded",
-        #                 "Authorization": f"Bearer {self.credentials.access_token}",
-        #             }
-
-        #             result = await self._send_request(
-        #                 request, method=method, headers=headers_access_token
-        #             )
-
-        #         except Ex.AccessTokenExpired:
-        #             access_token_invalid = True
-        #             continue
-        #         except Ex.InvalidToken:
-        #             access_token_invalid = True
-        #             continue
-        #         except Exception as ex:
-        #             raise ex from ex
-        #         else:
-        #             return result
-
-        #     if access_token_invalid and self.refresh_access_token:
-        #         try:
-        #             await self.refresh_access_token()
-        #         except Ex.RefreshTokenExpired as ex:
-        #             log.error("Refresh token expired! Login with username/password")
-        #             raise ex from ex
-        #         except Exception as ex:
-        #             raise ex from ex
-        #         access_token_invalid = False
 
     async def send_unauth_request(
         self, request: EndPoint, headers: dict[str, str] | None = None, **kwargs
@@ -293,15 +258,6 @@ class Bakalari:
                     api_point=_schools.get("schoolUrl", ""),
                     town=response_town.get("name", ""),
                 )
-
-        # for response_town in responses:
-        #     schools: dict = response_town
-        #     for _schools in schools.get("schools"):
-        #         _schools_list.append_school(
-        #             name=_schools.get("name"),
-        #             api_point=_schools.get("schoolUrl"),
-        #             town=response_town.get("name"),
-        #         )
 
         self.schools = _schools_list
 

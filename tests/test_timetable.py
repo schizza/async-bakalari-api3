@@ -95,6 +95,7 @@ class DummyBakalari:
         return self.payload
 
     async def __aenter__(self):
+        """Enter the context manager."""
         return self
 
     async def __aexit__(self, *_):

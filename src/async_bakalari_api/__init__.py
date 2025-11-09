@@ -5,6 +5,7 @@ from .bakalari_demo import main
 from .datastructure import Credentials, Schools
 from .exceptions import Ex
 from .komens import Komens
+from .logger_api import configure_logging
 from .marks import Marks
 from .timetable import Timetable
 
@@ -17,4 +18,5 @@ __all__ = [
     "Komens",
     "Marks",
     "Timetable",
+    "configure_logging",
 ]
