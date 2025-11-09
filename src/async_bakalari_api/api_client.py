@@ -61,6 +61,8 @@ class ApiClient:
 
         if self._session_owner:
             await self._exit_stack.aclose()
+            # Recreate the exit stack so this client can be reused later
+            self._exit_stack = AsyncExitStack()
         self._session = None
         self._session_owner = False
 
