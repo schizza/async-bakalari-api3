@@ -147,7 +147,9 @@ async def test_concurrent_send_auth_request_triggers_single_refresh(monkeypatch)
 
     # Monkeypatch methods used by send_auth_request
     monkeypatch.setattr(Bakalari, "refresh_access_token", fake_refresh, raising=False)
-    monkeypatch.setattr(Bakalari, "_send_request", fake_send, raising=False)
+    monkeypatch.setattr(
+        "async_bakalari_api.api_client.ApiClient.request", fake_send, raising=False
+    )
 
     # Run two concurrent authorized requests; both should coordinate a single refresh
     results = await asyncio.gather(
