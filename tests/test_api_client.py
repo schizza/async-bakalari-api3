@@ -329,3 +329,121 @@ async def test_close_and_wait_alias_closes():
     assert client._session is not None  # noqa: SLF001
     await client.close_and_wait()
     assert client._session is None  # noqa: SLF001
+
+
+@pytest.mark.asyncio
+async def test_aenter_returns_self():
+    """__aenter__ should return self to allow `as client` usage and cover return line."""
+    client = ApiClient()
+    c = await client.__aenter__()
+    assert c is client
+    # ensure we exit properly
+    await client.__aexit__(None, None, None)
+
+
+@pytest.mark.asyncio
+async def test_authorized_request_token_missing_raises():
+    """authorized_request should raise TokenMissing when no tokens are provided."""
+
+    class Creds:
+        def __init__(self):
+            self.access_token = None
+            self.refresh_token = None
+
+    creds = Creds()
+    async with ApiClient() as client:
+        with pytest.raises(Ex.TokenMissing):
+            await client.authorized_request(
+                "https://example.com/protected",
+                hdrs.METH_GET,
+                credentials=creds,
+                refresh_callback=lambda: asyncio.sleep(0),  # not called
+            )
+
+
+@pytest.mark.asyncio
+async def test_can_reuse_after_close_creates_new_session():
+    """Ensure ApiClient can be reused after close() by recreating AsyncExitStack and session."""
+    client = ApiClient()
+    # First lifecycle
+    async with client as c:
+        assert c._session is not None  # noqa: SLF001
+    # Closed
+    assert client._session is None  # noqa: SLF001
+
+    # Reuse the same client instance: request should create a brand new session and not raise
+    url = "https://example.com/reuse"
+    with aioresponses() as m:
+        m.get(
+            url,
+            status=200,
+            headers={"Content-Type": "application/json"},
+            payload={"ok": True},
+        )
+        res = await client.request(url, hdrs.METH_GET)
+        assert res == {"ok": True}
+
+    # Clean up
+    await client.close()
+
+
+@pytest.mark.asyncio
+async def test___aexit_calls_close():
+    """Ensure __aexit__ calls close() on the client."""
+    client = ApiClient()
+    called = {"v": False}
+    orig_close = client.close
+
+    async def counting_close():
+        called["v"] = True
+        await orig_close()
+
+    # Monkeypatch the instance close before entering context
+    client.close = counting_close  # type: ignore[assignment]
+
+    async with client:
+        # nothing, just ensure exit path is executed
+        pass
+
+    assert called["v"] is True
+
+
+@pytest.mark.asyncio
+async def test_authorized_request_refresh_no_access_token_pops_header():
+    """After refresh returns no access_token, Authorization header must be removed."""
+
+    class Creds:
+        def __init__(self, access_token: str | None, refresh_token: str | None):
+            self.access_token = access_token
+            self.refresh_token = refresh_token
+
+    creds = Creds(access_token="old", refresh_token="r")
+    calls: list[dict[str, Any]] = []
+
+    async def fake_request(self, url, method, headers=None, *, retry=0, **kwargs):
+        # Snapshot headers to avoid mutation across retries
+        calls.append({"headers": dict(headers or {}), "retry": retry})
+        if retry == 0:
+            raise Ex.AccessTokenExpired("expired")
+        return {"ok": True}
+
+    async with ApiClient() as client:
+        # Bind fake request to this instance
+        client.request = fake_request.__get__(client, ApiClient)  # type: ignore[assignment]
+
+        async def refresh_cb():
+            # Simulate refresh that does NOT provide access_token
+            return Creds(access_token=None, refresh_token="r")
+
+        res = await client.authorized_request(
+            "https://example.com/protected",
+            hdrs.METH_GET,
+            credentials=creds,
+            refresh_callback=refresh_cb,
+        )
+        assert res == {"ok": True}
+
+    # First attempt had Authorization
+    assert calls[0]["headers"].get("Authorization") == "Bearer old"
+    # Second attempt after refresh must not carry Authorization anymore
+    assert "Authorization" not in calls[1]["headers"]

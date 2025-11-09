@@ -121,3 +121,32 @@ def test_api_logger_non_root_sets_level_only_if_notset():
     log2 = inst2.get()
     assert log2 is logger2
     assert log2.level == logging.INFO
+
+
+def test_configure_logging_idempotent_overrides_formatter_and_preserves_notset():
+    """Second call to configure_logging should reset handler formatter and keep NOTSET level."""
+    _clear_pkg_logger()
+    # First configure
+    pkg = configure_logging("INFO")
+    # Grab single stream handler
+    shandlers = [h for h in pkg.handlers if isinstance(h, logging.StreamHandler)]
+    assert len(shandlers) == 1
+    h = shandlers[0]
+    # Manually override formatter and level to ensure second call actually resets them
+    h.setFormatter(logging.Formatter("%(levelname)s:%(message)s"))
+    h.setLevel(logging.WARNING)
+
+    # Second configure with different level; must not add handler, but must reset formatter and level
+    pkg2 = configure_logging("DEBUG")
+    assert pkg2 is pkg
+
+    sh2 = [x for x in pkg2.handlers if isinstance(x, logging.StreamHandler)]
+    assert len(sh2) == 1
+    h2 = sh2[0]
+
+    # Level must be set back to NOTSET so logger filters records
+    assert h2.level == logging.NOTSET
+    # Formatter must be our CustomFormatter again (proves setFormatter ran)
+    assert isinstance(h2.formatter, CustomFormatter)
+    # And logger level changed as requested
+    assert pkg2.level == logging.DEBUG
