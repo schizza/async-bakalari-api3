@@ -74,7 +74,7 @@ pytest-asyncio==1.0.0
     # via
     #   -r requirements_dev.in
     #   pytest-aiohttp
-pytest-cov==6.0.0
+pytest-cov==7.0.0
     # via -r requirements_dev.in
 pytest-mock==3.14.0
     # via -r requirements_dev.in
