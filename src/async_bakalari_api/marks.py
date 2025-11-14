@@ -753,11 +753,9 @@ class Marks:
         total_non_points_marks_to_avg: int = 0
         total_avg = 0
         subject_avg = 0
-        subject_count = 0
 
         for subject in all_marks_by_subject:
             subject_avg += self.sanitize_number(subject.average_text)
-            subject_count += 1
 
             for mark in subject.marks:
                 if mark.is_points:
@@ -770,21 +768,16 @@ class Marks:
                     )
                     total_non_point_marks += 1
                     total_avg += self.sanitize_number(mark.marktext.text)
-            log.debug(
-                "Counting ... Subject AVG total: %s (last: %s) \nMarks AVG: %s (last: %s) \n Total count: S %s M %s Mavg: %s",
-                subject_avg,
-                subject.average_text,
-                total_avg,
-                mark.marktext.text,
-                subject_count,
-                total_non_point_marks,
-                total_non_points_marks_to_avg,
-            )
 
-        total_wavg: float = total_avg / total_non_points_marks_to_avg
-        total_avg: float = subject_avg / total_subjects
+        if total_non_points_marks_to_avg == 0:
+            total_wavg = 0
+        else:
+            total_wavg = total_avg / total_non_points_marks_to_avg
+        if total_subjects == 0:
+            total_avg = 0
+        else:
+            total_avg: float = subject_avg / total_subjects
 
-        log.debug("Total sAVG %s, mAVG: %s", total_avg, total_wavg)
         return {
             "wavg": str(round(total_wavg, 2)),
             "avg": str(round(total_avg, 2)),
