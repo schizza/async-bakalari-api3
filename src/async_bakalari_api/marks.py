@@ -4,15 +4,15 @@ import asyncio
 from collections.abc import Callable, Iterable
 from dataclasses import asdict, dataclass
 from datetime import datetime
+import logging
 from typing import Any, Literal, TypedDict, overload
 
 from dateutil import parser
 
 from .bakalari import Bakalari
 from .const import EndPoint
-from .logger_api import api_logger
 
-log = api_logger("Bakalari API").get()
+log = logging.getLogger(__name__)
 
 
 @dataclass

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date, datetime
+import logging
 from types import TracebackType
 from typing import Any, Literal, Self, cast
 
@@ -11,9 +12,8 @@ from dateutil import parser as dt_parser
 
 from .bakalari import Bakalari
 from .const import EndPoint
-from .logger_api import api_logger
 
-log = api_logger("Bakalari API").get()
+log = logging.getLogger(__name__)
 
 
 # ---- Data structures ----
@@ -262,7 +262,7 @@ class Timetable:
 
         `async with Timetable(b) as t:`
         """
-        _ = await self.bakalari._ensure_session()  # pyright: ignore [reportPrivateUsage]
+        await self.bakalari.__aenter__()
         return self
 
     async def __aexit__(

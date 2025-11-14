@@ -1,8 +1,8 @@
 """Exceptions."""
 
-from .logger_api import api_logger
+import logging
 
-logger = api_logger("Bakalari API").get()
+logger = logging.getLogger(__name__)
 
 
 class APIException(Exception):

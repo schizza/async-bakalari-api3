@@ -7,6 +7,7 @@ from unittest.mock import patch
 import aiohttp
 from aiohttp import hdrs
 from aioresponses import aioresponses
+from async_bakalari_api.api_client import ApiClient
 from async_bakalari_api.bakalari import Bakalari, Credentials, Schools
 from async_bakalari_api.const import EndPoint, Errors
 from async_bakalari_api.exceptions import Ex
@@ -260,7 +261,9 @@ async def test__send_request_aioex():
         finally:
             await bakalari.__aexit__()
 
-    with patch("aiohttp.ClientSession.get", side_effect=aiohttp.ClientConnectionError):
+    with patch(
+        "aiohttp.ClientSession.request", side_effect=aiohttp.ClientConnectionError
+    ):
         try:
             await bakalari._send_request("fake_server", hdrs.METH_GET, {})
         except Ex.BadRequestException:
@@ -770,7 +773,7 @@ async def test_schools_list_error_branches(monkeypatch):
             return towns
         raise AssertionError("Unexpected unauth call")
 
-    async def fake_send(self, url, method, headers, **kwargs):
+    async def fake_client_request(self, url, method, headers=None, retry=0, **kwargs):
         # T1 -> raises exception (covered: isinstance(response_town, Exception))
         if "T1" in url:
             raise RuntimeError("boom")
@@ -792,7 +795,7 @@ async def test_schools_list_error_branches(monkeypatch):
         return {}
 
     monkeypatch.setattr(Bakalari, "send_unauth_request", fake_send_unauth)
-    monkeypatch.setattr(Bakalari, "_send_request", fake_send)
+    monkeypatch.setattr(ApiClient, "request", fake_client_request)
 
     result = await bak.schools_list()
     assert result.get_url("Good") == "endpoint"

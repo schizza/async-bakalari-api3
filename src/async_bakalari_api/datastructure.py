@@ -4,14 +4,14 @@ from __future__ import annotations
 
 from contextlib import suppress
 from dataclasses import dataclass
+import logging
 from typing import Any, override
 
 import orjson
 
 from .const import Token
-from .logger_api import api_logger
 
-log = api_logger("Bakalari API").get()
+log = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)

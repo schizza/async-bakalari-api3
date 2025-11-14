@@ -12,12 +12,12 @@ import aiohttp
 from aiohttp import hdrs
 import orjson
 
-from .const import REQUEST_TIMEOUT, EndPoint, Errors
+from .api_client import ApiClient
+from .const import REQUEST_TIMEOUT, EndPoint
 from .datastructure import Credentials, Schools
 from .exceptions import Ex
-from .logger_api import api_logger
 
-log = api_logger("Bakalari API", loglevel=logging.ERROR).get()
+log = logging.getLogger(__name__)
 
 
 class Town(TypedDict):
@@ -41,6 +41,7 @@ class Bakalari:
         auto_cache_credentials: bool = False,
         cache_filename: str | None = None,
         session: aiohttp.ClientSession | None = None,
+        school_concurrency: int = 10,
     ):
         """Root class of Bakalari.
 
@@ -52,6 +53,8 @@ class Bakalari:
             auto_cache_credentials (bool, optional): If you want to cache credentials locally to file. Defaults to False.
             cache_filename (str, optional): Cache file name, if `auto_cache_credentials`. Defaults to None.
             session (aiohttp.ClientSession, optional): Session object. Defaults to None.
+            school_concurrency (int, optional): Maximum number of concurrent town
+                fetches when building school lists. Defaults to 10.
 
         """
 
@@ -62,10 +65,12 @@ class Bakalari:
         self._new_token: bool = False
         self._auto_cache_credentials: bool = auto_cache_credentials
         self._cache_filename: str | None = cache_filename
-        self._session: aiohttp.ClientSession | None = session
-        self._session_owner: bool = session is None
+        self._api_client: ApiClient = ApiClient(
+            session=session, timeout=REQUEST_TIMEOUT
+        )
         self._refresh_lock: Lock = asyncio.Lock()
         self.schools: Schools = Schools()
+        self._school_concurrency: int = max(1, int(school_concurrency))
 
         if self.auto_cache_credentials and not self.cache_filename:
             raise Ex.CacheError("Auto-cache is enabled, but no filename is provided!")
@@ -98,14 +103,6 @@ class Bakalari:
         """Returns the server URL."""
         return self._server
 
-    async def _ensure_session(self) -> None:
-        """Ensure aiohttp session exists (create if needed)."""
-        if self._session is None or self._session.closed:
-            self._session = aiohttp.ClientSession(
-                timeout=aiohttp.ClientTimeout(total=REQUEST_TIMEOUT), trust_env=True
-            )
-            self._session_owner = True
-
     async def send_auth_request(
         self, request_endpoint: EndPoint, extend: str | None = None, **kwargs
     ):
@@ -118,68 +115,22 @@ class Bakalari:
 
         method = hdrs.METH_POST if "post" in request_endpoint.method else hdrs.METH_GET
 
-        if not self.credentials.access_token and not self.credentials.refresh_token:
-            raise Ex.TokenMissing("Access token or Refresh token is missing!")
+        log.debug(
+            "Sending authorized request",
+            extra={
+                "event": "send_auth_request",
+                "url": request,
+                "method": method,
+            },
+        )
 
-        headers_access_token = {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Authorization": f"Bearer {self.credentials.access_token}",
-        }
-
-        # try access token
-        try:
-            log.debug("Trying access token ...")
-            return await self._send_request(
-                request, method=method, headers=headers_access_token, **kwargs
-            )
-        except (Ex.AccessTokenExpired, Ex.InvalidToken):
-            log.debug("Access token expired or invalid!")
-            await self.refresh_access_token()
-            headers_access_token = {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "Authorization": f"Bearer {self.credentials.access_token}",
-            }
-            try:
-                return await self._send_request(
-                    request, method=method, headers=headers_access_token, **kwargs
-                )
-            except Ex.RefreshTokenExpired as ex:
-                log.error("Refresh token expired! Login with username/password")
-                raise ex from ex
-
-        # while True:
-        #     if self.credentials.access_token and not access_token_invalid:
-        #         log.debug("Trying access token ...")
-        #         try:
-        #             headers_access_token = {
-        #                 "Content-Type": "application/x-www-form-urlencoded",
-        #                 "Authorization": f"Bearer {self.credentials.access_token}",
-        #             }
-
-        #             result = await self._send_request(
-        #                 request, method=method, headers=headers_access_token
-        #             )
-
-        #         except Ex.AccessTokenExpired:
-        #             access_token_invalid = True
-        #             continue
-        #         except Ex.InvalidToken:
-        #             access_token_invalid = True
-        #             continue
-        #         except Exception as ex:
-        #             raise ex from ex
-        #         else:
-        #             return result
-
-        #     if access_token_invalid and self.refresh_access_token:
-        #         try:
-        #             await self.refresh_access_token()
-        #         except Ex.RefreshTokenExpired as ex:
-        #             log.error("Refresh token expired! Login with username/password")
-        #             raise ex from ex
-        #         except Exception as ex:
-        #             raise ex from ex
-        #         access_token_invalid = False
+        return await self._api_client.authorized_request(
+            request,
+            method=method,
+            credentials=self.credentials,
+            refresh_callback=self.refresh_access_token,
+            **kwargs,
+        )
 
     async def send_unauth_request(
         self, request: EndPoint, headers: dict[str, str] | None = None, **kwargs
@@ -200,118 +151,33 @@ class Bakalari:
         _request_url = str(self.get_request_url(request) or "")
 
         try:
-            _request = await self._send_request(
+            return await self._api_client.request(
                 _request_url, method=method, headers=headers or {}, **kwargs
             )
-
         except Exception as err:
-            log.error(f"Sending unauthorized request failed. Error: {err}  ")
+            log.error(
+                "Sending unauthorized request failed.",
+                extra={
+                    "event": "send_unauth_request_error",
+                    "url": _request_url,
+                    "method": method,
+                    "error": str(err),
+                },
+            )
             raise err from err
 
-        return _request
-
-    async def _send_request(  # noqa: C901
+    async def _send_request(
         self,
         url: str,
         method: str,
         headers: dict[str, str],
-        **kwargs,
+        **kwargs: Any,
     ) -> Any:
-        """Send request to server.
+        """Proxy retained for backwards compatibility."""
 
-        Args:
-            url (str): requested endpoint
-            method (hdrs.METH_POST | hdrs.METH_GET): which method to use
-            headers (str): request headers
-            **kwargs: kwargs
-
-        Raises:
-            Ex.TimeoutException: _description_
-            Ex.BadRequestException: _description_
-            Ex.TokensExpired: _description_
-            Ex.AccessTokenExpired: _description_
-            Ex.InvalidHTTPMethod: _description_
-            Ex.InvalidLogin: _description_
-            Ex.RefreshTokenExpired: _description_
-
-        Returns:
-            str: response in json format
-
-        """
-
-        await self._ensure_session()
-
-        filedata = None
-        filename = None
-
-        if method == hdrs.METH_GET:
-            session = self._session.get
-        else:
-            session = self._session.post
-
-        log.debug("Requesting URL %s, kwargs: %s", url, kwargs)
-        try:
-            async with asyncio.timeout(REQUEST_TIMEOUT):
-                async with session(
-                    url, ssl=True, headers=headers, **kwargs
-                ) as response:
-                    if (
-                        response.headers.get(aiohttp.hdrs.CONTENT_TYPE)
-                        == "application/octet-stream"
-                    ):
-                        filedata = await response.read()
-                        filename = response.headers[aiohttp.hdrs.CONTENT_DISPOSITION]
-                        filename = parse.unquote(
-                            filename[filename.rindex("filename*=") + 17 :]
-                        )
-                    else:
-                        response_json = await response.json()
-                        log.debug(f"Response: {response_json}")
-
-        except TimeoutError as err:
-            raise Ex.TimeoutException(
-                f"Timeout occurred while connecting to server {url}"
-            ) from err
-        except aiohttp.ClientConnectionError as err:
-            raise Ex.BadRequestException(f"Connection error: {url}") from err
-
-        match response.status:
-            case 401:
-                if Errors.ACCESS_TOKEN_EXPIRED in response.headers.get(
-                    "WWW-Authenticate", ""
-                ):
-                    raise Ex.AccessTokenExpired("Access token expired.")
-                if Errors.REFRESH_TOKEN_EXPIRED in response.headers.get(
-                    "WWW-Authenticate", ""
-                ):
-                    raise Ex.RefreshTokenExpired("Refresh token expired.")
-
-                if Errors.INVALID_TOKEN in response.headers.get("WWW-Authenticate", ""):
-                    raise Ex.InvalidToken("Invalid token provided.")
-
-                raise Ex.BadRequestException(f"{url} with message: {response_json}")
-            case 400:
-                match response_json.get("error_uri"):
-                    case x if Errors.INVALID_METHOD in x:
-                        raise Ex.InvalidHTTPMethod(
-                            f"Invalid HTTP method. Method '{method}' is not supported for '{url}'"
-                        )
-                    case x if Errors.INVALID_LOGIN in x:
-                        raise Ex.InvalidLogin("Invalid login!")
-                    case x if Errors.REFRESH_TOKEN_REDEEMD in x:
-                        raise Ex.RefreshTokenRedeemd("Refresh token already redeemd!")
-                    case x if Errors.INVALID_REFRESH_TOKEN in x:
-                        raise Ex.InvalidRefreshToken("Invalid refresh token!")
-                    case _:
-                        raise Ex.BadRequestException(
-                            f"{url} with message: {response_json}"
-                        )
-            case 404:
-                raise Ex.BadRequestException(f"Not found! ({url})")
-            case 200:
-                return [filename, filedata] if filedata else response_json
-            case _:
-                raise Ex.BadRequestException(f"{url} with message: {response_json}")
+        return await self._api_client.request(
+            url, method=method, headers=headers, **kwargs
+        )
 
     async def schools_list(  # noqa: C901
         self, town: str | None = None, recursive: bool = True
@@ -347,7 +213,16 @@ class Bakalari:
                     for t_element in towns
                     if t_element["name"].startswith(town)
                 ]
+        semaphore = asyncio.Semaphore(self._school_concurrency)
         tasks = []
+
+        async def fetch_town(town_name: str):
+            async with semaphore:
+                log.debug("Gathering schools for town: %s", town_name)
+                endpoint = f"{EndPoint.SCHOOL_LIST.endpoint}/{parse.quote(town_name)}"
+                return await self._api_client.request(
+                    endpoint, method=hdrs.METH_GET, headers=headers
+                )
 
         for _town in towns:
             town_name = _town.get("name")
@@ -356,14 +231,7 @@ class Bakalari:
             if "." in town_name:
                 town_name = town_name[: town_name.find(".")]
 
-            log.debug("Gathering schools for town: %s", town_name)
-
-            endpoint = f"{EndPoint.SCHOOL_LIST.endpoint}/{parse.quote(town_name)}"
-
-            task = asyncio.create_task(
-                self._send_request(endpoint, hdrs.METH_GET, headers), name=town_name
-            )
-            tasks.append(task)
+            tasks.append(asyncio.create_task(fetch_town(town_name), name=town_name))
 
         responses = await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -390,15 +258,6 @@ class Bakalari:
                     api_point=_schools.get("schoolUrl", ""),
                     town=response_town.get("name", ""),
                 )
-
-        # for response_town in responses:
-        #     schools: dict = response_town
-        #     for _schools in schools.get("schools"):
-        #         _schools_list.append_school(
-        #             name=_schools.get("name"),
-        #             api_point=_schools.get("schoolUrl"),
-        #             town=response_town.get("name"),
-        #         )
 
         self.schools = _schools_list
 
@@ -535,26 +394,23 @@ class Bakalari:
             self._credentials = Credentials()
             return False
 
-    async def aclose(self) -> None:
-        """Close the session."""
+    async def close(self) -> None:
+        """Close the underlying HTTP client."""
 
-        if self._session and self._session_owner and not self._session.closed:
-            await self._session.close()
-        self._session = None
-        self._session_owner = False
+        await self._api_client.close()
+
+    async def aclose(self) -> None:
+        """Backward compatible alias for :meth:`close`."""
+
+        await self.close()
 
     async def __aenter__(self) -> Self:
         """Enter the async context."""
-        await self._ensure_session()
 
+        await self._api_client.__aenter__()
         return self  # pragma: no cover
 
     async def __aexit__(self, *_exc_info: object) -> None:
-        """Async exit.
+        """Async exit."""
 
-        Args:
-            _exc_info: Exec type.
-
-        """
-
-        await self.aclose()
+        await self._api_client.__aexit__(*_exc_info)

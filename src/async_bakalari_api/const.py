@@ -1,13 +1,12 @@
 """Constants."""
 
 from enum import Enum
+import logging
 from typing import Any
 
 from strenum import StrEnum
 
-from .logger_api import api_logger
-
-log = api_logger("Bakalari API").get()
+log = logging.getLogger(__name__)
 
 REQUEST_TIMEOUT: int = 10
 
