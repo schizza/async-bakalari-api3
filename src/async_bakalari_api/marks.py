@@ -5,6 +5,7 @@ from collections.abc import Callable, Iterable
 from dataclasses import asdict, dataclass
 from datetime import datetime
 import logging
+import re
 from typing import Any, Literal, TypedDict, overload
 
 from dateutil import parser
@@ -740,3 +741,63 @@ class Marks:
         new_ids = curr_ids - previous_ids
         new_items = [m for m in flat if m.id in new_ids]
         return new_ids, new_items
+
+    async def get_all_marks_summary(self) -> dict[str, str]:
+        """Return a summary of all marks."""
+
+        all_marks_by_subject: list[SubjectsBase] = await self.get_marks_all()
+        total_subjects: int = len(all_marks_by_subject)
+
+        total_point_marks: int = 0
+        total_non_point_marks: int = 0
+        total_non_points_marks_to_avg: int = 0
+        total_avg = 0
+        subject_avg = 0
+        subject_count = 0
+
+        for subject in all_marks_by_subject:
+            subject_avg += self.sanitize_number(subject.average_text)
+            subject_count += 1
+
+            for mark in subject.marks:
+                if mark.is_points:
+                    total_point_marks += 1
+                else:
+                    total_non_points_marks_to_avg = (  # we have to count just numeric grades, not grades with ABSENCE or ILLNESS
+                        total_non_points_marks_to_avg + 1
+                        if (self.sanitize_number(mark.marktext.text) > 0.01)
+                        else total_non_points_marks_to_avg
+                    )
+                    total_non_point_marks += 1
+                    total_avg += self.sanitize_number(mark.marktext.text)
+            log.debug(
+                "Counting ... Subject AVG total: %s (last: %s) \nMarks AVG: %s (last: %s) \n Total count: S %s M %s Mavg: %s",
+                subject_avg,
+                subject.average_text,
+                total_avg,
+                mark.marktext.text,
+                subject_count,
+                total_non_point_marks,
+                total_non_points_marks_to_avg,
+            )
+
+        total_wavg: float = total_avg / total_non_points_marks_to_avg
+        total_avg: float = subject_avg / total_subjects
+
+        log.debug("Total sAVG %s, mAVG: %s", total_avg, total_wavg)
+        return {
+            "wavg": str(round(total_wavg, 2)),
+            "avg": str(round(total_avg, 2)),
+            "subjects": str(total_subjects),
+            "total_marks": str(total_point_marks + total_non_point_marks),
+            "total_point_marks": str(total_point_marks),
+            "total_non_point_marks": str(total_non_point_marks),
+        }
+
+    def sanitize_number(self, number: str) -> float:
+        """Sanitizes a number string and returns a float."""
+
+        match = re.search(r"\d+(?:[.,]\d+)?", number)
+        if not match:
+            return 0.0
+        return round(float(match.group(0).replace(",", ".")), 2)

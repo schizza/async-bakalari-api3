@@ -29,7 +29,7 @@ class CustomFormatter(logging.Formatter):
     dateformat = "%d/%m/%Y %H:%M:%S"
 
     FORMATS = {
-        logging.DEBUG: grey + _format + reset,
+        logging.DEBUG: cyan + _format + reset,
         logging.INFO: green + _format + reset,
         logging.WARNING: yellow + _format + reset,
         logging.ERROR: bold_red + _format + reset,
