@@ -322,6 +322,48 @@ async def test_authorized_request_refresh_token_expired_logs_and_raises(
 
 
 @pytest.mark.asyncio
+async def test_invalid_token_max_retries(
+    caplog: pytest.LogCaptureFixture,
+):
+    """Tests that authorized request retries are bounded and attempts are counted."""
+    caplog.set_level(logging.INFO, logger="async_bakalari_api.api_client")
+
+    class Creds:
+        def __init__(self, access_token: str | None, refresh_token: str | None):
+            self.access_token = access_token
+            self.refresh_token = refresh_token
+
+    creds = Creds(access_token="a", refresh_token="r")
+    _calls: int = 0
+
+    async def refresh_cred():
+        return creds
+
+    async def fake_request(self, url, method, headers=None, *, retry=0, **kwargs):
+        nonlocal _calls
+        _calls += 1
+        raise Ex.InvalidToken("nope")
+
+    async with ApiClient() as client:
+        client.request = fake_request.__get__(client, ApiClient)  # type: ignore[assignment]
+        with pytest.raises(Ex.InvalidToken):
+            await client.authorized_request(
+                "https://example.com/protected",
+                hdrs.METH_GET,
+                credentials=creds,
+                refresh_callback=lambda: refresh_cred(),
+                max_retries=3,
+            )
+
+    # request was attempted exactly max_retries + 1 times (initial + retries)
+
+    recs = [r for r in caplog.records if r.msg == "authorized_request"]
+    assert recs and getattr(recs[-1], "error", None) == "auth failed:InvalidToken"
+    assert getattr(recs[-1], "retries", None) == 3
+    assert _calls == 4
+
+
+@pytest.mark.asyncio
 async def test_close_and_wait_alias_closes():
     """Tests that close_and_wait alias closes the client."""
     client = ApiClient()
