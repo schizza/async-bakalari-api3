@@ -165,9 +165,11 @@ class ApiClient:
         credentials: Any,
         refresh_callback: Callable[[], Awaitable[Any]],
         headers: dict[str, str] | None = None,
+        max_retries: int = 1,
         **kwargs: Any,
     ) -> Any:
-        """Make unauthorized request."""
+        """Make authorized request."""
+
         if not getattr(credentials, "access_token", None) and not getattr(
             credentials, "refresh_token", None
         ):
@@ -193,7 +195,17 @@ class ApiClient:
                 latency = (time.perf_counter() - total_start) * 1000
                 self._log_request_summary(url, method, latency, retries)
 
-            except (Ex.AccessTokenExpired, Ex.InvalidToken):
+            except (Ex.AccessTokenExpired, Ex.InvalidToken) as auth_err:
+                if retries >= max_retries:
+                    latency = (time.perf_counter() - total_start) * 1000
+                    self._log_request_summary(
+                        url,
+                        method,
+                        latency,
+                        retries,
+                        error=f"auth failed:{auth_err.__class__.__name__}",
+                    )
+                    raise
                 retries += 1
                 log.warning(
                     "access_token_refresh",
