@@ -19,8 +19,8 @@ def _payload_marks():
     """Return a synthetic payload for EndPoint.MARKS."""
     return {
         "MarkOptions": [
-            {"Id": "1", "Abbrev": "1", "Name": "Jedna"},
-            {"Id": "A", "Abbrev": "A", "Name": "Áčko"},
+            {"Id": "1", "Abbrev": "Jedna", "Name": "1"},
+            {"Id": "A", "Abbrev": "Áčko", "Name": "A"},
         ],
         "Subjects": [
             {
@@ -256,8 +256,8 @@ async def test_format_and_print_all_marks(capsys):
     assert "Matematika (MAT) | average: 1.5" in formatted
     assert "Angličtina (AJ) | average: 2.0" in formatted
     # contains lines with dates and captions
-    assert "[2024-01-01] Písemka 1 -> Jedna [NEW]" in formatted
-    assert "[2024-01-05] Písemka 2 -> Áčko" in formatted
+    assert "[2024-01-01] Písemka 1 -> 1 [NEW]" in formatted
+    assert "[2024-01-05] Písemka 2 -> A" in formatted
     # placeholder "X" appears for AJ mark
     assert "[2024-01-03] Vocabulary -> X" in formatted
 
@@ -402,11 +402,11 @@ async def test_marks_marksoptions():
 
     marks = await _prepare_marks_instance()
 
-    assert "id: A abbrev: A text: Áčko" in marks.marksoptions.__str__()
-    assert "id: 1 abbrev: 1 text: Jedna" in marks.marksoptions.__str__()
-    assert "id: A abbrev: A text: Áčko" in marks.marksoptions.__format__("")
+    assert "id: A abbrev: Áčko text: A" in marks.marksoptions.__str__()
+    assert "id: 1 abbrev: Jedna text: 1" in marks.marksoptions.__str__()
+    assert "id: A abbrev: Áčko text: A" in marks.marksoptions.__format__("")
 
-    assert "id: A abbrev: A text: Áčko" in marks.marksoptions.__format__("")
+    assert "id: A abbrev: Áčko text: A" in marks.marksoptions.__format__("")
 
 
 async def test_marks_markoptionsregistry():
@@ -416,7 +416,7 @@ async def test_marks_markoptionsregistry():
 
     assert (
         marks.marksoptions.registry.__repr__()
-        == "<MarkOptionsRegistry (id='1', abbr='1', text='Jedna'), (id='A', abbr='A', text='Áčko')>"
+        == "<MarkOptionsRegistry (id='1', abbr='Jedna', text='1'), (id='A', abbr='Áčko', text='A')>"
     )
 
 
@@ -599,3 +599,74 @@ async def test_iter_grouped_unknown_subject_returns_empty():
     marks = await _prepare_marks_instance()
     grouped = list(marks.iter_grouped(subject_id="999"))
     assert grouped == []
+
+
+async def test_get_all_marks_summary():
+    """Test get_all_marks_summary method."""
+
+    payload = {
+        "MarkOptions": [
+            {"Id": "1", "Abbrev": "Jedna", "Name": "1"},
+        ],
+        "Subjects": [
+            {
+                "Subject": {"Id": "101", "Abbrev": "MAT", "Name": "Matematika"},
+                "AverageText": "1.0",
+                "PointsOnly": True,
+                "Marks": [
+                    {
+                        "Id": "pt1",
+                        "MarkDate": "2024-01-10T08:00:00+00:00",
+                        "Caption": "Points 1",
+                        "Theme": "",
+                        "MarkText": "",
+                        "Teacher": "Učitel",
+                        "SubjectId": "101",
+                        "IsNew": False,
+                        "IsPoints": True,
+                        "PointsText": 10,
+                        "MaxPoints": None,
+                    },
+                    {
+                        "Id": "pt2",
+                        "MarkDate": "2024-01-15T08:00:00+00:00",
+                        "Caption": "Points 2",
+                        "Theme": "",
+                        "MarkText": "",
+                        "Teacher": "Učitel",
+                        "SubjectId": "101",
+                        "IsNew": False,
+                        "IsPoints": True,
+                        "PointsText": 20,
+                        "MaxPoints": 100,
+                    },
+                ],
+            }
+        ],
+    }
+
+    # Non point marks
+    marks = await _prepare_marks_instance()
+
+    summary = await marks.get_all_marks_summary()
+    assert summary["avg"] == "1.75"
+    assert summary["total_marks"] == "3"
+    assert summary["subjects"] == "2"
+    assert summary["wavg"] == "1.0"
+
+    # Points marks
+    marks = await _prepare_marks_instance(payload)
+
+    summary = await marks.get_all_marks_summary()
+    assert summary["total_point_marks"] == "2"
+
+    # non subject marks
+
+    marks_null = await _prepare_marks_instance(payload={"Null": False})
+
+    summary_null = await marks_null.get_all_marks_summary()
+
+    assert summary_null["subjects"] == "0"
+    assert summary_null["wavg"] == "0"
+    assert summary_null["avg"] == "0"
+    assert summary_null["total_marks"] == "0"
