@@ -351,6 +351,8 @@ class Marks:
 
     async def _parse_marks_options(self, options: list[dict[str, str]]):
         """Parse mark options."""
+        if not options:
+            options = []
         for option in options:
             self.marksoptions.append(
                 marksoptions=MarkOptionsBase(
@@ -406,7 +408,7 @@ class Marks:
 
         tasks = [
             asyncio.create_task(self._parse_subjects(subjects))
-            for subjects in response.get("Subjects")
+            for subjects in response.get("Subjects", {})
         ]
 
         await asyncio.gather(*tasks)
@@ -747,7 +749,6 @@ class Marks:
 
         all_marks_by_subject: list[SubjectsBase] = await self.get_marks_all()
         total_subjects: int = len(all_marks_by_subject)
-
         total_point_marks: int = 0
         total_non_point_marks: int = 0
         total_non_points_marks_to_avg: int = 0
@@ -763,7 +764,7 @@ class Marks:
                 else:
                     total_non_points_marks_to_avg = (  # we have to count just numeric grades, not grades with ABSENCE or ILLNESS
                         total_non_points_marks_to_avg + 1
-                        if (self.sanitize_number(mark.marktext.text) > 0.01)
+                        if (self.sanitize_number(mark.marktext.text) != 0)
                         else total_non_points_marks_to_avg
                     )
                     total_non_point_marks += 1
@@ -774,13 +775,13 @@ class Marks:
         else:
             total_wavg = total_avg / total_non_points_marks_to_avg
         if total_subjects == 0:
-            total_avg = 0
+            subject_avg = 0
         else:
-            total_avg: float = subject_avg / total_subjects
+            subject_avg: float = subject_avg / total_subjects
 
         return {
             "wavg": str(round(total_wavg, 2)),
-            "avg": str(round(total_avg, 2)),
+            "avg": str(round(subject_avg, 2)),
             "subjects": str(total_subjects),
             "total_marks": str(total_point_marks + total_non_point_marks),
             "total_point_marks": str(total_point_marks),
