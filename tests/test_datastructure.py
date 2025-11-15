@@ -86,7 +86,7 @@ async def test_school_by_api_point():
 
     assert len(schools.school_list) == 1
     assert test_api_point == "test_school"
-    assert test_non_exist is None
+    assert test_non_exist is False
 
 
 async def test_get_url():

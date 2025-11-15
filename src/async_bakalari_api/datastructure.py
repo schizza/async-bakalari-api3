@@ -172,12 +172,12 @@ class Schools:
 
         if name is not None:
             for item in self.school_list:
-                if name in item.name:
-                    return item.api_point
+                if item.name is not None and name in item.name:
+                    return item.api_point or False
 
         if idx is not None:
             try:
-                return self.school_list[idx].api_point
+                return self.school_list[idx].api_point or False
             except IndexError:
                 return False
 
@@ -185,14 +185,22 @@ class Schools:
 
     def get_schools_by_town(self, town: str | None = None) -> list[School]:
         """Get list of schools in town."""
-        return [item for item in self.school_list if item.town in town]
+        if town is None:
+            return list(self.school_list)
+
+        return [
+            item
+            for item in self.school_list
+            if item.town is not None and item.town in town
+        ]
 
     def get_school_name_by_api_point(self, api_point: str) -> str | bool:
         """Get school name by its api point."""
         with suppress(IndexError):
             return [item for item in self.school_list if api_point == item.api_point][
                 0
-            ].name
+            ].name or False
+        return False
 
     def save_to_file(self, filename: str) -> bool:
         """Save loaded school list to file in JSON format."""
