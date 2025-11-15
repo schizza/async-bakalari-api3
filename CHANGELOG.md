@@ -4,9 +4,47 @@ All notable changes to this project will be documented in this file.
 
 🇨🇿 Full documentation (czech) on [this site](https://async-bakalari-api.schizza.cz)
 
-## [0.6.0]
+## 0.7.0
+
+## ✨ Nové funkce
+
+- **Adds marks summary function** (#141) @schizza
+
+  Přidána funkce `get_all_marks_summary`, která vrací sumarizovaný přehled o známkách a předmětech. 
+  Vrací `průměr` počítaný z průměru předmětů, `vážený průměr` počítaný ze všech znmek, `počet předmětů`, `počet celkových známek`, `počet numerických známek` a `počet bodovaných známek`
+
+## 🐛 Opravy chyb
+
+- **Limits the number of authentication retries** (#143) @schizza
+  Přidává limit pro opakování při chybné authentizaci.
+  Zabraňuje nekonečné smyčce při chybném tokenu.
+
+## 🧹 Refaktoring / Údržba
+
+- **Add asynchronous context manager and close method** (#133) @schizza
+
+  Zavádí asynchronní kontextový manažer pro správu životního cyklu klientské session, který zajišťuje správné uvolňování prostředků, a přidává explicitní metodu pro ukončení.
+
+- Refakorizace logování tak, aby využívalo modul logging ze standardní knihovny místo vlastní implementace.
+
+- **Make school list save/load async** (#144) @schizza
+  Oprava ukládání a načítání seznamu škol ze souboru, tak aby využívala asynchronní metody.
+  Fixes #116
+
+- Přidány testy k novým modalitám, oprava testů u refaktorovaných modalit.
+
+---
+
+## 📦 Technické
+
+- Verze: `v0.7.0`
+- Předchozí tag: `0.6.0`
+- Autoři: @schizza
+
+## 0.6.0
 
 ### Adds
+
 - Adds marks helpers for data manipulation, including flat mark
 representation and snapshot creation, grouping.
 - Implements session handling and refresh token logic to ensure thread
