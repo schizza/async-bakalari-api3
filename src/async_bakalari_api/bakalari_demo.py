@@ -219,7 +219,8 @@ async def runme(args):  # noqa: C901
                 print("Nepodařilo se načíst seznam škol.")
                 return
             schools_data = schools_res
-        server_candidate = schools_data.get_url(school)
+        if isinstance(schools_data, Schools):
+            server_candidate = schools_data.get_url(school)
         if not isinstance(server_candidate, str):
             print("Škola nebyla nalezena nebo není jednoznačná.")
             return
