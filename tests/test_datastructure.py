@@ -1,43 +1,58 @@
 """Test datastructures."""
 
+import logging
+import os
 import tempfile
-from unittest.mock import patch
 
 from async_bakalari_api.bakalari import Credentials, Schools
 from async_bakalari_api.datastructure import UniqueTowns
 import orjson
 import pytest
 
-
-@pytest.fixture
-def mocker_file(mocker):
-    """Mock file for testing."""
-    data = b'[{"name": "test_name","api_point": "test_api_point","town": "test_town"}]'
-    mocked_file = mocker.mock_open(read_data=data)
-    mocker.patch("builtins.open", mocked_file)
+data = '[{"name": "test_name","api_point": "test_api_point","town": "test_town"}]'
 
 
-async def test_school_list_from_file(mocker_file):
+@pytest.mark.asyncio
+async def test_school_list_from_file():
     """Test loading schools from file."""
+    schools = Schools()
+    schools.append_school("test_name", "test_api_point", "test_town")
 
-    schools: Schools | bool = await Schools().load_from_file("fakefile")
-    assert isinstance(schools, Schools)
+    with tempfile.NamedTemporaryFile(delete=False) as file:
+        file.write(orjson.dumps(schools.school_list))
+        path = file.name
+    try:
+        schools: Schools | bool = await Schools().load_from_file(path)
+        assert isinstance(schools, Schools)
+        assert len(schools) == 1
+        assert schools.school_list[0].name == "test_name"
+        assert schools.school_list[0].api_point == "test_api_point"
+        assert schools.school_list[0].town == "test_town"
+
+    finally:
+        os.remove(path)
 
 
-@pytest.fixture
-def mocker_file_bad_data(mocker):
+@pytest.mark.asyncio
+async def test_file_bad_data(caplog):
     """Mock file for testing."""
 
-    data = b'[{"name": "test_name","api_point": "test_api_point","town": "test_town"}'
-    mocked_file = mocker.mock_open(read_data=data)
-    mocker.patch("builtins.open", mocked_file)
+    caplog.set_level(logging.ERROR, logger="async_bakalari_api.datastructure")
 
-
-async def test_school_list_from_file_bad_data(mocker_file_bad_data):
-    """Test loading schools from file."""
-
-    schools: Schools | bool = await Schools().load_from_file("fakefile")
-    assert not isinstance(schools, Schools)
+    with tempfile.NamedTemporaryFile(delete=False) as file:
+        file.write(b'{"broken": 1')  # non valid JSON format
+        path = file.name
+        file.close()
+    try:
+        schools = await Schools().load_from_file(path)
+        assert schools is False
+        assert any(
+            "Unable to decode JSON file" in r.getMessage()
+            for r in caplog.records
+            if r.name == "async_bakalari_api.datastructure"
+        )
+    finally:
+        os.remove(path)
 
 
 async def test_schools_list_from_file_no_file():
@@ -68,11 +83,14 @@ async def test_school_by_name():
 
     test_town_in = schools.get_schools_by_town("test_town_in")
     test_town_out = schools.get_schools_by_town("test_town_out")
+    test_town_no_town = schools.get_schools_by_town()
 
     assert len(schools.school_list) == 2
     assert len(test_town_in) == 1
     assert test_town_in[0].name == "test_school"
     assert len(test_town_out) == 0
+
+    assert len(test_town_no_town) == 2
 
 
 async def test_school_by_api_point():
@@ -114,29 +132,91 @@ def open_err(*args, **kwargs):
     raise OSError
 
 
-async def test_write_file(monkeypatch):
+@pytest.mark.asyncio
+async def test_write_file():
     """Test writing to file."""
 
     schools = Schools()
     schools.append_school("test_school", "test_api_point_in", "test_town_in")
-    schools.append_school("test_school2", "test_api_point_out", "test_town_in")
+    schools.append_school("test_school2", "test_api_point_2", "test_town_2")
 
-    with tempfile.TemporaryDirectory() as temp_dir:
-        filename = temp_dir + "test_data"
-        schools.save_to_file(filename=filename)
+    expected = [
+        {
+            "name": "test_school",
+            "api_point": "test_api_point_in",
+            "town": "test_town_in",
+        },
+        {
+            "name": "test_school2",
+            "api_point": "test_api_point_2",
+            "town": "test_town_2",
+        },
+    ]
 
-        with open(filename, "+rb") as file:
-            data = orjson.loads(file.read())
-            file.close()
+    fd, path = tempfile.mkstemp()
+    os.close(fd)
 
-    assert orjson.dumps(data) == orjson.dumps(schools.school_list)
+    try:
+        assert await schools.save_to_file(path) is True
 
-    with tempfile.TemporaryDirectory() as temp_dir:
-        filename = temp_dir
+        with open(path, "rb") as f:
+            data = orjson.loads(f.read())
 
-        with patch("builtins.open", open_err):
-            school = schools.save_to_file(filename=filename)
-            assert not school
+        assert data == expected
+    finally:
+        os.remove(path)
+
+
+@pytest.mark.asyncio
+async def test_write_file_non_existent_file(caplog, monkeypatch):
+    """Test write file failed."""
+
+    caplog.set_level(logging.ERROR)
+
+    schools = Schools()
+
+    try:
+        assert await schools.save_to_file("") is False
+        assert any(
+            "Unable to save schools list" in r.getMessage()
+            for r in caplog.records
+            if r.name == "async_bakalari_api.datastructure"
+        )
+    finally:
+        return
+
+
+@pytest.mark.asyncio
+async def test_write_file_with_bad_data(caplog, monkeypatch):
+    """Test write file failed with bad data."""
+    schools = Schools()
+    schools.append_school("a", "b", "c")
+
+    caplog.set_level(
+        logging.DEBUG,
+    )
+
+    def boom(*args, **kwargs):
+        """Boom."""
+        raise orjson.JSONEncodeError("bad", 0)
+
+    monkeypatch.setattr(
+        "async_bakalari_api.datastructure.orjson.dumps", boom, raising=True
+    )
+
+    fd, name = tempfile.mkstemp()
+    os.close(fd)
+
+    try:
+        assert await schools.save_to_file(name) is False
+        assert any(
+            "Unable to encode JSON format while saving schools list to file"
+            in r.getMessage()
+            for r in caplog.records
+            if r.name == "async_bakalari_api.datastructure"
+        )
+    finally:
+        os.remove(name)
 
 
 def test_credentials():
