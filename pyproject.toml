@@ -82,6 +82,8 @@ reportUnusedVariable = true
 reportUnusedFunction = true
 reportUnusedClass = true
 reportOptionalMemberAccess = false
+reportReturnType = true
+reportOperatorIssue = true
 
 [tool.ruff]
 target-version = "py313"

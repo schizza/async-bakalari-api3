@@ -62,6 +62,8 @@ all: ci coverage validate-local show-version
 lint:
 	$(RUFF) check .
 	$(RUFF) format --check .
+	@set -o pipefail; \
+		basedpyright --outputjson | python scripts/pretty_basedpyright.py
 
 fmt:
 	$(RUFF) format .
