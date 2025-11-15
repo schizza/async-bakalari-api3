@@ -226,7 +226,7 @@ class Schools:
 
         return True
 
-    async def load_from_file(self, filename: str) -> Schools:
+    async def load_from_file(self, filename: str) -> Schools | bool:
         """Load schools list from a file."""
 
         try:

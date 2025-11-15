@@ -20,7 +20,7 @@ def mocker_file(mocker):
 async def test_school_list_from_file(mocker_file):
     """Test loading schools from file."""
 
-    schools: Schools = await Schools().load_from_file("fakefile")
+    schools: Schools | bool = await Schools().load_from_file("fakefile")
     assert isinstance(schools, Schools)
 
 
@@ -36,14 +36,14 @@ def mocker_file_bad_data(mocker):
 async def test_school_list_from_file_bad_data(mocker_file_bad_data):
     """Test loading schools from file."""
 
-    schools: Schools = await Schools().load_from_file("fakefile")
+    schools: Schools | bool = await Schools().load_from_file("fakefile")
     assert not isinstance(schools, Schools)
 
 
 async def test_schools_list_from_file_no_file():
     """Test loading schools from file."""
 
-    schools: Schools = await Schools().load_from_file("")
+    schools: Schools | bool = await Schools().load_from_file("")
     assert schools is False
 
 
