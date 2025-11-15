@@ -7,6 +7,7 @@ from dataclasses import dataclass
 import logging
 from typing import Any, override
 
+import aiofiles
 import orjson
 
 from .const import Token
@@ -202,7 +203,7 @@ class Schools:
             ].name or False
         return False
 
-    def save_to_file(self, filename: str) -> bool:
+    async def save_to_file(self, filename: str) -> bool:
         """Save loaded school list to file in JSON format."""
 
         schools = []
@@ -216,11 +217,18 @@ class Schools:
             schools.append(new_data)
 
         try:
-            with open(filename, "wb") as file:
-                file.write(orjson.dumps(self.school_list, option=orjson.OPT_INDENT_2))
-        except (OSError, orjson.JSONEncodeError) as ex:
+            async with aiofiles.open(filename, "wb") as file:
+                await file.write(
+                    orjson.dumps(self.school_list, option=orjson.OPT_INDENT_2)
+                )
+        except OSError as ex:
             log.error(
                 f"Unable to save schools list to file {filename}. Error: {str(ex)}"
+            )
+            return False
+        except orjson.JSONEncodeError as ex:
+            log.error(
+                f"Unable to encode JSON format while saving schools list to file {filename}. Error: {str(ex)}"
             )
             return False
 
@@ -230,18 +238,16 @@ class Schools:
         """Load schools list from a file."""
 
         try:
-            with open(filename, mode="+rb") as file:
-                data = orjson.loads(file.read())
+            async with aiofiles.open(filename, mode="+rb") as file:
+                data = orjson.loads(await file.read())
         except OSError:
             log.error(f"Unable to open file {filename}.")
             return False
         except orjson.JSONDecodeError:
             log.error(f"Unable to decode JSON file. File {filename} is corrupted.")
             return False
-
         for item in data:
             self.append_school(
                 item.get("name"), item.get("api_point"), item.get("town")
             )
-
         return self
