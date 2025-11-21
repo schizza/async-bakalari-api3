@@ -2,66 +2,66 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://async-bakalari-api.schizza.cz/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-11-21</lastmod>
     </url>
     <url>
          <loc>https://async-bakalari-api.schizza.cz/podrobna_instalace/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-11-21</lastmod>
     </url>
     <url>
          <loc>https://async-bakalari-api.schizza.cz/bakalari/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-11-21</lastmod>
     </url>
     <url>
          <loc>https://async-bakalari-api.schizza.cz/bakalari/credentials/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-11-21</lastmod>
     </url>
     <url>
          <loc>https://async-bakalari-api.schizza.cz/bakalari/first_login/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-11-21</lastmod>
     </url>
     <url>
          <loc>https://async-bakalari-api.schizza.cz/bakalari/schools/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-11-21</lastmod>
     </url>
     <url>
          <loc>https://async-bakalari-api.schizza.cz/bakalari/seznam_skol/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-11-21</lastmod>
     </url>
     <url>
          <loc>https://async-bakalari-api.schizza.cz/cli/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-11-21</lastmod>
     </url>
     <url>
          <loc>https://async-bakalari-api.schizza.cz/cli/komens/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-11-21</lastmod>
     </url>
     <url>
          <loc>https://async-bakalari-api.schizza.cz/cli/seznam_skol/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-11-21</lastmod>
     </url>
     <url>
          <loc>https://async-bakalari-api.schizza.cz/cli/tokeny/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-11-21</lastmod>
     </url>
     <url>
          <loc>https://async-bakalari-api.schizza.cz/komens/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-11-21</lastmod>
     </url>
     <url>
          <loc>https://async-bakalari-api.schizza.cz/komens/cteni_zprav/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-11-21</lastmod>
     </url>
     <url>
          <loc>https://async-bakalari-api.schizza.cz/komens/stazeni_prilohy/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-11-21</lastmod>
     </url>
     <url>
          <loc>https://async-bakalari-api.schizza.cz/marks/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-11-21</lastmod>
     </url>
     <url>
          <loc>https://async-bakalari-api.schizza.cz/marks/api/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-11-21</lastmod>
     </url>
 </urlset>
