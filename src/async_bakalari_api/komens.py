@@ -216,21 +216,24 @@ class Komens:
             EndPoint.KOMENS_UNREAD,
         )
 
-        async def create_msg(msg):
-            log.debug(f"Writing message: {msg}")
-            return MessageContainer(
-                mid=msg["Id"],
-                title=msg["Title"],
-                text=msg["Text"],
-                sent=dateutil.parser.parse(msg["SentDate"]),
-                sender=msg["Sender"]["Name"],
-                read=msg["Read"],
-                attachments=msg["Attachments"],
-            )
-
-        self.messages.extend([(await create_msg(msg)) for msg in messages["Messages"]])
+        self.messages.extend(
+            [(await self.create_msg(msg)) for msg in messages["Messages"]]
+        )
 
         return self.messages
+
+    async def create_msg(self, msg):
+        """Create a message containter from data."""
+        log.debug(f"Writing message: {msg}")
+        return MessageContainer(
+            mid=msg["Id"],
+            title=msg["Title"],
+            text=msg["Text"],
+            sent=dateutil.parser.parse(msg["SentDate"]),
+            sender=msg["Sender"]["Name"],
+            read=msg["Read"],
+            attachments=msg["Attachments"],
+        )
 
     async def get_unread_messages(self) -> list[MessageContainer]:
         """Get unread messages."""
@@ -277,7 +280,7 @@ class Komens:
             EndPoint.KOMENS_MARK_READ, extend=f"/{id}/mark-as-read"
         )
 
-    async def message_get_sigle_message(self, id: str) -> list[MessageContainer]:
+    async def message_get_single_message(self, id: str) -> MessageContainer | None:
         """Get a single message.
 
         Retrieves a single message from the server based on the provided ID.
@@ -290,11 +293,12 @@ class Komens:
 
         """
         try:
-            message = await self.bakalari.send_auth_request(
+            data = await self.bakalari.send_auth_request(
                 EndPoint.KOMENS_GET_SINGLE_MESSAGE, extend=f"/{id}"
             )
+            message = await self.create_msg(data.get("Message")[0])
         except Exception as ex:
             log.error(f"Exception: {ex} has occurred.")
-            return []
+            return None
 
-        return list(message)
+        return message
