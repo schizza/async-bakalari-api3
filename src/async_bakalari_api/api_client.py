@@ -90,7 +90,10 @@ class ApiClient:
                     **kwargs,
                 ) as response:
                     payload: Any
-                    if (
+                    if response.status == 204:
+                        # No content; avoid attempting to parse JSON.
+                        payload = None
+                    elif (
                         response.headers.get(aiohttp.hdrs.CONTENT_TYPE)
                         == "application/octet-stream"
                     ):
@@ -101,7 +104,11 @@ class ApiClient:
                         )
                         payload = [filename, filedata]
                     else:
-                        payload = await response.json()
+                        try:
+                            payload = await response.json()
+                        except aiohttp.ContentTypeError:
+                            # Empty body or non-JSON when we expected JSON; treat as None.
+                            payload = None
                     latency = (time.perf_counter() - start) * 1000
                     self._log_metrics(
                         url,
@@ -137,7 +144,7 @@ class ApiClient:
                     raise Ex.InvalidToken("Invalid token provided.")
                 raise Ex.BadRequestException(f"{url} with message: {payload}")
             case 400:
-                match payload.get("error_uri"):
+                match (payload or {}).get("error_uri", {}):
                     case x if Errors.INVALID_METHOD in x:
                         raise Ex.InvalidHTTPMethod(
                             f"Invalid HTTP method. Method '{method}' is not supported for '{url}'"
@@ -154,6 +161,9 @@ class ApiClient:
                 raise Ex.BadRequestException(f"Not found! ({url})")
             case 200:
                 return payload
+            case 204:
+                # No Content (e.g. mark-as-read). Return None to signal success without payload.
+                return None
             case _:
                 raise Ex.BadRequestException(f"{url} with message: {payload}")
 

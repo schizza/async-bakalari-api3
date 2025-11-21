@@ -6,7 +6,12 @@ from aioresponses import aioresponses
 from async_bakalari_api.bakalari import Bakalari
 from async_bakalari_api.const import EndPoint
 from async_bakalari_api.datastructure import Credentials
-from async_bakalari_api.komens import AttachmentsRegistry, Komens, Messages
+from async_bakalari_api.komens import (
+    AttachmentsRegistry,
+    Komens,
+    MessageContainer,
+    Messages,
+)
 import pytest
 
 fs = "http://fake_server"
@@ -345,3 +350,59 @@ async def test_komens_messages_get_messages_by_date_invalid_range():
     with pytest.raises(ValueError):
         # to_date earlier than date -> should raise
         msgs.get_messages_by_date(datetime(2024, 1, 2), to_date=datetime(2024, 1, 1))
+
+
+async def test_komens_mark_as_read():
+    """Test mark message as read (PUT /api/3/komens/message/$ID/mark-as-read returns 204)."""
+
+    bak = Bakalari(server=fs, credentials=cred)
+    komens = Komens(bak)
+
+    with aioresponses() as m:
+        m.post(
+            url=fs + EndPoint.KOMENS_UNREAD.get("endpoint"),
+            body='{"Messages":[{"$type":"GeneralMessage","Id":"midX","Title":"","Text":"T","SentDate":"2024-01-07T13:00:00+02:00","Sender":{"$type":"Sender","Id":"s","Type":"teacher","Name":"teacher"},"Attachments":[],"Read":false,"LifeTime":"ToRead","DateFrom":null,"DateTo":null,"Confirmed":true,"CanConfirm":false,"Type":"OBECNA","CanAnswer":true,"Hidden":false,"CanHide":true,"CanDelete":false,"RelevantName":"r","RelevantPersonType":"rp"}]}',
+            headers={},
+            status=200,
+        )
+        await komens.fetch_messages()
+        unread = await komens.get_unread_messages()
+        assert len(unread) == 1
+        assert unread[0].mid == "midX"
+        assert unread[0].read is False
+
+        # Endpoint pro označení jako přečtené vrací 204 (bez těla).
+        m.put(
+            url=fs + EndPoint.KOMENS_MARK_READ.get("endpoint") + "/midX/mark-as-read",
+            headers={},
+            status=204,
+        )
+        result = await komens.message_mark_read("midX")
+        # Metoda nic nevrací -> implicitně None
+        assert result is None
+
+        # Následný fetch vrátí zprávu již jako přečtenou.
+        m.get(
+            url=fs + EndPoint.KOMENS_GET_SINGLE_MESSAGE.get("endpoint") + "/midX",
+            body='{"Message":[{"$type":"GeneralMessage","Id":"midX","Title":"","Text":"T","SentDate":"2024-01-07T13:00:00+02:00","Sender":{"$type":"Sender","Id":"s","Type":"teacher","Name":"teacher"},"Attachments":[],"Read":true,"LifeTime":"ToRead","DateFrom":null,"DateTo":null,"Confirmed":true,"CanConfirm":false,"Type":"OBECNA","CanAnswer":true,"Hidden":false,"CanHide":true,"CanDelete":false,"RelevantName":"r","RelevantPersonType":"rp"}]}',
+            headers={},
+            status=200,
+        )
+        message: MessageContainer | None = await komens.message_get_single_message(
+            "midX"
+        )
+        assert message.read
+
+        # Test we have no data with invalid message ID
+        m.get(
+            url=fs + EndPoint.KOMENS_GET_SINGLE_MESSAGE.get("endpoint") + "/mid",
+            body='{"Message":[{"$type":"GeneralMessage","Id":"midX","Title":"","Text":"T","SentDate":"2024-01-07T13:00:00+02:00","Sender":{"$type":"Sender","Id":"s","Type":"teacher","Name":"teacher"},"Attachments":[],"Read":true,"LifeTime":"ToRead","DateFrom":null,"DateTo":null,"Confirmed":true,"CanConfirm":false,"Type":"OBECNA","CanAnswer":true,"Hidden":false,"CanHide":true,"CanDelete":false,"RelevantName":"r","RelevantPersonType":"rp"}]}',
+            headers={},
+            status=200,
+        )
+
+        message = await komens.message_get_single_message("midX")
+
+        assert message is None
+
+    await bak.__aexit__()

@@ -216,21 +216,24 @@ class Komens:
             EndPoint.KOMENS_UNREAD,
         )
 
-        async def create_msg(msg):
-            log.debug(f"Writing message: {msg}")
-            return MessageContainer(
-                mid=msg["Id"],
-                title=msg["Title"],
-                text=msg["Text"],
-                sent=dateutil.parser.parse(msg["SentDate"]),
-                sender=msg["Sender"]["Name"],
-                read=msg["Read"],
-                attachments=msg["Attachments"],
-            )
-
-        self.messages.extend([(await create_msg(msg)) for msg in messages["Messages"]])
+        self.messages.extend(
+            [(await self.create_msg(msg)) for msg in messages["Messages"]]
+        )
 
         return self.messages
+
+    async def create_msg(self, msg):
+        """Create a message containter from data."""
+        log.debug(f"Writing message: {msg}")
+        return MessageContainer(
+            mid=msg["Id"],
+            title=msg["Title"],
+            text=msg["Text"],
+            sent=dateutil.parser.parse(msg["SentDate"]),
+            sender=msg["Sender"]["Name"],
+            read=msg["Read"],
+            attachments=msg["Attachments"],
+        )
 
     async def get_unread_messages(self) -> list[MessageContainer]:
         """Get unread messages."""
@@ -263,3 +266,39 @@ class Komens:
             return False
 
         return filename, filedata
+
+    async def message_mark_read(self, id: str):
+        """Mark message as read.
+
+        Marks a message as read on the server.
+
+        Args:
+            id (str): The ID of the message to mark as read.
+
+        """
+        await self.bakalari.send_auth_request(
+            EndPoint.KOMENS_MARK_READ, extend=f"/{id}/mark-as-read"
+        )
+
+    async def message_get_single_message(self, id: str) -> MessageContainer | None:
+        """Get a single message.
+
+        Retrieves a single message from the server based on the provided ID.
+
+        Args:
+            id (str): The ID of the message to retrieve.
+
+        Returns:
+            List[MessageContainer]: A list containing the retrieved message.
+
+        """
+        try:
+            data = await self.bakalari.send_auth_request(
+                EndPoint.KOMENS_GET_SINGLE_MESSAGE, extend=f"/{id}"
+            )
+            message = await self.create_msg(data.get("Message")[0])
+        except Exception as ex:
+            log.error(f"Exception: {ex} has occurred.")
+            return None
+
+        return message

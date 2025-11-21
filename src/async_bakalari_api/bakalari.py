@@ -113,7 +113,13 @@ class Bakalari:
         if extend:
             request += extend
 
-        method = hdrs.METH_POST if "post" in request_endpoint.method else hdrs.METH_GET
+        match request_endpoint.method:
+            case "post":
+                method = hdrs.METH_POST
+            case "get":
+                method = hdrs.METH_GET
+            case "put":
+                method = hdrs.METH_PUT
 
         log.debug(
             "Sending authorized request",
