@@ -263,3 +263,38 @@ class Komens:
             return False
 
         return filename, filedata
+
+    async def message_mark_read(self, id: str):
+        """Mark message as read.
+
+        Marks a message as read on the server.
+
+        Args:
+            id (str): The ID of the message to mark as read.
+
+        """
+        await self.bakalari.send_auth_request(
+            EndPoint.KOMENS_MARK_READ, extend=f"/{id}/mark-as-read"
+        )
+
+    async def message_get_sigle_message(self, id: str) -> list[MessageContainer]:
+        """Get a single message.
+
+        Retrieves a single message from the server based on the provided ID.
+
+        Args:
+            id (str): The ID of the message to retrieve.
+
+        Returns:
+            List[MessageContainer]: A list containing the retrieved message.
+
+        """
+        try:
+            message = await self.bakalari.send_auth_request(
+                EndPoint.KOMENS_GET_SINGLE_MESSAGE, extend=f"/{id}"
+            )
+        except Exception as ex:
+            log.error(f"Exception: {ex} has occurred.")
+            return []
+
+        return list(message)
