@@ -80,6 +80,8 @@ nav:
   - Marks:
       - marks/index.md
       - Přehled API: marks/api.md
+  - Timetable:
+      - timetable/index.md
   - CLI:
       - cli/index.md
       - Seznam škol: cli/seznam_skol.md

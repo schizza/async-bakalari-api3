@@ -1,4 +1,4 @@
-#Modul Komens
+# Modul Komens
 
 Tento modul slouží k získání přijatých zpráv ze serveru školy.
 Tento modul již provádí autorizované dotazy, takže je nutné již mít údaje o [tokenech](../bakalari/credentials.md), případně provést [první přihlášení](../bakalari/first_login.md).
@@ -27,9 +27,9 @@ Tento modul již provádí autorizované dotazy, takže je nutné již mít úda
 
 ## Načtení přijatých zpráv
 
-Načtení zpráv probíhá metodou `Komens.fetch_messages()`
+Načtení zpráv probíhá metodou `Komens.fetch_messages()`.
 
-Tato metoda vrátí všechny zprávy, které jsou uložené na serveru školy a ukládá je do třídy `Messages`, kde každá zpráva je uložena jako `MessageContainer`.
+Tato metoda nejprve vymaže dosud uložené zprávy a stáhne aktuální zprávy ze serveru školy. Vrací instanci `Messages` (seznam `MessageContainer`) a zároveň ji uloží do `Komens.messages`.
 
 ```py
 Messages = list[MessageContainer]
@@ -41,7 +41,25 @@ Messages = list[MessageContainer]
 Více o `Messages` a `MessageContainer` bude k dispozici Dev dokumentaci později.
 Pro užití v běžném režimu není třeba se jimi zabývat do hloubky.
 
-```py linenums="1" hl_lines="6" title="Načtení zpráv se serveru"
+## Nepřečtené zprávy
+
+- Získat seznam nepřečtených zpráv:
+
+```py
+async def get_unread_messages(self) -> list[MessageContainer]:
+```
+
+Vrátí list pouze těch zpráv, které mají `read=False`. Pokud dosud nejsou zprávy načtené, metoda si je nejprve stáhne.
+
+- Získat počet nepřečtených zpráv:
+
+```py
+async def count_unread_messages(self) -> int:
+```
+
+Vrací počet nepřečtených zpráv; využívá přímý endpoint (není nutné mít zavolané `fetch_messages()`).
+
+```py linenums="1" hl_lines="6" title="Načtení zpráv ze serveru"
     from async_bakalari_api import Bakalari
     from async_bakalari_api.komens import Komens
 

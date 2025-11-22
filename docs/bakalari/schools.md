@@ -9,16 +9,16 @@ Umožňuje vyhledat školu/y
 * lze hledat i podle URL endpointu
 
 !!! notice "Poznámka"
-    Třída Schools uchovává položky v seznamu `Schools.school_list` jako instance třídy `Schools`
+    Třída Schools uchovává položky v seznamu `Schools.school_list` jako instance třídy `School`
 
 ``` py linenums="1"
 @dataclass
 class School:
     """Data structure for one school item."""
 
-    name: str = None
-    api_point: str = None
-    town: str = None
+    name: str | None = None
+    api_point: str | None = None
+    town: str | None = None
 ```
 ## Metody třídy `Schools`
 
@@ -35,7 +35,7 @@ Slouží k jednoduchému přidání nové školy do seznamu škol. Všechny argu
 ### get_url
 
 ``` py linenums="1"
-    def get_url(self, name: str | None = None, idx: int | None = None) -> str | False:
+    def get_url(self, name: str | None = None, idx: int | None = None) -> str | bool:
         """Return url of school from name or index in dictionary.
 
         Only one must be specified - name or index, otherwise returns False
@@ -56,7 +56,7 @@ Vrací URL pro školu podle jména, části jména (část jména musí být jed
 Vrací seznam škol v daném městě.
 
 !!! note ""
-    Vrací `list[School]` nebo `None` pokud město neexituje.
+    Vrací `list[School]` (může být prázdný).
 
 ### get_school_name_by_api_point
 
@@ -69,7 +69,7 @@ Vrací název školy podle jejího API.
 ### save_to_file
 
 ```py
-    def save_to_file(self, filename: str) -> bool
+    async def save_to_file(self, filename: str) -> bool
 ```
 
 Ukládá načtený seznam škol do souboru ve formátu JSON.
@@ -80,7 +80,7 @@ Ukládá načtený seznam škol do souboru ve formátu JSON.
 ### load_from_file
 
 ```py
-    def load_from_file(self, filename: str) -> Schools
+    async def load_from_file(self, filename: str) -> Schools | bool
 ```
 
 Načte seznam škol ze souboru v JSON formátu.
