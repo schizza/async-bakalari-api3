@@ -8,14 +8,14 @@ Pojďme se kouknout na třídu `Credentials`, která se nachází v `async_bakal
 
 ??? note "class Credentials"
     ``` py linenums="1"
-        @dataclass
+        @dataclass(frozen=True)
         class Credentials:
             """Credentials holder."""
 
-            username: str = None
-            access_token: str = None
-            refresh_token: str = None
-            user_id: str = None
+            username: str | None = None
+            access_token: str | None = None
+            refresh_token: str | None = None
+            user_id: str | None = None
 
             @classmethod
             def create(cls, data: dict[str, Any]) -> Credentials:
@@ -29,13 +29,13 @@ Pojďme se kouknout na třídu `Credentials`, která se nachází v `async_bakal
 Přistupovat k aktuálním datům lze z instance `Bakalari`
 
 ``` py linenums="1"
-    username = Bakalari.credentials.name
-    access_token = Bakalari.credentials.access_token
-    refresh_toke = Bakalari.credentials.refres_token
-    user_id = Bakalari.credentials.user_id
+    username = bakalari.credentials.username
+    access_token = bakalari.credentials.access_token
+    refresh_token = bakalari.credentials.refresh_token
+    user_id = bakalari.credentials.user_id
 ```
 
-Zapsání nových údajů lze přímo, je ale vhodnější využít metodu `create` nebo `create_from_json()`. Přičemž `create_from_json()` je preferovanější. 
+Hodnoty v `Bakalari.credentials` jsou pouze pro čtení. Nové údaje předávejte při vytvoření instance `Bakalari` přes parametr `credentials`, nebo použijte `first_login(...)` či `load_credentials(...)`. Převod dat z payloadu serveru usnadňují metody `create` a `create_from_json()` (preferována).
 
 U metody `create()` se předpokládá datové pole takové, které zasílá přímo server:
 
@@ -45,16 +45,16 @@ U metody `create()` se předpokládá datové pole takové, které zasílá př�
         from async_bakalari_api.datastructure import Credentials
         from async_bakalari_api import Bakalari
 
-        bakalari = Bakalari()
-
+        # payload tak, jak ho vrací server (klíče včetně 'bak:UserId')
         nove_udaje = {
-            "bak:UserID": "user_id",
-            "access_token": "nový access_token"
+            "bak:UserId": "user_id",
+            "access_token": "nový access_token",
             "refresh_token": "nový refresh_token",
             "username": "nové username"
         }
 
-        bakalari.credentials = Credentials.create(nove_udaje)
+        creds = Credentials.create(nove_udaje)
+        bakalari = Bakalari(server="http://server", credentials=creds)
     ```
 === "create_from_json()"
     ```py linenums="1"
@@ -62,16 +62,15 @@ U metody `create()` se předpokládá datové pole takové, které zasílá př�
         from async_bakalari_api.datastructure import Credentials
         from async_bakalari_api import Bakalari
 
-        bakalari = Bakalari()
-
         nove_udaje = {
-            "user_id": "nové user_id
-            "access_token": "nový access_token"
+            "user_id": "nové user_id",
+            "access_token": "nový access_token",
             "refresh_token": "nový refresh_token",
             "username": "nové username"
         }
 
-        bakalari.credentials = Credentials.create_from_json(nove_udaje)
+        creds = Credentials.create_from_json(nove_udaje)
+        bakalari = Bakalari(server="http://server", credentials=creds)
     ```
 
 ## Nahrání uložených údajů
@@ -97,7 +96,7 @@ Po zvolání metody `load_credentials` máme tedy v instanci `bakalari` aktuáln
     bakalari = Bakalari(
         server=school.get_url("část jména školy"), 
         auto_cache_credentials=True,
-        cache_file="credetials.json"
+        cache_filename="credentials.json"
     )
     bakalari.load_credentials("credentials.json")
 

@@ -16,27 +16,29 @@ Pokud chceme zobrazit zprávy jen z určitého dne nebo rozsahu dní, pak k tomu
 
 ``` py
     def get_messages_by_date(
-        self, date: dt, to_date: dt | None = None
+        self, date: datetime | date, to_date: datetime | date | None = None
     ) -> list[MessageContainer]:
         """Get messages by date.
 
-        If `to_date` is set, then returns list of range from `date` to `to_date`
+        If `to_date` is set, returns messages in the inclusive range <date, to_date>.
+        Raises ValueError if `to_date` is before `date`.
         """
 ```
 === "Den"
     ``` py linenums="1" hl_lines="11-13"
         from async_bakalari_api import Bakalari
         from async_bakalari_api.komens import Komens
-        from datetime import datetime as dt
+        from datetime import date
 
         bakalari = Bakalari("http://server")
         bakalari.load_credentials("credentials.json")
 
         komens = Komens(bakalari)
-        await komens.get_messages()
+        await komens.fetch_messages()
 
-        zpravy_ze_dne = komens.messages.get_messages_by_date(dt.date.today())
-        print(msg for msg in zpravy_ze_dne, end="\n --- \n")
+        zpravy_ze_dne = komens.messages.get_messages_by_date(date.today())
+        for msg in zpravy_ze_dne:
+            print(msg, end="\n --- \n")
         
     ```
 === "Rozsah dní"
@@ -49,7 +51,7 @@ Pokud chceme zobrazit zprávy jen z určitého dne nebo rozsahu dní, pak k tomu
         bakalari.load_credentials("credentials.json")
 
         komens = Komens(bakalari)
-        await komens.get_messages()
+        await komens.fetch_messages()
 
         zpravy_ze_dne = komens.messages.get_messages_by_date(
                 datetime.date.today() + datetime.timedelta(days=-30),
@@ -75,9 +77,9 @@ Pokud chceme přečíst konkrétní zprávu s `ID_zprávy` slouží k tomu metod
         bakalari.load_credentials("credentials.json")
 
         komens = Komens(bakalari)
-        await komens.get_messages()
+        await komens.fetch_messages()
 
-        zprava = komens.messages.get_messages_by_id(1)
+        zprava = komens.messages.get_message_by_id("1")
         print(zprava)
     ```
 === "CLI"
@@ -87,5 +89,5 @@ Pokud chceme přečíst konkrétní zprávu s `ID_zprávy` slouží k tomu metod
     # použij url školy "škola"
     # a z komens načti zprávy (--messages) a vypiš zprávu s ID 1 (-e 1)
 
-    baklari -C -cf credntials.json -sf skoly.json -s "škola" komens --messages -e 1
+    bakalari -C -cf credentials.json -sf skoly.json -s "škola" komens --messages -e 1
     ```

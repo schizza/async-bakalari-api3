@@ -1,16 +1,16 @@
 # Stažení přílohy zprávy
 
-Zprávy v Komens mohou obsahovat přílohy, které mají své `ID`. Stažení přílohy je možné příkazem `Komens.get_attachment`
+Zprávy v Komens mohou obsahovat přílohy, které mají své `ID` (typ `str`). Stažení přílohy je možné příkazem `Komens.get_attachment`.
 
 ```py
-    async def get_attachment(self, id: str) -> Any:
+    async def get_attachment(self, id: str) -> tuple[str, bytes]:
 ```
 
 !!! notice ""
-    Vrací [filename, filedata]
+    Vrací tuple (filename: str, filedata: bytes)
 
 !!! danger ""
-    Při chybě vrací False
+    Při chybě vrací False (např. expirované/invalidní tokeny, síťová chyba apod.). Volání je autorizované; při expirovaném access tokenu se provede automatický refresh přes refresh token a požadavek se zopakuje.
 
 === "Py"
 
@@ -22,10 +22,10 @@ Zprávy v Komens mohou obsahovat přílohy, které mají své `ID`. Stažení p�
         bakalari.load_credentials("credentials.json")
         komens = Komens(bakalari)
 
-        data = await komens.get_attachment("ID_zprávy")
+        filename, filedata = await komens.get_attachment("ID_přílohy")
 
-        with open(data[0], "wb") as fi:
-            fi.write(data[1])
+        with open(filename, "wb") as fi:
+            fi.write(filedata)
     ```
 === "CLI"
     ``` shell
