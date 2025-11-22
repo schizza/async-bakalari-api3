@@ -11,7 +11,7 @@
         <link rel="canonical" href="https://async-bakalari-api.schizza.cz/cli/">
       
       
-        <link rel="prev" href="../marks/api/">
+        <link rel="prev" href="../timetable/">
       
       
         <link rel="next" href="seznam_skol/">
@@ -284,6 +284,26 @@
   
   
   Marks
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../timetable/" class="md-tabs__link">
+          
+  
+  
+  Timetable
 
         </a>
       </li>
@@ -950,6 +970,95 @@
       
   
   
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Timetable
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Timetable
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../timetable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modul Timetable
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
     
   
   
@@ -971,10 +1080,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
             
   
   
@@ -992,8 +1101,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_5">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1019,6 +1128,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI (Command Line Interface)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -1035,6 +1162,36 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Obsah">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Obsah
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#rozvrh-timetable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rozvrh (timetable)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1153,14 +1310,14 @@
 
 
 <h1 id="cli-command-line-interface">CLI (Command Line Interface)<a class="headerlink" href="#cli-command-line-interface" title="Permanent link">&para;</a></h1>
-<p>Balíček <code>async_bakalari_api</code> pokytuje také uživatelské rozhraní pro příkazovou řádku <code>CLI</code>.</p>
-<p>Po <a href="../#instalace">instalaci</a> ja automaticky dostupný příkaz <code>bakalari</code> z terminálu nebo příkazové řádky.</p>
+<p>Balíček <code>async_bakalari_api</code> poskytuje také uživatelské rozhraní pro příkazovou řádku <code>CLI</code>.</p>
+<p>Po <a href="../#instalace">instalaci</a> je automaticky dostupný příkaz <code>bakalari</code> z terminálu nebo příkazové řádky.</p>
 <p>Nápověda k užití <code>bakalari</code> se vyvolá příkazem <code>bakalari -h</code></p>
 <div class="language-shell highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>bakalari<span class="w"> </span>-h
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>usage:<span class="w"> </span>bakalari<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>-N<span class="o">]</span><span class="w"> </span><span class="o">[</span>-F<span class="w"> </span>jméno<span class="w"> </span>heslo<span class="o">]</span><span class="w"> </span><span class="o">[</span>-Ff<span class="w"> </span>SOUBOR<span class="o">]</span><span class="w"> </span><span class="o">[</span>-C<span class="o">]</span><span class="w"> </span><span class="o">[</span>-cf<span class="w"> </span>soubor<span class="w"> </span>s<span class="w"> </span>tokeny<span class="o">]</span><span class="w"> </span><span class="o">[</span>--auto_cache<span class="w"> </span>soubor<span class="w"> </span>s<span class="w"> </span>tokeny<span class="o">]</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">                </span><span class="o">[</span>-t<span class="w"> </span>Město<span class="o">]</span><span class="w"> </span><span class="o">[</span>-s<span class="w"> </span>ŠKOLA<span class="o">]</span><span class="w"> </span><span class="o">[</span>-sf<span class="w"> </span>SOUBOR.json<span class="o">]</span><span class="w"> </span><span class="o">[</span>-v<span class="o">]</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">                </span><span class="o">{</span>schools,komens<span class="o">}</span><span class="w"> </span>...
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">                </span><span class="o">[</span>-t<span class="w"> </span>Město<span class="o">]</span><span class="w"> </span><span class="o">[</span>-s<span class="w"> </span>ŠKOLA<span class="o">]</span><span class="w"> </span><span class="o">[</span>-sf<span class="w"> </span>SOUBOR.json<span class="o">]</span><span class="w"> </span><span class="o">[</span>-r<span class="w"> </span><span class="p">|</span><span class="w"> </span>-nr<span class="o">]</span><span class="w"> </span><span class="o">[</span>-v<span class="o">]</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">                </span><span class="o">{</span>schools,komens,timetable<span class="o">}</span><span class="w"> </span>...
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>Bakalari<span class="w"> </span>DEMO<span class="w"> </span>App
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
@@ -1172,32 +1329,53 @@
 </span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">                        </span>Název<span class="w"> </span>školy<span class="w"> </span>nebo<span class="w"> </span>část<span class="w"> </span>názvu<span class="w"> </span>školy
 </span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span>-sf<span class="w"> </span>SOUBOR.json,<span class="w"> </span>--schools_file<span class="w"> </span>SOUBOR.json
 </span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">                        </span>Načte<span class="w"> </span>seznam<span class="w"> </span>škol<span class="w"> </span>ze<span class="w"> </span>zadaného<span class="w"> </span>souboru<span class="w"> </span><span class="o">(</span>formát<span class="w"> </span>JSON<span class="o">)</span>
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">  </span>-v,<span class="w"> </span>--verbose<span class="w">         </span>Zapne<span class="w"> </span>podrobné<span class="w"> </span>logování
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>Přihlášení<span class="w"> </span><span class="o">(</span>požadováno<span class="o">)</span>:
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">  </span>Zvolte<span class="w"> </span>typ<span class="w"> </span>přihlášení<span class="w"> </span>heslo<span class="w"> </span>/<span class="w"> </span>tokenu
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">  </span>-N,<span class="w"> </span>--no_login<span class="w">        </span>Provede<span class="w"> </span>neautorizovaný<span class="w"> </span>přístup
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">  </span>-F<span class="w"> </span>jméno<span class="w"> </span>heslo,<span class="w"> </span>--first_login<span class="w"> </span>jméno<span class="w"> </span>heslo
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">                        </span>Provede<span class="w"> </span>přihlášení<span class="w"> </span>jménem<span class="w"> </span>a<span class="w"> </span>heslem.<span class="w"> </span>Pokud<span class="w"> </span>je<span class="w"> </span>zadán<span class="w"> </span>parametr<span class="w"> </span>-cf,<span class="w"> </span>pak<span class="w"> </span>zapíše<span class="w"> </span>tokeny<span class="w"> </span><span class="k">do</span><span class="w"> </span>tohoto
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">                        </span>souboru.<span class="w"> </span>Jinak<span class="w"> </span>tokeny<span class="w"> </span>zobrazí<span class="w"> </span>na<span class="w"> </span>výstup.<span class="w"> </span>Pokud<span class="w"> </span>je<span class="w"> </span>použit<span class="w"> </span>parametr<span class="w"> </span>--auto_cache,<span class="w"> </span>pak<span class="w"> </span>se<span class="w"> </span>tokeny
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="w">                        </span>zapíší<span class="w"> </span><span class="k">do</span><span class="w"> </span>tohoto<span class="w"> </span>souboru<span class="w"> </span>i<span class="w"> </span><span class="k">do</span><span class="w"> </span>souboru<span class="w"> </span>zadaného<span class="w"> </span>v<span class="w"> </span>parametru<span class="w"> </span>-cf.<span class="w"> </span>Škola<span class="w"> </span>může<span class="w"> </span>být<span class="w"> </span>pouze<span class="w"> </span>část
-</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">                        </span>názvu,<span class="w"> </span>ale<span class="w"> </span>název<span class="w"> </span>musí<span class="w"> </span>být<span class="w"> </span>jedinečný<span class="w"> </span>v<span class="w"> </span>seznamu<span class="w"> </span>škol.<span class="w"> </span>Pro<span class="w"> </span>rychlejší<span class="w"> </span>vyhledávání<span class="w"> </span>můžete<span class="w"> </span>přidat
-</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">                        </span>parametr<span class="w"> </span>-t<span class="w"> </span>k<span class="w"> </span>vyhledávání<span class="w"> </span>pouze<span class="w"> </span>ve<span class="w"> </span>zvoleném<span class="w"> </span>městě.
-</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="w">  </span>-Ff<span class="w"> </span>SOUBOR,<span class="w"> </span>--first_login_file<span class="w"> </span>SOUBOR
-</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">                        </span>Přihlášení<span class="w"> </span>se<span class="w"> </span>jménem<span class="w"> </span>a<span class="w"> </span>heslem<span class="w"> </span>načtených<span class="w"> </span>ze<span class="w"> </span>souboru.<span class="w"> </span>Soubor<span class="w"> </span>s<span class="w"> </span>přihlašovacím<span class="w"> </span>jménem<span class="w"> </span>a<span class="w"> </span>heslem<span class="w"> </span>ve
-</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="w">                        </span>formátu<span class="w"> </span>JSON.
-</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="w">  </span>-C,<span class="w"> </span>--credentials<span class="w">     </span>Přihlášení<span class="w"> </span>pomocí<span class="w"> </span>tokenu.<span class="w"> </span>Vyžaduje<span class="w"> </span>parametr<span class="w"> </span>-cf
-</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="w">  </span>-cf<span class="w"> </span>soubor<span class="w"> </span>s<span class="w"> </span>tokeny,<span class="w"> </span>--credentials_file<span class="w"> </span>soubor<span class="w"> </span>s<span class="w"> </span>tokeny
-</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="w">                        </span>Jméno<span class="w"> </span>souboru<span class="w"> </span>odkud<span class="w"> </span>se<span class="w"> </span>maji<span class="w"> </span>načíst<span class="w"> </span>tokeny.
-</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="w">  </span>--auto_cache<span class="w"> </span>soubor<span class="w"> </span>s<span class="w"> </span>tokeny
-</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="w">                        </span>Použít<span class="w"> </span>automatické<span class="w"> </span>kešování<span class="w"> </span>tokenů.<span class="w"> </span>Povinný<span class="w"> </span>je<span class="w"> </span>parametr<span class="w"> </span>jméno<span class="w"> </span>souboru<span class="w"> </span><span class="k">do</span><span class="w"> </span>kterého<span class="w"> </span>se<span class="w"> </span>má<span class="w"> </span>kešovat.
-</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>
-</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>Seznam<span class="w"> </span>příkazů:
-</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="w">  </span><span class="o">{</span>schools,komens<span class="o">}</span>
-</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a><span class="w">    </span>schools<span class="w">             </span>Seznam<span class="w"> </span>škol
-</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a><span class="w">    </span>komens<span class="w">              </span>Komens
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">  </span>-r,<span class="w"> </span>--recursive<span class="w">       </span>Povolí<span class="w"> </span>rekurzivní<span class="w"> </span><span class="o">(</span>podřetězcové<span class="o">)</span><span class="w"> </span>vyhledávání<span class="w"> </span><span class="o">(</span>výchozí<span class="o">)</span>.
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">  </span>-nr,<span class="w"> </span>--no-recursive<span class="w">   </span>Zakáže<span class="w"> </span>rekurzivní<span class="w"> </span>vyhledávání<span class="w"> </span><span class="o">(</span>použije<span class="w"> </span>se<span class="w"> </span>pouze<span class="w"> </span>prefix<span class="o">)</span>.
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">  </span>-v,<span class="w"> </span>--verbose<span class="w">         </span>Zapne<span class="w"> </span>podrobné<span class="w"> </span>logování
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>Přihlášení<span class="w"> </span><span class="o">(</span>požadováno<span class="o">)</span>:
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">  </span>Zvolte<span class="w"> </span>typ<span class="w"> </span>přihlášení<span class="w"> </span>heslo<span class="w"> </span>/<span class="w"> </span>tokenu
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">  </span>-N,<span class="w"> </span>--no_login<span class="w">        </span>Provede<span class="w"> </span>neautorizovaný<span class="w"> </span>přístup
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">  </span>-F<span class="w"> </span>jméno<span class="w"> </span>heslo,<span class="w"> </span>--first_login<span class="w"> </span>jméno<span class="w"> </span>heslo
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="w">                        </span>Provede<span class="w"> </span>přihlášení<span class="w"> </span>jménem<span class="w"> </span>a<span class="w"> </span>heslem.<span class="w"> </span>Pokud<span class="w"> </span>je<span class="w"> </span>zadán<span class="w"> </span>parametr<span class="w"> </span>-cf,<span class="w"> </span>pak<span class="w"> </span>zapíše<span class="w"> </span>tokeny<span class="w"> </span><span class="k">do</span><span class="w"> </span>tohoto
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">                        </span>souboru.<span class="w"> </span>Jinak<span class="w"> </span>tokeny<span class="w"> </span>zobrazí<span class="w"> </span>na<span class="w"> </span>výstup.<span class="w"> </span>Pokud<span class="w"> </span>je<span class="w"> </span>použit<span class="w"> </span>parametr<span class="w"> </span>--auto_cache,<span class="w"> </span>pak<span class="w"> </span>se<span class="w"> </span>tokeny
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">                        </span>zapíší<span class="w"> </span><span class="k">do</span><span class="w"> </span>tohoto<span class="w"> </span>souboru<span class="w"> </span>i<span class="w"> </span><span class="k">do</span><span class="w"> </span>souboru<span class="w"> </span>zadaného<span class="w"> </span>v<span class="w"> </span>parametru<span class="w"> </span>-cf.<span class="w"> </span>Škola<span class="w"> </span>může<span class="w"> </span>být<span class="w"> </span>pouze<span class="w"> </span>část
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="w">                        </span>názvu,<span class="w"> </span>ale<span class="w"> </span>název<span class="w"> </span>musí<span class="w"> </span>být<span class="w"> </span>jedinečný<span class="w"> </span>v<span class="w"> </span>seznamu<span class="w"> </span>škol.<span class="w"> </span>Pro<span class="w"> </span>rychlejší<span class="w"> </span>vyhledávání<span class="w"> </span>můžete<span class="w"> </span>přidat
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">                        </span>parametr<span class="w"> </span>-t<span class="w"> </span>k<span class="w"> </span>vyhledávání<span class="w"> </span>pouze<span class="w"> </span>ve<span class="w"> </span>zvoleném<span class="w"> </span>městě.
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="w">  </span>-Ff<span class="w"> </span>SOUBOR,<span class="w"> </span>--first_login_file<span class="w"> </span>SOUBOR
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="w">                        </span>Přihlášení<span class="w"> </span>se<span class="w"> </span>jménem<span class="w"> </span>a<span class="w"> </span>heslem<span class="w"> </span>načtených<span class="w"> </span>ze<span class="w"> </span>souboru.<span class="w"> </span>Soubor<span class="w"> </span>s<span class="w"> </span>přihlašovacím<span class="w"> </span>jménem<span class="w"> </span>a<span class="w"> </span>heslem<span class="w"> </span>ve
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="w">                        </span>formátu<span class="w"> </span>JSON.
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="w">  </span>-C,<span class="w"> </span>--credentials<span class="w">     </span>Přihlášení<span class="w"> </span>pomocí<span class="w"> </span>tokenu.<span class="w"> </span>Vyžaduje<span class="w"> </span>parametr<span class="w"> </span>-cf
+</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="w">  </span>-cf<span class="w"> </span>soubor<span class="w"> </span>s<span class="w"> </span>tokeny,<span class="w"> </span>--credentials_file<span class="w"> </span>soubor<span class="w"> </span>s<span class="w"> </span>tokeny
+</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="w">                        </span>Jméno<span class="w"> </span>souboru<span class="w"> </span>odkud<span class="w"> </span>se<span class="w"> </span>maji<span class="w"> </span>načíst<span class="w"> </span>tokeny.
+</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span class="w">  </span>--auto_cache<span class="w"> </span>soubor<span class="w"> </span>s<span class="w"> </span>tokeny
+</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="w">                        </span>Použít<span class="w"> </span>automatické<span class="w"> </span>kešování<span class="w"> </span>tokenů.<span class="w"> </span>Povinný<span class="w"> </span>je<span class="w"> </span>parametr<span class="w"> </span>jméno<span class="w"> </span>souboru<span class="w"> </span><span class="k">do</span><span class="w"> </span>kterého<span class="w"> </span>se<span class="w"> </span>má<span class="w"> </span>kešovat.
+</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>
+</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>Seznam<span class="w"> </span>příkazů:
+</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a><span class="w">  </span><span class="o">{</span>schools,komens,timetable<span class="o">}</span>
+</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a><span class="w">    </span>schools<span class="w">             </span>Seznam<span class="w"> </span>škol
+</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a><span class="w">    </span>komens<span class="w">              </span>Komens
+</span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a><span class="w">    </span>timetable<span class="w">           </span>Rozvrh<span class="w"> </span><span class="o">(</span>timetable<span class="o">)</span>
 </span></code></pre></div>
+<h2 id="rozvrh-timetable">Rozvrh (timetable)<a class="headerlink" href="#rozvrh-timetable" title="Permanent link">&para;</a></h2>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>bakalari<span class="w"> </span>timetable<span class="w"> </span>-h
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>usage:<span class="w"> </span>bakalari<span class="w"> </span>timetable<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>-p<span class="o">]</span><span class="w"> </span><span class="o">[</span>-d<span class="w"> </span>YYYY-MM-DD<span class="o">]</span><span class="w"> </span><span class="o">[</span>--class<span class="w"> </span>ID<span class="w"> </span><span class="p">|</span><span class="w"> </span>--group<span class="w"> </span>ID<span class="w"> </span><span class="p">|</span><span class="w"> </span>--teacher<span class="w"> </span>ID<span class="w"> </span><span class="p">|</span><span class="w"> </span>--room<span class="w"> </span>ID<span class="w"> </span><span class="p">|</span><span class="w"> </span>--student<span class="w"> </span>ID<span class="o">]</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>options:
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span>-h,<span class="w"> </span>--help<span class="w">            </span>show<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span>-p,<span class="w"> </span>--permanent<span class="w">       </span>Načte<span class="w"> </span>pevný<span class="w"> </span><span class="o">(</span>permanentní<span class="o">)</span><span class="w"> </span>rozvrh<span class="w"> </span>místo<span class="w"> </span>aktuálního.
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span>-d<span class="w"> </span>YYYY-MM-DD,<span class="w"> </span>--date<span class="w"> </span>YYYY-MM-DD
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">                        </span>Datum<span class="w"> </span>týdne<span class="w"> </span>pro<span class="w"> </span>aktuální<span class="w"> </span>rozvrh<span class="w"> </span>ve<span class="w"> </span>formátu<span class="w"> </span>YYYY-MM-DD.<span class="w"> </span>Pokud<span class="w"> </span>není<span class="w"> </span>zadáno,<span class="w"> </span>použije<span class="w"> </span>se<span class="w"> </span>dnešní<span class="w"> </span>datum.
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">  </span>--class<span class="w"> </span>ID<span class="w">            </span>ID<span class="w"> </span>třídy<span class="w"> </span><span class="o">(</span>classId<span class="o">)</span><span class="w"> </span>pro<span class="w"> </span>zobrazení<span class="w"> </span>rozvrhu.
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span>--group<span class="w"> </span>ID<span class="w">            </span>ID<span class="w"> </span>skupiny<span class="w"> </span><span class="o">(</span>groupId<span class="o">)</span><span class="w"> </span>pro<span class="w"> </span>zobrazení<span class="w"> </span>rozvrhu.
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">  </span>--teacher<span class="w"> </span>ID<span class="w">          </span>ID<span class="w"> </span>učitele<span class="w"> </span><span class="o">(</span>teacherId<span class="o">)</span><span class="w"> </span>pro<span class="w"> </span>zobrazení<span class="w"> </span>rozvrhu.
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">  </span>--room<span class="w"> </span>ID<span class="w">             </span>ID<span class="w"> </span>místnosti<span class="w"> </span><span class="o">(</span>roomId<span class="o">)</span><span class="w"> </span>pro<span class="w"> </span>zobrazení<span class="w"> </span>rozvrhu.
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">  </span>--student<span class="w"> </span>ID<span class="w">          </span>ID<span class="w"> </span>studenta<span class="w"> </span><span class="o">(</span>studentId<span class="o">)</span><span class="w"> </span>pro<span class="w"> </span>zobrazení<span class="w"> </span>rozvrhu.
+</span></code></pre></div>
+<div class="admonition note">
+<p>Globální přepínače <code>-r/--recursive</code> a <code>-nr/--no-recursive</code> ovlivňují, jak se vyhledává škola/město (podřetězcově vs. pomocí prefixu).</p>
+</div>
 
 
 
@@ -1220,7 +1398,7 @@
     <span class="md-icon" title="Poslední aktualizace">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="26. května 2024 13:05:19 UTC">26. května 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="22. listopadu 2025 18:27:22 UTC">22. listopadu 2025</span>
   </span>
 
     
@@ -1240,11 +1418,12 @@
   <span class="md-source-file__fact">
     <span class="md-icon" title="Přispěvatelé">
       
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5.5A3.5 3.5 0 0 1 15.5 9a3.5 3.5 0 0 1-3.5 3.5A3.5 3.5 0 0 1 8.5 9 3.5 3.5 0 0 1 12 5.5M5 8c.56 0 1.08.15 1.53.42-.15 1.43.27 2.85 1.13 3.96C7.16 13.34 6.16 14 5 14a3 3 0 0 1-3-3 3 3 0 0 1 3-3m14 0a3 3 0 0 1 3 3 3 3 0 0 1-3 3c-1.16 0-2.16-.66-2.66-1.62a5.54 5.54 0 0 0 1.13-3.96c.45-.27.97-.42 1.53-.42M5.5 18.25c0-2.07 2.91-3.75 6.5-3.75s6.5 1.68 6.5 3.75V20h-13zM0 20v-1.5c0-1.39 1.89-2.56 4.45-2.9-.59.68-.95 1.62-.95 2.65V20zm24 0h-3.5v-1.75c0-1.03-.36-1.97-.95-2.65 2.56.34 4.45 1.51 4.45 2.9z"/></svg>
       
     </span>
     <nav>
       
+        <a href="mailto:opensource@schizza.cz">SchiZzA</a>, 
         <a href="mailto:lukyn@lukyns.com">schizza</a>
     </nav>
   </span>
@@ -1303,7 +1482,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Zápatí" >
         
           
-          <a href="../marks/api/" class="md-footer__link md-footer__link--prev" aria-label="Předchozí: Přehled API">
+          <a href="../timetable/" class="md-footer__link md-footer__link--prev" aria-label="Předchozí: Modul Timetable">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1313,7 +1492,7 @@
                 Předchozí
               </span>
               <div class="md-ellipsis">
-                Přehled API
+                Modul Timetable
               </div>
             </div>
           </a>

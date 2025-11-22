@@ -301,6 +301,26 @@
     
     
       <li class="md-tabs__item">
+        <a href="../timetable/" class="md-tabs__link">
+          
+  
+  
+  Timetable
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
         <a href="../cli/" class="md-tabs__link">
           
   
@@ -1108,6 +1128,50 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#plochy-vypis-get_flat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plochý výpis (get_flat)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#snapshot-get_snapshot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Snapshot (get_snapshot)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rozdily-podle-id-diff_ids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rozdíly podle ID (diff_ids)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#souhrn-get_all_marks_summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Souhrn (get_all_marks_summary)
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1184,7 +1248,7 @@
   <span class="md-ellipsis">
     
   
-    CLI
+    Timetable
   
 
     
@@ -1197,6 +1261,95 @@
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Timetable
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../timetable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modul Timetable
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1452,7 +1605,7 @@
 <span class="normal"><a href="#__codelineno-4-2">2</a></span>
 <span class="normal"><a href="#__codelineno-4-3">3</a></span>
 <span class="normal"><a href="#__codelineno-4-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="n">subject_id</span> <span class="o">=</span> <span class="s2">&quot;SUBJECT_ID&quot;</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="n">subject_marks</span> <span class="o">=</span> <span class="k">await</span> <span class="n">marks</span><span class="o">.</span><span class="n">get_marks</span><span class="p">(</span><span class="n">subject_id</span><span class="p">)</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="n">subject_marks</span> <span class="o">=</span> <span class="k">await</span> <span class="n">marks</span><span class="o">.</span><span class="n">get_marks_by_subject</span><span class="p">(</span><span class="n">subject_id</span><span class="p">)</span>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">subject_marks</span><span class="p">:</span>
 </span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">date</span><span class="p">(),</span> <span class="n">m</span><span class="o">.</span><span class="n">caption</span><span class="p">,</span> <span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">marktext</span><span class="o">.</span><span class="n">text</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">marktext</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
 </span></code></pre></div></td></tr></table></div>
@@ -1483,7 +1636,7 @@
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="c1"># Jeden den</span>
 </span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="n">day</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5"></a><span class="n">by_day</span> <span class="o">=</span> <span class="k">await</span> <span class="n">marks</span><span class="o">.</span><span class="n">get_new_marks_by_date</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="n">day</span><span class="p">)</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5"></a><span class="n">by_day</span> <span class="o">=</span> <span class="k">await</span> <span class="n">marks</span><span class="o">.</span><span class="n">get_new_marks_by_date</span><span class="p">(</span><span class="n">date_from</span><span class="o">=</span><span class="n">day</span><span class="p">,</span> <span class="n">date_to</span><span class="o">=</span><span class="n">day</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:1"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Rozsah dní</label></div>
 <div class="tabbed-content">
@@ -1501,10 +1654,10 @@
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="c1"># Rozsah včetně krajních dnů</span>
 </span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 </span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5"></a><span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6"></a><span class="n">by_range</span> <span class="o">=</span> <span class="k">await</span> <span class="n">marks</span><span class="o">.</span><span class="n">get_new_marks_by_date</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">date_to</span><span class="o">=</span><span class="n">end</span><span class="p">)</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6"></a><span class="n">by_range</span> <span class="o">=</span> <span class="k">await</span> <span class="n">marks</span><span class="o">.</span><span class="n">get_new_marks_by_date</span><span class="p">(</span><span class="n">date_from</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">date_to</span><span class="o">=</span><span class="n">end</span><span class="p">)</span>
 </span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7"></a>
 </span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8"></a><span class="c1"># Jen pro konkrétní předmět</span>
-</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9"></a><span class="n">by_subject</span> <span class="o">=</span> <span class="k">await</span> <span class="n">marks</span><span class="o">.</span><span class="n">get_new_marks_by_date</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">date_to</span><span class="o">=</span><span class="n">end</span><span class="p">,</span> <span class="n">subject_id</span><span class="o">=</span><span class="s2">&quot;SUBJECT_ID&quot;</span><span class="p">)</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9"></a><span class="n">by_subject</span> <span class="o">=</span> <span class="k">await</span> <span class="n">marks</span><span class="o">.</span><span class="n">get_new_marks_by_date</span><span class="p">(</span><span class="n">date_from</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">date_to</span><span class="o">=</span><span class="n">end</span><span class="p">,</span> <span class="n">subject_id</span><span class="o">=</span><span class="s2">&quot;SUBJECT_ID&quot;</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
 </div>
 </div>
@@ -1536,21 +1689,117 @@
 <span class="normal"><a href="#__codelineno-9-11">11</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 </span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2"></a>
 </span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="c1"># vše v jednom dni</span>
-</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="n">text</span> <span class="o">=</span> <span class="k">await</span> <span class="n">marks</span><span class="o">.</span><span class="n">format_all_marks</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="n">text</span> <span class="o">=</span> <span class="k">await</span> <span class="n">marks</span><span class="o">.</span><span class="n">format_all_marks</span><span class="p">(</span><span class="n">date_from</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
 </span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5"></a>
 </span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6"></a><span class="c1"># v rozsahu dat</span>
-</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7"></a><span class="n">text</span> <span class="o">=</span> <span class="k">await</span> <span class="n">marks</span><span class="o">.</span><span class="n">format_all_marks</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">date_to</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">30</span><span class="p">))</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7"></a><span class="n">text</span> <span class="o">=</span> <span class="k">await</span> <span class="n">marks</span><span class="o">.</span><span class="n">format_all_marks</span><span class="p">(</span><span class="n">date_from</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">date_to</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">30</span><span class="p">))</span>
 </span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8"></a>
 </span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9"></a><span class="c1"># pouze daný předmět</span>
 </span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10"></a><span class="n">text</span> <span class="o">=</span> <span class="k">await</span> <span class="n">marks</span><span class="o">.</span><span class="n">format_all_marks</span><span class="p">(</span><span class="n">subject_id</span><span class="o">=</span><span class="s2">&quot;SUBJECT_ID&quot;</span><span class="p">)</span>
 </span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11"></a><span class="nb">print</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
-<div class="admonition tip">
-<p class="admonition-title">Výpis na stdout</p>
-<p>Modul má i helper, který rovnou vypíše formátovaný přehled:
-<div class="language-py highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-10-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="k">await</span> <span class="n">marks</span><span class="o">.</span><span class="n">print_all_marks</span><span class="p">()</span>  <span class="c1"># případně s filtry date/date_to/subject_id</span>
-</span></code></pre></div></td></tr></table></div></p>
-</div>
+<hr />
+<h2 id="plochy-vypis-get_flat">Plochý výpis (get_flat)<a class="headerlink" href="#plochy-vypis-get_flat" title="Permanent link">&para;</a></h2>
+<p>Vrátí zploštělý seznam známek se sloučenými informacemi o předmětu.</p>
+<div class="language-py highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Plochý seznam známek</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-10-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-10-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-10-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-10-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-10-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-10-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-10-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-10-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-10-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-10-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2"></a>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3"></a><span class="n">flat</span> <span class="o">=</span> <span class="k">await</span> <span class="n">marks</span><span class="o">.</span><span class="n">get_flat</span><span class="p">(</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4"></a>    <span class="n">date_from</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5"></a>    <span class="n">date_to</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6"></a>    <span class="n">order</span><span class="o">=</span><span class="s2">&quot;desc&quot;</span><span class="p">,</span>  <span class="c1"># nebo &quot;asc&quot;</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7"></a><span class="p">)</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8"></a><span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">flat</span><span class="p">:</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9"></a>    <span class="c1"># m je instance FlatMark</span>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">date</span><span class="p">(),</span> <span class="n">m</span><span class="o">.</span><span class="n">subject_abbr</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">caption</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">mark_text</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+<h2 id="snapshot-get_snapshot">Snapshot (get_snapshot)<a class="headerlink" href="#snapshot-get_snapshot" title="Permanent link">&para;</a></h2>
+<p>Vytvoří kompaktní snímek dat, který obsahuje:
+- subjects: mapu předmětů podle ID,
+- marks_grouped: známky seskupené dle předmětů,
+- marks_flat: zploštělý seznam známek.</p>
+<div class="language-py highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Snapshot známek</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-11-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-11-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-11-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-11-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-11-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-11-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-11-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-11-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-11-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-11-10">10</a></span>
+<span class="normal"><a href="#__codelineno-11-11">11</a></span>
+<span class="normal"><a href="#__codelineno-11-12">12</a></span>
+<span class="normal"><a href="#__codelineno-11-13">13</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2"></a>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="n">snapshot</span> <span class="o">=</span> <span class="k">await</span> <span class="n">marks</span><span class="o">.</span><span class="n">get_snapshot</span><span class="p">(</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4"></a>    <span class="n">date_from</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5"></a>    <span class="n">date_to</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6"></a>    <span class="n">order</span><span class="o">=</span><span class="s2">&quot;desc&quot;</span><span class="p">,</span>   <span class="c1"># nebo &quot;asc&quot;</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7"></a>    <span class="n">to_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>   <span class="c1"># True → vrátí dict, False → vrátí objekty FlatMark</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8"></a><span class="p">)</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9"></a>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10"></a><span class="c1"># Struktura snapshotu:</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11"></a><span class="c1"># snapshot[&quot;subjects&quot;] -&gt; { subject_id: { id, abbr, name, average_text, points_only } }</span>
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12"></a><span class="c1"># snapshot[&quot;marks_grouped&quot;] -&gt; { subject_id: [ { ...flat_mark... }, ... ] }</span>
+</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13"></a><span class="c1"># snapshot[&quot;marks_flat&quot;] -&gt; [ { ...flat_mark... }, ... ]</span>
+</span></code></pre></div></td></tr></table></div>
+<h2 id="rozdily-podle-id-diff_ids">Rozdíly podle ID (diff_ids)<a class="headerlink" href="#rozdily-podle-id-diff_ids" title="Permanent link">&para;</a></h2>
+<p>Porovná aktuální známky s předchozí sadou ID a vrátí nové položky.</p>
+<div class="language-py highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Detekce nových známek</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-12-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-12-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-12-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-12-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-12-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-12-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-12-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-12-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-12-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-12-10">10</a></span>
+<span class="normal"><a href="#__codelineno-12-11">11</a></span>
+<span class="normal"><a href="#__codelineno-12-12">12</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2"></a>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="n">previous_ids</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;abc&quot;</span><span class="p">,</span> <span class="s2">&quot;def&quot;</span><span class="p">}</span>  <span class="c1"># např. uložené z minula</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="n">new_ids</span><span class="p">,</span> <span class="n">new_items</span> <span class="o">=</span> <span class="k">await</span> <span class="n">marks</span><span class="o">.</span><span class="n">diff_ids</span><span class="p">(</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5"></a>    <span class="n">previous_ids</span><span class="p">,</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6"></a>    <span class="n">date_from</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7"></a>    <span class="n">date_to</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8"></a><span class="p">)</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9"></a>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10"></a><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Nová ID:&quot;</span><span class="p">,</span> <span class="n">new_ids</span><span class="p">)</span>
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11"></a><span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">new_items</span><span class="p">:</span>
+</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">date</span><span class="p">(),</span> <span class="n">m</span><span class="o">.</span><span class="n">subject_abbr</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">mark_text</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+<h2 id="souhrn-get_all_marks_summary">Souhrn (get_all_marks_summary)<a class="headerlink" href="#souhrn-get_all_marks_summary" title="Permanent link">&para;</a></h2>
+<p>Vrátí agregovaný přehled napříč všemi předměty.</p>
+<div class="language-py highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Souhrn známek</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-13-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-13-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-13-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-13-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-13-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-13-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-13-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-13-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-13-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-13-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="n">summary</span> <span class="o">=</span> <span class="k">await</span> <span class="n">marks</span><span class="o">.</span><span class="n">get_all_marks_summary</span><span class="p">()</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="c1"># summary = {</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="c1">#   &quot;wavg&quot;: &quot;...&quot;,                # vážený průměr ze známek (jen číselných)</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="c1">#   &quot;avg&quot;: &quot;...&quot;,                 # průměr průměrů předmětů</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5"></a><span class="c1">#   &quot;subjects&quot;: &quot;N&quot;,              # počet předmětů</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6"></a><span class="c1">#   &quot;total_marks&quot;: &quot;N&quot;,           # celkový počet známek</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7"></a><span class="c1">#   &quot;total_point_marks&quot;: &quot;N&quot;,     # počet bodových známek</span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8"></a><span class="c1">#   &quot;total_non_point_marks&quot;: &quot;N&quot;, # počet ne-bodových známek</span>
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9"></a><span class="c1"># }</span>
+</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10"></a><span class="nb">print</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
 
 
 
@@ -1573,7 +1822,7 @@
     <span class="md-icon" title="Poslední aktualizace">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="14. září 2025 10:38:21 UTC">14. září 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="22. listopadu 2025 18:27:22 UTC">22. listopadu 2025</span>
   </span>
 
     
@@ -1598,7 +1847,7 @@
     </span>
     <nav>
       
-        <a href="mailto:opensource@schizza.cz">schizza</a>
+        <a href="mailto:opensource@schizza.cz">SchiZzA</a>
     </nav>
   </span>
 

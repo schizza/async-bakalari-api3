@@ -301,6 +301,26 @@
     
     
       <li class="md-tabs__item">
+        <a href="../timetable/" class="md-tabs__link">
+          
+  
+  
+  Timetable
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
         <a href="../cli/" class="md-tabs__link">
           
   
@@ -605,6 +625,39 @@
       Obsah
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#autorizovane-pozadavky-send_auth_request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Autorizované požadavky (send_auth_request)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#neautorizovane-pozadavky-send_unauth_request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Neautorizované požadavky (send_unauth_request)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#seznam-skol-schools_list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Seznam škol (schools_list)
+      
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#trida-bakalari" class="md-nav__link">
@@ -1056,7 +1109,7 @@
   <span class="md-ellipsis">
     
   
-    CLI
+    Timetable
   
 
     
@@ -1069,6 +1122,95 @@
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Timetable
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../timetable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modul Timetable
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1218,28 +1360,184 @@
 
 
 <h1 id="modul-bakalari">modul Bakalari<a class="headerlink" href="#modul-bakalari" title="Permanent link">&para;</a></h1>
+<h3 id="autorizovane-pozadavky-send_auth_request">Autorizované požadavky (send_auth_request)<a class="headerlink" href="#autorizovane-pozadavky-send_auth_request" title="Permanent link">&para;</a></h3>
+<div class="language-py highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">send_auth_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request_endpoint</span><span class="p">:</span> <span class="n">EndPoint</span><span class="p">,</span> <span class="n">extend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+</span></code></pre></div>
+<ul>
+<li>Parametry:</li>
+<li><code>request_endpoint (EndPoint)</code>: cílový endpoint. HTTP metoda se odvozuje z definice endpointu (<code>get</code>/<code>post</code>).</li>
+<li><code>extend (str | None)</code>: volitelný přílepek na konec URL (např. <code>"/{id}"</code> pro stažení přílohy).</li>
+<li>
+<p><code>**kwargs</code>: volitelné argumenty pro HTTP požadavek (např. <code>params=...</code>, <code>data=...</code>, <code>json=...</code>).</p>
+</li>
+<li>
+<p>Chování:</p>
+</li>
+<li>Provede autorizovaný požadavek s využitím <code>access_token</code>. Pokud je token neplatný/expiruje, proběhne automatický refresh přes <code>refresh_access_token()</code> a požadavek se zopakuje (1 pokus).</li>
+<li>Hlavička <code>Authorization: Bearer &lt;access_token&gt;</code> je nastavena automaticky.</li>
+<li>
+<p>Návratová hodnota je surová odpověď serveru:</p>
+<ul>
+<li>běžně JSON (dict/list),</li>
+<li>pro binární soubory (např. příloha v Komens) dvojice <code>[filename, filedata]</code>.</li>
+</ul>
+</li>
+<li>
+<p>Výjimky:</p>
+</li>
+<li><code>Ex.TokenMissing</code> (chybí přístupové tokeny),</li>
+<li><code>Ex.AccessTokenExpired</code>, <code>Ex.InvalidToken</code> (neplatný/expirující přístupový token),</li>
+<li><code>Ex.RefreshTokenExpired</code> (není možné obnovit token),</li>
+<li><code>Ex.BadRequestException</code> (ostatní chyby HTTP, 4xx/5xx),</li>
+<li>
+<p>případně specifické chyby dle <code>error_uri</code> vrácené serverem.</p>
+</li>
+<li>
+<p>Poznámka:</p>
+</li>
+<li>Pokud endpoint není absolutní URL, je složen ze <code>server</code> + <code>endpoint</code>. Metoda využívá vnitřní klient s jednotným logováním a měřením latencí.</li>
+</ul>
+<hr />
+<h3 id="neautorizovane-pozadavky-send_unauth_request">Neautorizované požadavky (send_unauth_request)<a class="headerlink" href="#neautorizovane-pozadavky-send_unauth_request" title="Permanent link">&para;</a></h3>
+<div class="language-py highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">send_unauth_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">EndPoint</span><span class="p">,</span> <span class="n">headers</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+</span></code></pre></div>
+<ul>
+<li>Parametry:</li>
+<li><code>request (EndPoint)</code>: cílový endpoint.</li>
+<li><code>headers (dict[str, str] | None)</code>: volitelné HTTP hlavičky; pokud nejsou zadány, použije se prázdný slovník.</li>
+<li>
+<p><code>**kwargs</code>: volitelné argumenty pro HTTP požadavek (např. <code>params=...</code>, <code>data=...</code>, <code>json=...</code>).</p>
+</li>
+<li>
+<p>Chování:</p>
+</li>
+<li>Metoda zvolí HTTP metodu podle endpointu (<code>get</code> → GET, jinak POST).</li>
+<li>Pro neautorizované volání (např. přihlášení nebo veřejné služby) – nepřidává hlavičku <code>Authorization</code>.</li>
+<li>
+<p>Návratová hodnota je surová odpověď serveru (typicky JSON). Pro binární odpovědi vrací <code>[filename, filedata]</code>.</p>
+</li>
+<li>
+<p>Výjimky:</p>
+</li>
+<li><code>Ex.InvalidLogin</code> (při špatných přihlašovacích údajích v loginu),</li>
+<li>
+<p><code>Ex.BadRequestException</code> (ostatní chyby HTTP, 4xx/5xx).</p>
+</li>
+<li>
+<p>Příklady:</p>
+</li>
+<li>Přihlášení (form-url-encoded tělo a bez tokenu) nebo volání veřejných endpointů Bakalářů.</li>
+</ul>
+<hr />
+<h3 id="seznam-skol-schools_list">Seznam škol (schools_list)<a class="headerlink" href="#seznam-skol-schools_list" title="Permanent link">&para;</a></h3>
+<div class="language-py highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">schools_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">town</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">recursive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Schools</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+</span></code></pre></div>
+<ul>
+<li>Parametry:</li>
+<li><code>town (str | None)</code>: volitelný filtr na název města.</li>
+<li>
+<p><code>recursive (bool)</code>: způsob filtrování podle <code>town</code>:</p>
+<ul>
+<li><code>True</code> (výchozí): vybere města obsahující řetězec <code>town</code> kdekoliv v názvu,</li>
+<li><code>False</code>: vybere pouze města, jejichž název začíná na <code>town</code>.</li>
+</ul>
+</li>
+<li>
+<p>Chování:</p>
+</li>
+<li>Nejprve stáhne seznam měst z veřejného endpointu Bakalářů:<ul>
+<li><code>https://sluzby.bakalari.cz/api/v1/municipality</code></li>
+</ul>
+</li>
+<li>Pro každé (filtrované) město stáhne seznam škol a sestaví objekt <code>Schools</code>.</li>
+<li>Počet souběžných dotazů na města je omezen parametrem <code>school_concurrency</code> nastaveným v konstruktoru <code>Bakalari</code> (výchozí 10).</li>
+<li>Při úspěchu:<ul>
+<li>vrací instanci <code>Schools</code>,</li>
+<li>zároveň uloží výsledek do <code>self.schools</code> (vedlejší efekt).</li>
+</ul>
+</li>
+<li>
+<p>Při chybě vrací <code>None</code>.</p>
+</li>
+<li>
+<p>Poznámky:</p>
+</li>
+<li>Větší rozsah může znamenat stovky až tisíce požadavků (podle počtu měst); zvažte filtr <code>town</code> nebo kešování.</li>
+<li>
+<p>Objekt <code>Schools</code> lze uložit/načíst ze souboru (viz <a href="schools/">třída Schools</a>):</p>
+<ul>
+<li><code>await schools.save_to_file("schools.json")</code></li>
+<li><code>await Schools().load_from_file("schools.json")</code></li>
+</ul>
+</li>
+<li>
+<p>Příklady:
+  <div class="language-py highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-3-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-3-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-3-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-3-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-3-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-3-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-3-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-3-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-3-10">10</a></span>
+<span class="normal"><a href="#__codelineno-3-11">11</a></span>
+<span class="normal"><a href="#__codelineno-3-12">12</a></span>
+<span class="normal"><a href="#__codelineno-3-13">13</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">async_bakalari_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bakalari</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="n">bakalari</span> <span class="o">=</span> <span class="n">Bakalari</span><span class="p">()</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="c1"># všechny školy (doporučeno ukládat do souboru)</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="n">schools</span> <span class="o">=</span> <span class="k">await</span> <span class="n">bakalari</span><span class="o">.</span><span class="n">schools_list</span><span class="p">()</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="k">if</span> <span class="n">schools</span><span class="p">:</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7"></a>    <span class="k">await</span> <span class="n">schools</span><span class="o">.</span><span class="n">save_to_file</span><span class="p">(</span><span class="s2">&quot;schools.json&quot;</span><span class="p">)</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8"></a>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="c1"># pouze města začínající na &#39;Praha&#39;</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="n">schools</span> <span class="o">=</span> <span class="k">await</span> <span class="n">bakalari</span><span class="o">.</span><span class="n">schools_list</span><span class="p">(</span><span class="n">town</span><span class="o">=</span><span class="s2">&quot;Praha&quot;</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11"></a>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12"></a><span class="c1"># substring vyhledávání měst</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13"></a><span class="n">schools</span> <span class="o">=</span> <span class="k">await</span> <span class="n">bakalari</span><span class="o">.</span><span class="n">schools_list</span><span class="p">(</span><span class="n">town</span><span class="o">=</span><span class="s2">&quot;Brno&quot;</span><span class="p">)</span>  <span class="c1"># např. &#39;Brno&#39; kdekoliv v názvu města</span>
+</span></code></pre></div></td></tr></table></div></p>
+</li>
+</ul>
 <p>Základní modul <code>Bakalari</code> se stará o komunikaci endpointů se serverem školy.
 Udržuje <code>Credentials</code>, provádí první přihlášení a umožňuje stáhnout <a href="seznam_skol/">platný seznam škol</a>, ke kterým se lze připojit.</p>
 <h2 id="trida-bakalari">třída Bakalari<a class="headerlink" href="#trida-bakalari" title="Permanent link">&para;</a></h2>
-<div class="language-py highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">class Bakalari</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1">1</a></span>
-<span class="normal"><a href="#__codelineno-0-2">2</a></span>
-<span class="normal"><a href="#__codelineno-0-3">3</a></span>
-<span class="normal"><a href="#__codelineno-0-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">Bakalari</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2"></a>    <span class="n">server</span> <span class="o">=</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3"></a>    <span class="n">auto_cache_credentials</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4"></a>    <span class="n">cache_filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="language-py highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">class Bakalari</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1">1</a></span>
+<span class="normal"><a href="#__codelineno-4-2">2</a></span>
+<span class="normal"><a href="#__codelineno-4-3">3</a></span>
+<span class="normal"><a href="#__codelineno-4-4">4</a></span>
+<span class="normal"><a href="#__codelineno-4-5">5</a></span>
+<span class="normal"><a href="#__codelineno-4-6">6</a></span>
+<span class="normal"><a href="#__codelineno-4-7">7</a></span>
+<span class="normal"><a href="#__codelineno-4-8">8</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">Bakalari</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a>    <span class="n">server</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3"></a>    <span class="n">credentials</span><span class="p">:</span> <span class="n">Credentials</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4"></a>    <span class="n">auto_cache_credentials</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5"></a>    <span class="n">cache_filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6"></a>    <span class="n">session</span><span class="p">:</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7"></a>    <span class="n">school_concurrency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8"></a><span class="p">):</span>
 </span></code></pre></div></td></tr></table></div>
 <div class="admonition notice">
 <p class="admonition-title">Jako argumenty třída přijímá:</p>
 <ul>
-<li>server (str): adresa serveru školy, se kterou chceme komunikovat</li>
+<li>server (str | None): adresa serveru školy, se kterou chceme komunikovat</li>
+<li>credentials (Credentials | None): volitelné předání hotových přihlašovacích údajů; pokud nejsou předány, vytvoří se prázdné <code>Credentials</code></li>
 <li>auto_cache_credentials (bool, optional): umožňuje automatické ukládání <code>access_tokenu</code> a <code>refresh_tokenu</code> do souboru a jejich možné opětovné použití při dalším běhu programu</li>
-<li>cache_filename (str, optional): pokud je nastaveno automatické ukládání tokenů, pak je nutné zadat i jméno souboru, kam se mají tokeny ukládat.</li>
+<li>cache_filename (str | None, optional): pokud je nastaveno automatické ukládání tokenů, pak je nutné zadat i jméno souboru, kam se mají tokeny ukládat</li>
+<li>session (aiohttp.ClientSession | None, optional): volitelně lze předat existující HTTP session; pokud není zadána, klient si spravuje vlastní</li>
+<li>school_concurrency (int, optional): maximální počet souběžných dotazů na města při sestavování seznamu škol; výchozí hodnota je 10</li>
 </ul>
 </div>
 <div class="admonition danger">
 <p class="admonition-title">Exception</p>
 <p>třída vrací chybu <code>Ex.CacheError</code>, pokud je povoleno automatické ukládání <code>Credentials</code> a není vyplněné <code>cache_filename</code></p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Credentials jsou read-only a chování auto-cache</p>
+<p>Vlastnost <code>Bakalari.credentials</code> je pouze pro čtení. Přímé přiřazení není možné (vyvolá <code>AttributeError</code>). Pro získání/obnovu tokenů použijte metody jako <code>first_login(...)</code> nebo automatické obnovení při autorizovaných požadavcích.</p>
+<p>Pokud je zapnuto <code>auto_cache_credentials=True</code> a je nastaveno <code>cache_filename</code>, klient se při inicializaci pokusí <code>Credentials</code> automaticky načíst ze souboru a po každém obnovení tokenů je do něj také ukládá.</p>
 </div>
 <h3 id="inicializace-tridy">Inicializace třídy<a class="headerlink" href="#inicializace-tridy" title="Permanent link">&para;</a></h3>
 <p>Třídu lze inicializovat bez zadání parametrů jako je <code>server</code>, nicméně, pak lze stahovat jen seznam škol, popřípadě zadávat neautorizované dotazy přímo na server <code>bakalari.cz</code></p>
@@ -1248,23 +1546,23 @@ Udržuje <code>Credentials</code>, provádí první přihlášení a umožňuje 
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">s kešováním</label><label for="__tabbed_1_2">bez kešování</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-py highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span>
-<span class="normal"><a href="#__codelineno-1-2">2</a></span>
-<span class="normal"><a href="#__codelineno-1-3">3</a></span>
-<span class="normal"><a href="#__codelineno-1-4">4</a></span>
-<span class="normal"><a href="#__codelineno-1-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">async_bakalari_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bakalari</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2"></a>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="n">bakalari</span> <span class="o">=</span> <span class="n">Bakalari</span><span class="p">(</span><span class="s2">&quot;http://server_skoly.cz&quot;</span><span class="p">,</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4"></a>    <span class="n">auto_cache_credentials</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5"></a>    <span class="n">cache_filename</span><span class="o">=</span><span class="s2">&quot;credentials_cache.json&quot;</span><span class="p">)</span>
+<div class="language-py highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1">1</a></span>
+<span class="normal"><a href="#__codelineno-5-2">2</a></span>
+<span class="normal"><a href="#__codelineno-5-3">3</a></span>
+<span class="normal"><a href="#__codelineno-5-4">4</a></span>
+<span class="normal"><a href="#__codelineno-5-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">async_bakalari_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bakalari</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2"></a>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="n">bakalari</span> <span class="o">=</span> <span class="n">Bakalari</span><span class="p">(</span><span class="s2">&quot;http://server_skoly.cz&quot;</span><span class="p">,</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4"></a>    <span class="n">auto_cache_credentials</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5"></a>    <span class="n">cache_filename</span><span class="o">=</span><span class="s2">&quot;credentials_cache.json&quot;</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
-<div class="language-py highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1">1</a></span>
-<span class="normal"><a href="#__codelineno-2-2">2</a></span>
-<span class="normal"><a href="#__codelineno-2-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">async_bakalari_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bakalari</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2"></a>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="n">bakalari</span> <span class="o">=</span> <span class="n">Bakalari</span><span class="p">(</span><span class="s2">&quot;http://server_skoly.cz&quot;</span><span class="p">)</span>
+<div class="language-py highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1">1</a></span>
+<span class="normal"><a href="#__codelineno-6-2">2</a></span>
+<span class="normal"><a href="#__codelineno-6-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">async_bakalari_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bakalari</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="n">bakalari</span> <span class="o">=</span> <span class="n">Bakalari</span><span class="p">(</span><span class="s2">&quot;http://server_skoly.cz&quot;</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
 </div>
 </div>
@@ -1292,7 +1590,7 @@ Udržuje <code>Credentials</code>, provádí první přihlášení a umožňuje 
     <span class="md-icon" title="Poslední aktualizace">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="18. května 2024 22:51:34 UTC">18. května 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="22. listopadu 2025 18:27:22 UTC">22. listopadu 2025</span>
   </span>
 
     
@@ -1312,11 +1610,12 @@ Udržuje <code>Credentials</code>, provádí první přihlášení a umožňuje 
   <span class="md-source-file__fact">
     <span class="md-icon" title="Přispěvatelé">
       
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5.5A3.5 3.5 0 0 1 15.5 9a3.5 3.5 0 0 1-3.5 3.5A3.5 3.5 0 0 1 8.5 9 3.5 3.5 0 0 1 12 5.5M5 8c.56 0 1.08.15 1.53.42-.15 1.43.27 2.85 1.13 3.96C7.16 13.34 6.16 14 5 14a3 3 0 0 1-3-3 3 3 0 0 1 3-3m14 0a3 3 0 0 1 3 3 3 3 0 0 1-3 3c-1.16 0-2.16-.66-2.66-1.62a5.54 5.54 0 0 0 1.13-3.96c.45-.27.97-.42 1.53-.42M5.5 18.25c0-2.07 2.91-3.75 6.5-3.75s6.5 1.68 6.5 3.75V20h-13zM0 20v-1.5c0-1.39 1.89-2.56 4.45-2.9-.59.68-.95 1.62-.95 2.65V20zm24 0h-3.5v-1.75c0-1.03-.36-1.97-.95-2.65 2.56.34 4.45 1.51 4.45 2.9z"/></svg>
       
     </span>
     <nav>
       
+        <a href="mailto:opensource@schizza.cz">SchiZzA</a>, 
         <a href="mailto:lukyn@lukyns.com">schizza</a>
     </nav>
   </span>

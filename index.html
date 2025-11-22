@@ -299,6 +299,26 @@
     
     
       <li class="md-tabs__item">
+        <a href="timetable/" class="md-tabs__link">
+          
+  
+  
+  Timetable
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
         <a href="cli/" class="md-tabs__link">
           
   
@@ -488,10 +508,54 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#prehled-modulu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Přehled modulů
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#instalace" class="md-nav__link">
     <span class="md-ellipsis">
       
         Instalace
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prakticky-pruvodce-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Praktický průvodce (workflow)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logovani" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logování
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vyjimky-exceptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Výjimky (Exceptions)
       
     </span>
   </a>
@@ -1037,7 +1101,7 @@
   <span class="md-ellipsis">
     
   
-    CLI
+    Timetable
   
 
     
@@ -1050,6 +1114,95 @@
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Timetable
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="timetable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modul Timetable
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1201,11 +1354,18 @@
 <h1 id="async-bakalari-api-v3">async Bakaláři API v3<a class="headerlink" href="#async-bakalari-api-v3" title="Permanent link">&para;</a></h1>
 <div class="admonition warning">
 <p class="admonition-title">Upozornění</p>
-<p>Tato API je stále vyvíjena, a proto podporuje jen malé množství endpointů. Nicméně moduly zveřejněné v této dokumentaci jsou již stabilní.</p>
+<p>Toto API je stále vyvíjeno, a proto podporuje jen malé množství endpointů. Nicméně moduly zveřejněné v této dokumentaci jsou již stabilní.</p>
 </div>
 <p><code>async Bakaláři API v3</code> je asynchronní klient pro komunikaci se školami, které jsou zapojeny do programu Bakaláři. Aplikace je napsána kompletně v Pythonu.</p>
-<p>Má taktéž zabudovaný <a href="cli/">modul pro příkazovou řádku</a> <code>CLI</code> k jednoduchému.</p>
+<p>Má taktéž zabudovaný <a href="cli/">modul pro příkazovou řádku</a> <code>CLI</code> k jednoduchému použití.</p>
 <p>Seznam všech škol zapojených do programu Bakaláři lze získat též z <a href="bakalari/seznam_skol/">tohoto modulu</a>.</p>
+<h2 id="prehled-modulu">Přehled modulů<a class="headerlink" href="#prehled-modulu" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="bakalari/">Bakalari – základní klient</a></li>
+<li><a href="komens/">Komens – zprávy (příchozí, přílohy)</a></li>
+<li><a href="marks/">Marks – známky a statistiky</a></li>
+<li><a href="timetable/">Timetable – rozvrh (aktuální i stálý)</a></li>
+</ul>
 <h2 id="instalace">Instalace<a class="headerlink" href="#instalace" title="Permanent link">&para;</a></h2>
 <p>Modul lze nainstalovat jako balíček z <a href="https://pypi.org/project/async-bakalari-api/">PyPI</a> nebo stáhnout z GitHubu.</p>
 <div class="admonition note">
@@ -1227,6 +1387,117 @@
 <p class="admonition-title">CLI</p>
 <p>Po instalaci balíčku je dostupné jednoduché <a href="cli/">CLI - <code>bakalari</code></a></p>
 </div>
+<h2 id="prakticky-pruvodce-workflow">Praktický průvodce (workflow)<a class="headerlink" href="#prakticky-pruvodce-workflow" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p>Krok 1: Získání seznamu škol
+  <div class="language-py highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">async_bakalari_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bakalari</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">async_bakalari_api.datastructure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Schools</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Načtení ze serveru (doporučeno omezit městem a výsledek uložit)</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">bakalari</span> <span class="o">=</span> <span class="n">Bakalari</span><span class="p">()</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">schools</span> <span class="o">=</span> <span class="k">await</span> <span class="n">bakalari</span><span class="o">.</span><span class="n">schools_list</span><span class="p">(</span><span class="n">town</span><span class="o">=</span><span class="s2">&quot;Praha&quot;</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="k">if</span> <span class="n">schools</span><span class="p">:</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="k">await</span> <span class="n">schools</span><span class="o">.</span><span class="n">save_to_file</span><span class="p">(</span><span class="s2">&quot;schools.json&quot;</span><span class="p">)</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="c1"># nebo načtení ze souboru</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="n">schools</span> <span class="o">=</span> <span class="k">await</span> <span class="n">Schools</span><span class="p">()</span><span class="o">.</span><span class="n">load_from_file</span><span class="p">(</span><span class="s2">&quot;schools.json&quot;</span><span class="p">)</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="n">server</span> <span class="o">=</span> <span class="n">schools</span><span class="o">.</span><span class="n">get_url</span><span class="p">(</span><span class="s2">&quot;Část názvu školy&quot;</span><span class="p">)</span>
+</span></code></pre></div></p>
+</li>
+<li>
+<p>Krok 2: Přihlášení a tokeny
+  <div class="language-py highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">async_bakalari_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bakalari</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1"># První přihlášení a automatické ukládání tokenů</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">bakalari</span> <span class="o">=</span> <span class="n">Bakalari</span><span class="p">(</span><span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">auto_cache_credentials</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cache_filename</span><span class="o">=</span><span class="s2">&quot;credentials.json&quot;</span><span class="p">)</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">async</span> <span class="k">with</span> <span class="n">bakalari</span><span class="p">:</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="k">await</span> <span class="n">bakalari</span><span class="o">.</span><span class="n">first_login</span><span class="p">(</span><span class="s2">&quot;USERNAME&quot;</span><span class="p">,</span> <span class="s2">&quot;PASSWORD&quot;</span><span class="p">)</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="c1"># Další běhy s automatickým načtením tokenů</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="n">bakalari</span> <span class="o">=</span> <span class="n">Bakalari</span><span class="p">(</span><span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">auto_cache_credentials</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cache_filename</span><span class="o">=</span><span class="s2">&quot;credentials.json&quot;</span><span class="p">)</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="n">bakalari</span><span class="o">.</span><span class="n">load_credentials</span><span class="p">(</span><span class="s2">&quot;credentials.json&quot;</span><span class="p">)</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="k">async</span> <span class="k">with</span> <span class="n">bakalari</span><span class="p">:</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    <span class="c1"># autorizované volání...</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    <span class="k">pass</span>
+</span></code></pre></div></p>
+</li>
+<li>
+<p>Krok 3: Použití modulů</p>
+</li>
+<li>Komens (zprávy)
+    <div class="language-py highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">async_bakalari_api.komens</span><span class="w"> </span><span class="kn">import</span> <span class="n">Komens</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">komens</span> <span class="o">=</span> <span class="n">Komens</span><span class="p">(</span><span class="n">bakalari</span><span class="p">)</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">messages</span> <span class="o">=</span> <span class="k">await</span> <span class="n">komens</span><span class="o">.</span><span class="n">fetch_messages</span><span class="p">()</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">unread</span> <span class="o">=</span> <span class="k">await</span> <span class="n">komens</span><span class="o">.</span><span class="n">get_unread_messages</span><span class="p">()</span>
+</span></code></pre></div></li>
+<li>Marks (známky)
+    <div class="language-py highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">async_bakalari_api.marks</span><span class="w"> </span><span class="kn">import</span> <span class="n">Marks</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">marks</span> <span class="o">=</span> <span class="n">Marks</span><span class="p">(</span><span class="n">bakalari</span><span class="p">)</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="k">await</span> <span class="n">marks</span><span class="o">.</span><span class="n">fetch_marks</span><span class="p">()</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">summary</span> <span class="o">=</span> <span class="k">await</span> <span class="n">marks</span><span class="o">.</span><span class="n">get_all_marks_summary</span><span class="p">()</span>
+</span></code></pre></div></li>
+<li>Timetable (rozvrh)
+    <div class="language-py highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">async_bakalari_api.timetable</span><span class="w"> </span><span class="kn">import</span> <span class="n">Timetable</span><span class="p">,</span> <span class="n">TimetableContext</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">tt</span> <span class="o">=</span> <span class="n">Timetable</span><span class="p">(</span><span class="n">bakalari</span><span class="p">)</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">week</span> <span class="o">=</span> <span class="k">await</span> <span class="n">tt</span><span class="o">.</span><span class="n">fetch_actual</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="n">TimetableContext</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">&quot;class&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;1.A&quot;</span><span class="p">))</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="nb">print</span><span class="p">(</span><span class="n">week</span><span class="o">.</span><span class="n">format_week</span><span class="p">())</span>
+</span></code></pre></div></li>
+</ul>
+<h2 id="logovani">Logování<a class="headerlink" href="#logovani" title="Permanent link">&para;</a></h2>
+<p>Knihovna poskytuje jednoduchou konfiguraci logování s rozšířenými poli (event, url, method, latency_ms, retries, status, error).</p>
+<div class="language-py highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">async_bakalari_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">configure_logging</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># Podrobné logy</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="n">configure_logging</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="c1"># nebo pouze chyby</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="n">configure_logging</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+</span></code></pre></div>
+<ul>
+<li>Alternativně lze úroveň řídit proměnnou prostředí:</li>
+<li>BAKALARI_LOG_LEVEL=DEBUG|INFO|WARNING|ERROR</li>
+<li>Logy jsou strukturované a barevné (pro snazší čtení v terminálu).</li>
+</ul>
+<h2 id="vyjimky-exceptions">Výjimky (Exceptions)<a class="headerlink" href="#vyjimky-exceptions" title="Permanent link">&para;</a></h2>
+<p>Běžné doménové chyby vystavuje jmenný prostor <code>Ex</code>:</p>
+<ul>
+<li>Ex.InvalidLogin – neplatné přihlašovací údaje</li>
+<li>Ex.AccessTokenExpired – vypršel access token (proběhne auto-refresh)</li>
+<li>Ex.RefreshTokenExpired – vypršel/není platný refresh token (vyžaduje znovu first_login)</li>
+<li>Ex.InvalidToken – neplatný token</li>
+<li>Ex.InvalidRefreshToken – neplatný refresh token</li>
+<li>Ex.RefreshTokenRedeemd – refresh token byl již uplatněn</li>
+<li>Ex.TokenMissing – chybí access/refresh token</li>
+<li>Ex.BadRequestException – obecná chyba požadavku (4xx/5xx, nesprávné parametry apod.)</li>
+<li>Ex.InvalidHTTPMethod – endpoint nepodporuje metodu</li>
+<li>Ex.TimeoutException – vypršel timeout požadavku</li>
+<li>Ex.BadEndpointUrl – špatně složená URL (např. chybějící server)</li>
+<li>Ex.InvalidCredentials, Ex.InvalidResponse, Ex.TokensExpired, Ex.CacheError – ostatní stavy</li>
+</ul>
+<p>Ukázka ošetření chyb při volání API:
+<div class="language-py highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">async_bakalari_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bakalari</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">async_bakalari_api.const</span><span class="w"> </span><span class="kn">import</span> <span class="n">EndPoint</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">async_bakalari_api.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Ex</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="n">bakalari</span> <span class="o">=</span> <span class="n">Bakalari</span><span class="p">(</span><span class="n">server</span><span class="o">=</span><span class="s2">&quot;https://server_skoly&quot;</span><span class="p">)</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="k">try</span><span class="p">:</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">bakalari</span><span class="p">:</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>        <span class="n">resp</span> <span class="o">=</span> <span class="k">await</span> <span class="n">bakalari</span><span class="o">.</span><span class="n">send_auth_request</span><span class="p">(</span><span class="n">EndPoint</span><span class="o">.</span><span class="n">MARKS</span><span class="p">)</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="k">except</span> <span class="n">Ex</span><span class="o">.</span><span class="n">AccessTokenExpired</span><span class="p">:</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>    <span class="c1"># Obvykle se provede automatický refresh, sem se dostanete, pokud obnovu nelze provést.</span>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>    <span class="k">await</span> <span class="n">bakalari</span><span class="o">.</span><span class="n">refresh_access_token</span><span class="p">()</span>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="k">except</span> <span class="n">Ex</span><span class="o">.</span><span class="n">RefreshTokenExpired</span><span class="p">:</span>
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>    <span class="c1"># Nelze obnovit – je nutné přihlášení jménem a heslem</span>
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>    <span class="k">await</span> <span class="n">bakalari</span><span class="o">.</span><span class="n">first_login</span><span class="p">(</span><span class="s2">&quot;USERNAME&quot;</span><span class="p">,</span> <span class="s2">&quot;PASSWORD&quot;</span><span class="p">)</span>
+</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="k">except</span> <span class="n">Ex</span><span class="o">.</span><span class="n">BadRequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Chybný požadavek: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span></code></pre></div></p>
 
 
 
@@ -1249,7 +1520,7 @@
     <span class="md-icon" title="Poslední aktualizace">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="26. května 2024 13:05:19 UTC">26. května 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="22. listopadu 2025 18:27:22 UTC">22. listopadu 2025</span>
   </span>
 
     
@@ -1269,11 +1540,12 @@
   <span class="md-source-file__fact">
     <span class="md-icon" title="Přispěvatelé">
       
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5.5A3.5 3.5 0 0 1 15.5 9a3.5 3.5 0 0 1-3.5 3.5A3.5 3.5 0 0 1 8.5 9 3.5 3.5 0 0 1 12 5.5M5 8c.56 0 1.08.15 1.53.42-.15 1.43.27 2.85 1.13 3.96C7.16 13.34 6.16 14 5 14a3 3 0 0 1-3-3 3 3 0 0 1 3-3m14 0a3 3 0 0 1 3 3 3 3 0 0 1-3 3c-1.16 0-2.16-.66-2.66-1.62a5.54 5.54 0 0 0 1.13-3.96c.45-.27.97-.42 1.53-.42M5.5 18.25c0-2.07 2.91-3.75 6.5-3.75s6.5 1.68 6.5 3.75V20h-13zM0 20v-1.5c0-1.39 1.89-2.56 4.45-2.9-.59.68-.95 1.62-.95 2.65V20zm24 0h-3.5v-1.75c0-1.03-.36-1.97-.95-2.65 2.56.34 4.45 1.51 4.45 2.9z"/></svg>
       
     </span>
     <nav>
       
+        <a href="mailto:opensource@schizza.cz">SchiZzA</a>, 
         <a href="mailto:lukyn@lukyns.com">schizza</a>
     </nav>
   </span>

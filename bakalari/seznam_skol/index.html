@@ -301,6 +301,26 @@
     
     
       <li class="md-tabs__item">
+        <a href="../../timetable/" class="md-tabs__link">
+          
+  
+  
+  Timetable
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
         <a href="../../cli/" class="md-tabs__link">
           
   
@@ -991,7 +1011,7 @@
   <span class="md-ellipsis">
     
   
-    CLI
+    Timetable
   
 
     
@@ -1004,6 +1024,95 @@
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Timetable
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../timetable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modul Timetable
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1153,47 +1262,75 @@
 
 
 <h1 id="seznam-skol">Seznam škol<a class="headerlink" href="#seznam-skol" title="Permanent link">&para;</a></h1>
-<p>Seznam škol je v modulu <code>async_bakalari_api.datastructure</code></p>
-<div class="language-py highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">schools_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Schools</span><span class="p">:</span>
+<p>Seznam škol se získává metodou na třídě <code>Bakalari</code>. Samotná datová struktura seznamu je <code>Schools</code> (viz <code>async_bakalari_api.datastructure</code>).</p>
+<div class="language-py highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">schools_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">town</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">recursive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Schools</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 </span></code></pre></div>
+<ul>
+<li>Parametry:</li>
+<li><code>town (str | None)</code>: volitelný filtr na název města.</li>
+<li>
+<p><code>recursive (bool)</code>: způsob filtrování podle <code>town</code>:</p>
+<ul>
+<li><code>True</code> (výchozí): vybere města, která obsahují řetězec <code>town</code> kdekoliv v názvu.</li>
+<li><code>False</code>: vybere pouze města, jejichž název začíná na <code>town</code>.</li>
+</ul>
+</li>
+<li>
+<p>Chování:</p>
+</li>
+<li>Metoda volá veřejný endpoint Bakalářů pro seznam měst a pro každé vybrané město stáhne školy.</li>
+<li>Po úspěchu vrací instanci <code>Schools</code> a zároveň ji uloží do <code>self.schools</code>.</li>
+<li>Při chybě vrací <code>None</code>.</li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">Souběžné dotazy</p>
+<p>Počet souběžných dotazů na města při sestavování seznamu škol je omezen parametrem <code>school_concurrency</code> v konstruktoru <code>Bakalari</code> (výchozí 10).</p>
+</div>
 <div class="admonition danger">
 <p class="admonition-title">Omezení dotazů</p>
 <p>Seznam škol je poměrně dlouhý: <strong>3105</strong> škol v <strong>1208</strong> městech, tedy i 1208 dotazů na server Bakalářů.</p>
-<p>Není tak vhodné stahovat celý seznam při každém načtení modulu. Seznam škol je kešovatelný pomocí metod <code>save_to_file</code> a <code>load_from_file</code></p>
-<p>Další možností, jak omezit počet dotazů je použití parametru <code>town</code> při volání funkce</p>
-<div class="language-py highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="n">schools</span><span class="p">:</span> <span class="n">Schools</span> <span class="o">=</span> <span class="n">bakalari</span><span class="o">.</span><span class="n">school_list</span><span class="p">(</span><span class="n">town</span><span class="o">=</span><span class="s2">&quot;požadované město&quot;</span><span class="p">)</span>
+<p>Nedoporučuje se stahovat celý seznam při každém spuštění. Místo toho:
+- použijte filtr <code>town</code> (a volitelně <code>recursive=False</code> pro prefixové vyhledávání),
+- ukládejte výsledek do souboru pomocí metod <code>save_to_file</code> / <code>load_from_file</code>.</p>
+<div class="language-py highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span>
+<span class="normal"><a href="#__codelineno-1-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="c1"># filtr dle města (substring)</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="n">schools</span><span class="p">:</span> <span class="n">Schools</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="k">await</span> <span class="n">bakalari</span><span class="o">.</span><span class="n">schools_list</span><span class="p">(</span><span class="n">town</span><span class="o">=</span><span class="s2">&quot;požadované město&quot;</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
 </div>
 <div class="admonition notice">
-<p>Při úspěšném stažení vrací <code>Schools</code>, pokdu seznam nelze stáhnout, vrací <code>None</code></p>
+<p>Při úspěchu vrací <code>Schools</code>, při chybě <code>None</code>.<br />
+<a href="../schools/">Více o třídě <code>Schools</code></a></p>
 </div>
-<p><a href="../schools/">Více o třídě <code>Schools</code></a></p>
 <div class="admonition example">
 <p class="admonition-title">Příklad použití</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:4"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">CLI</label><label for="__tabbed_1_2">Načtení škol ze serveru</label><label for="__tabbed_1_3">Načtení ze souboru</label><label for="__tabbed_1_4">Použití s Bakalari</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:5"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><input id="__tabbed_1_5" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">CLI</label><label for="__tabbed_1_2">Načtení škol ze serveru</label><label for="__tabbed_1_3">Načtení jen měst začínajících na 'Praha'</label><label for="__tabbed_1_4">Uložení/načtení ze souboru</label><label for="__tabbed_1_5">Použití s Bakalari</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="language-shell highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># uložení celého seznamu škol do souboru</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>bakalari<span class="w"> </span>-N<span class="w"> </span>schools<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;skoly.json&quot;</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1">#vypsání škol z určitého města</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># vypsání škol z určitého města</span>
 </span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>bakalari<span class="w"> </span>-N<span class="w"> </span>-t<span class="w"> </span><span class="s2">&quot;město&quot;</span><span class="w"> </span>schools<span class="w"> </span>-l
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
 <div class="language-py highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1">1</a></span>
 <span class="normal"><a href="#__codelineno-3-2">2</a></span>
-<span class="normal"><a href="#__codelineno-3-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">async_bakalari_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bakalari</span>
+<span class="normal"><a href="#__codelineno-3-3">3</a></span>
+<span class="normal"><a href="#__codelineno-3-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">async_bakalari_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bakalari</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="n">seznam_skol</span> <span class="o">=</span> <span class="k">await</span> <span class="n">Bakalari</span><span class="p">()</span><span class="o">.</span><span class="n">schools_list</span><span class="p">()</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="n">bakalari</span> <span class="o">=</span> <span class="n">Bakalari</span><span class="p">()</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="n">seznam_skol</span> <span class="o">=</span> <span class="k">await</span> <span class="n">bakalari</span><span class="o">.</span><span class="n">schools_list</span><span class="p">()</span>
 </span></code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
 <div class="language-py highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1">1</a></span>
 <span class="normal"><a href="#__codelineno-4-2">2</a></span>
-<span class="normal"><a href="#__codelineno-4-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">async_bakalari_api.datastructure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Schools</span>
+<span class="normal"><a href="#__codelineno-4-3">3</a></span>
+<span class="normal"><a href="#__codelineno-4-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">async_bakalari_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bakalari</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="n">schools</span><span class="p">:</span> <span class="n">Schools</span> <span class="o">=</span> <span class="k">await</span> <span class="n">Schools</span><span class="p">()</span><span class="o">.</span><span class="n">load_from_file</span><span class="p">(</span><span class="s2">&quot;skoly.json&quot;</span><span class="p">)</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="n">bakalari</span> <span class="o">=</span> <span class="n">Bakalari</span><span class="p">()</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="n">praha_skoly</span> <span class="o">=</span> <span class="k">await</span> <span class="n">bakalari</span><span class="o">.</span><span class="n">schools_list</span><span class="p">(</span><span class="n">town</span><span class="o">=</span><span class="s2">&quot;Praha&quot;</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
@@ -1201,11 +1338,31 @@
 <span class="normal"><a href="#__codelineno-5-2">2</a></span>
 <span class="normal"><a href="#__codelineno-5-3">3</a></span>
 <span class="normal"><a href="#__codelineno-5-4">4</a></span>
-<span class="normal"><a href="#__codelineno-5-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">async_bakalari_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bakalari</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">async_bakalari_api.datastructure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Schools</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3"></a>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="n">schools</span><span class="p">:</span> <span class="n">Schools</span> <span class="o">=</span> <span class="k">await</span> <span class="n">Schools</span><span class="p">()</span><span class="o">.</span><span class="n">load_from_file</span><span class="p">(</span><span class="s2">&quot;schools_data.json&quot;</span><span class="p">)</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="n">bakalari</span> <span class="o">=</span> <span class="n">Bakalari</span><span class="p">(</span><span class="n">schools</span><span class="o">.</span><span class="n">get_url</span><span class="p">(</span><span class="s2">&quot;Jméno školy/část jména školy&quot;</span><span class="p">))</span>
+<span class="normal"><a href="#__codelineno-5-5">5</a></span>
+<span class="normal"><a href="#__codelineno-5-6">6</a></span>
+<span class="normal"><a href="#__codelineno-5-7">7</a></span>
+<span class="normal"><a href="#__codelineno-5-8">8</a></span>
+<span class="normal"><a href="#__codelineno-5-9">9</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">async_bakalari_api.datastructure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Schools</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2"></a>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="c1"># uložení</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="n">schools</span> <span class="o">=</span> <span class="k">await</span> <span class="n">Bakalari</span><span class="p">()</span><span class="o">.</span><span class="n">schools_list</span><span class="p">()</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="k">if</span> <span class="n">schools</span><span class="p">:</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6"></a>    <span class="k">await</span> <span class="n">schools</span><span class="o">.</span><span class="n">save_to_file</span><span class="p">(</span><span class="s2">&quot;skoly.json&quot;</span><span class="p">)</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7"></a>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8"></a><span class="c1"># načtení</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9"></a><span class="n">schools_from_file</span><span class="p">:</span> <span class="n">Schools</span> <span class="o">=</span> <span class="k">await</span> <span class="n">Schools</span><span class="p">()</span><span class="o">.</span><span class="n">load_from_file</span><span class="p">(</span><span class="s2">&quot;skoly.json&quot;</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="language-py highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1">1</a></span>
+<span class="normal"><a href="#__codelineno-6-2">2</a></span>
+<span class="normal"><a href="#__codelineno-6-3">3</a></span>
+<span class="normal"><a href="#__codelineno-6-4">4</a></span>
+<span class="normal"><a href="#__codelineno-6-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">async_bakalari_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bakalari</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">async_bakalari_api.datastructure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Schools</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3"></a>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="n">schools</span><span class="p">:</span> <span class="n">Schools</span> <span class="o">=</span> <span class="k">await</span> <span class="n">Schools</span><span class="p">()</span><span class="o">.</span><span class="n">load_from_file</span><span class="p">(</span><span class="s2">&quot;schools_data.json&quot;</span><span class="p">)</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5"></a><span class="n">bakalari</span> <span class="o">=</span> <span class="n">Bakalari</span><span class="p">(</span><span class="n">schools</span><span class="o">.</span><span class="n">get_url</span><span class="p">(</span><span class="s2">&quot;Jméno školy/část jména školy&quot;</span><span class="p">))</span>
 </span></code></pre></div></td></tr></table></div>
 </div>
 </div>
@@ -1233,7 +1390,7 @@
     <span class="md-icon" title="Poslední aktualizace">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="18. května 2024 22:51:34 UTC">18. května 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="22. listopadu 2025 18:27:22 UTC">22. listopadu 2025</span>
   </span>
 
     
@@ -1253,11 +1410,12 @@
   <span class="md-source-file__fact">
     <span class="md-icon" title="Přispěvatelé">
       
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5.5A3.5 3.5 0 0 1 15.5 9a3.5 3.5 0 0 1-3.5 3.5A3.5 3.5 0 0 1 8.5 9 3.5 3.5 0 0 1 12 5.5M5 8c.56 0 1.08.15 1.53.42-.15 1.43.27 2.85 1.13 3.96C7.16 13.34 6.16 14 5 14a3 3 0 0 1-3-3 3 3 0 0 1 3-3m14 0a3 3 0 0 1 3 3 3 3 0 0 1-3 3c-1.16 0-2.16-.66-2.66-1.62a5.54 5.54 0 0 0 1.13-3.96c.45-.27.97-.42 1.53-.42M5.5 18.25c0-2.07 2.91-3.75 6.5-3.75s6.5 1.68 6.5 3.75V20h-13zM0 20v-1.5c0-1.39 1.89-2.56 4.45-2.9-.59.68-.95 1.62-.95 2.65V20zm24 0h-3.5v-1.75c0-1.03-.36-1.97-.95-2.65 2.56.34 4.45 1.51 4.45 2.9z"/></svg>
       
     </span>
     <nav>
       
+        <a href="mailto:opensource@schizza.cz">SchiZzA</a>, 
         <a href="mailto:lukyn@lukyns.com">schizza</a>
     </nav>
   </span>
