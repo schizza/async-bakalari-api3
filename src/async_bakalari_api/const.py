@@ -46,6 +46,16 @@ class EndPoint(Enum):
         "method": "get",
     }
 
+    KOMENS_MARK_READ = {
+        "endpoint": "/api/3/komens/message",
+        "method": "put",
+    }
+
+    KOMENS_GET_SINGLE_MESSAGE = {
+        "endpoint": "/api/3/komens/messages/received",
+        "method": "get",
+    }
+
     MARKS = {
         "endpoint": "/api/3/marks",
         "method": "get",
