@@ -100,6 +100,7 @@ class MarksBase:
     is_points: bool
     points_text: str | None
     max_points: int | None
+    confirmed: bool
 
     def __str__(self) -> str:
         """Return string representation of data."""
@@ -111,7 +112,8 @@ class MarksBase:
             f"is_new: {self.is_new}\n"
             f"is_points: {self.is_points}\n"
             f"points_text: {self.points_text}\n"
-            f"max_points: {self.max_points}\n\n"
+            f"max_points: {self.max_points}\n"
+            f"confirmed: {self.confirmed}\n\n"
         )
 
 
@@ -134,6 +136,11 @@ class MarksRegistry:
         """Find new marks."""
 
         return [mark for mark in self._data.values() if mark.is_new]
+
+    def find_unconfirmed_marks(self) -> list[MarksBase]:
+        """Find unconfirmed marks."""
+
+        return [mark for mark in self._data.values() if not mark.confirmed]
 
     @overload
     def get_marks_by_date(
@@ -304,6 +311,7 @@ class FlatMark:
     points_text: str | None
     max_points: int | None
     teacher: str | None
+    confirmed: bool
 
 
 class FlatSnapshot(TypedDict):
@@ -340,6 +348,7 @@ class Marks:
             points_text=mark.points_text,
             max_points=mark.max_points,
             teacher=mark.teacher,
+            confirmed=mark.confirmed,
         )
 
     def _flat_to_dict(self, fm: FlatMark) -> dict[str, Any]:
@@ -397,6 +406,7 @@ class Marks:
                     is_points=mark.get("IsPoints"),
                     points_text=mark.get("PointsText"),
                     max_points=mark.get("MaxPoints"),
+                    confirmed=mark.get("MarkConfirmationState") == "Confirmed",
                 )
             )
 
@@ -441,6 +451,26 @@ class Marks:
                 for mark in found:
                     new_marks[-1].marks.append(mark)
         return new_marks
+
+    async def get_unconfirmed_marks(self) -> list[SubjectsBase]:
+        """Get unconfirmed marks for subject."""
+
+        unconfirmed_marks: list[SubjectsBase] = []
+
+        for subject in self.subjects._subjects.values():
+            if len(found := subject.marks.find_unconfirmed_marks()) != 0:
+                unconfirmed_marks.append(
+                    SubjectsBase(
+                        id=subject.id,
+                        abbr=subject.abbr,
+                        name=subject.name,
+                        average_text=subject.average_text,
+                        points_only=subject.points_only,
+                    )
+                )
+                for mark in found:
+                    unconfirmed_marks[-1].marks.append(mark)
+        return unconfirmed_marks
 
     async def get_marks_all(  # noqa: C901
         self,
@@ -519,6 +549,8 @@ class Marks:
                 line = f"  [{m.date.date()}] {caption} -> {mark_text}"
                 if m.is_new:
                     line += " [NEW]"
+                if not m.confirmed:
+                    line += " [UNCONFIRMED]"
                 lines.append(line)
                 if m.theme:
                     lines.append(f"    theme: {m.theme.strip()}")

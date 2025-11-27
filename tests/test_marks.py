@@ -40,6 +40,7 @@ def _payload_marks():
                         "IsPoints": False,
                         "PointsText": None,
                         "MaxPoints": None,
+                        "MarkConfirmationState": "Confirmed",
                     },
                     {
                         "Id": "m2",
@@ -53,6 +54,7 @@ def _payload_marks():
                         "IsPoints": False,
                         "PointsText": None,
                         "MaxPoints": None,
+                        "MarkConfirmationState": "Unconfirmed",
                     },
                 ],
             },
@@ -592,6 +594,15 @@ async def test_get_flat_subject_filter_and_range():
         subject_id="101", date_from=date_from, date_to=date_to, order="desc"
     )
     assert [m.id for m in flat] == ["m2"]
+
+
+async def test_unconfirmed_marks():
+    """Test uncinfirmed marks."""
+
+    marks = await _prepare_marks_instance()
+
+    unconfirmed = await marks.get_unconfirmed_marks()
+    assert len(unconfirmed) == 2
 
 
 async def test_iter_grouped_unknown_subject_returns_empty():
