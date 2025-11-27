@@ -94,7 +94,7 @@ distclean: clean
 
 bump-version:
 	@if [ -z "$(NEW)" ]; then echo "Použití: make bump-version NEW=<minor|major|part>"; exit 1; fi
-	bumpversion $(NEW) --allow-dirty
+	bumpversion $(NEW) --allow-dirty --no-commit
 
 show-version:
 	@echo "🔍 Aktuální verze:"
