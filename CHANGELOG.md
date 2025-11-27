@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 
 🇨🇿 Full documentation (czech) on [this site](https://async-bakalari-api.schizza.cz)
 
+## 0.8.1
+
+## 🧹 Refaktoring / Údržba
+
+- bump version to 0.8.1
+
+## 0.8.0
+
+## ✨ Nové funkce
+
+- **Add confirmed field to marks and support unconfirmed marks** (#154) @schizza
+  
+  - Přidán atribut `confirmed` pro známky
+  - umožňuje sledovat stav potvrztení známky na serveru
+  - přidána funkce `get_unconfirmed_marks() -> list[SubjectBase]`, která vrací pouze nepotvrzené známky.
+  
+ - **Add mark message as read and get_single_message** (#147) @schizza
+  
+  - Přidána funkce `message_mark_read(message_id: str)`, která označí zprávu za přečtenou
+  - Přidána funkce ` message_get_single_message(message_id: str`), která vratí aktualizovanou zprávu s `message_id`
+  
 ## 0.7.0
 
 ## ✨ Nové funkce
@@ -32,14 +53,6 @@ All notable changes to this project will be documented in this file.
   Fixes #116
 
 - Přidány testy k novým modalitám, oprava testů u refaktorovaných modalit.
-
----
-
-## 📦 Technické
-
-- Verze: `v0.7.0`
-- Předchozí tag: `0.6.0`
-- Autoři: @schizza
 
 ## 0.6.0
 
