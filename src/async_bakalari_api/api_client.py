@@ -186,7 +186,6 @@ class ApiClient:
             raise Ex.TokenMissing("Access token or Refresh token is missing!")
 
         headers = {
-            "Content-Type": "application/x-www-form-urlencoded",
             **(headers or {}),
         }
         if credentials.access_token:
