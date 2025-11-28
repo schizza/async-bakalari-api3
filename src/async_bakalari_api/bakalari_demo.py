@@ -266,6 +266,59 @@ async def marks(args, bakalari):  # noqa: C901
             )
             print(text)
         return
+      
+      
+async def request_custom(args, bakalari):  # noqa: C901
+    """Request custom command."""
+    url = args.req_endpoint
+    if not (url.lower().startswith("http://") or url.lower().startswith("https://")):
+        if not bakalari.server:
+            print("Není zadán server ani plná URL endpointu.")
+            return
+        url = f"{bakalari.server}{url}"
+
+    method = (args.req_method or "GET").upper()
+    headers: dict[str, str] = {}
+    data_kwargs = {}
+
+    if getattr(args, "req_json", None):
+        try:
+            payload = orjson.loads(args.req_json)
+        except Exception as ex:
+            print(f"Neplatný JSON v --json: {ex}")
+            return
+        headers["Content-Type"] = "application/json"
+        data_kwargs["json"] = payload
+    elif getattr(args, "req_data", None):
+        data_kwargs["data"] = args.req_data
+
+    try:
+        result = await bakalari._api_client.authorized_request(
+            url,
+            method=method,
+            credentials=bakalari.credentials,
+            refresh_callback=bakalari.refresh_access_token,
+            headers=headers,
+            **data_kwargs,
+        )
+    except Exception as ex:
+        print(f"Chyba požadavku: {ex}")
+        return
+
+    if isinstance(result, (dict, list)):
+        print(orjson.dumps(result, option=orjson.OPT_INDENT_2).decode())
+    elif isinstance(result, (str, bytes)):
+        if isinstance(result, bytes):
+            try:
+                print(result.decode())
+            except Exception:
+                print(str(result))
+        else:
+            print(result)
+    elif result is None:
+        print("Bez obsahu (204 No Content)")
+    else:
+        print(str(result))
 
 
 async def timetable(args, bakalari):
@@ -638,6 +691,36 @@ def main() -> None:
         help="Pouze nepotvrzené známky.",
     )
     marks_parser.set_defaults(func=marks)
+
+    # Timetable command
+    # Custom request command
+    request_parser = subparser.add_parser("request", help="Vlastní request")
+    request_parser.add_argument(
+        "req_endpoint",
+        metavar="ENDPOINT",
+        help="Absolutní URL nebo relativní cesta (doplní se server).",
+    )
+    request_parser.add_argument(
+        "-X",
+        "--method",
+        dest="req_method",
+        choices=["GET", "POST", "PUT", "get", "post", "put"],
+        default="GET",
+        help="HTTP metoda (GET, POST, PUT).",
+    )
+    data_group = request_parser.add_mutually_exclusive_group()
+    data_group.add_argument(
+        "-d",
+        "--data",
+        dest="req_data",
+        help="Tělo požadavku jako prostý řetězec (odesláno jako data).",
+    )
+    data_group.add_argument(
+        "--json",
+        dest="req_json",
+        help="Tělo požadavku jako JSON řetězec.",
+    )
+    request_parser.set_defaults(func=request_custom)
 
     # Timetable command
     timetable_parser = subparser.add_parser("timetable", help="Rozvrh (timetable)")
