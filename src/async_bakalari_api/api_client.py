@@ -266,7 +266,7 @@ class ApiClient:
             extra["status"] = status
         if error is not None:
             extra["error"] = error
-        log.info("api_request", extra=extra)
+        log.debug("api_request", extra=extra)
 
     def _log_request_summary(
         self,
@@ -286,4 +286,4 @@ class ApiClient:
         }
         if error:
             extra["error"] = error
-        log.info("authorized_request", extra=extra)
+        log.debug("authorized_request", extra=extra)
