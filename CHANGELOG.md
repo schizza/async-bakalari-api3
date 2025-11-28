@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 🇨🇿 Full documentation (czech) on [this site](https://async-bakalari-api.schizza.cz)
 
+## 0.9.0
+
+## ✨ Nové funkce
+
+- **Feature/sign marks** (#160) @schizza
+  - Přidána funkce k podepisování známek
+  - `async_sign_marks`
+
+- **Add marks command with listing, saving, and summary features** (#157) @schizza
+  - do CLI přiána funkce známek s výpisem, ukládáním a zobrazením přehledu
+  
+- **Demo app now support custom reqequest** (#158) @schizza
+  - do CLI přidána možnost odeslání vlastního requestu na server
+  
+## 🐛 Opravy chyb
+
+- **Fixed debug severity from info to debug** (#159) @schizza
+- **Fixed headers creation** (#161) @schizza
+    
 ## 0.8.1
 
 ## 🧹 Refaktoring / Údržba
