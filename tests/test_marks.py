@@ -399,6 +399,36 @@ async def test_combined_valid_and_orphan_marks(caplog: pytest.LogCaptureFixture)
     assert len(mm) == 1 and mm[0].id == "mv"
 
 
+async def test_async_sign_marks_success():
+    """Test async_sign_marks posts subject list and returns response payload."""
+    bakalari = Bakalari(server=fs, credentials=cred)
+    marks = Marks(bakalari)
+
+    with aioresponses() as m:
+        m.post(
+            url=fs + EndPoint.SIGN_MARKS.get("endpoint"),
+            payload={"ok": True},
+            headers={},
+            status=200,
+        )
+        res = await marks.async_sign_marks(["101", "202"])
+        assert res == {"ok": True}
+
+    await bakalari.__aexit__()
+
+
+async def test_async_sign_marks_invalid_input_returns_none():
+    """Invalid inputs should early-return None and perform no request."""
+    bakalari = Bakalari(server=fs, credentials=cred)
+    marks = Marks(bakalari)
+
+    assert await marks.async_sign_marks([]) is None
+    assert await marks.async_sign_marks(None) is None  # type: ignore[arg-type]
+    assert await marks.async_sign_marks("101") is None  # type: ignore[arg-type]
+
+    await bakalari.__aexit__()
+
+
 async def test_marks_marksoptions():
     """Marks.marksoptions returns a string representation of the options."""
 

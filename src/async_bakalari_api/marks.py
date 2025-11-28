@@ -423,6 +423,18 @@ class Marks:
 
         await asyncio.gather(*tasks)
 
+    async def async_sign_marks(self, subjects: list[str]):
+        """Mark all marks signed."""
+
+        if not subjects or not isinstance(subjects, list or dict):
+            log.error("Missing data or data is not list or dict. Aborting.")
+            return
+
+        response: Any = await self.bakalari.send_auth_request(
+            EndPoint.SIGN_MARKS, json=subjects
+        )
+        return response
+
     async def get_subjects(self) -> list[SubjectsBase]:
         """Get list subjects."""
         return list(self.subjects._subjects.values())

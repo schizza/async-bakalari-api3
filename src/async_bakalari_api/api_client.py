@@ -186,7 +186,6 @@ class ApiClient:
             raise Ex.TokenMissing("Access token or Refresh token is missing!")
 
         headers = {
-            "Content-Type": "application/x-www-form-urlencoded",
             **(headers or {}),
         }
         if credentials.access_token:
@@ -266,7 +265,7 @@ class ApiClient:
             extra["status"] = status
         if error is not None:
             extra["error"] = error
-        log.info("api_request", extra=extra)
+        log.debug("api_request", extra=extra)
 
     def _log_request_summary(
         self,
@@ -286,4 +285,4 @@ class ApiClient:
         }
         if error:
             extra["error"] = error
-        log.info("authorized_request", extra=extra)
+        log.debug("authorized_request", extra=extra)
