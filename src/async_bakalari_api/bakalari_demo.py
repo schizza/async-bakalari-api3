@@ -266,8 +266,8 @@ async def marks(args, bakalari):  # noqa: C901
             )
             print(text)
         return
-      
-      
+
+
 async def request_custom(args, bakalari):  # noqa: C901
     """Request custom command."""
     url = args.req_endpoint
