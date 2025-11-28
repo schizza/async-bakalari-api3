@@ -38,7 +38,7 @@ async def test_request_204_returns_none_and_logs_status(
     caplog: pytest.LogCaptureFixture,
 ):
     """Ensure 204 No Content is returned as None and status is logged."""
-    caplog.set_level(logging.INFO, logger="async_bakalari_api.api_client")
+    caplog.set_level(logging.DEBUG, logger="async_bakalari_api.api_client")
     url = "https://example.com/no-content"
     with aioresponses() as m:
         m.get(url, status=204, headers={})
@@ -58,7 +58,7 @@ async def test_request_octet_stream_parses_filename_and_bytes(
     caplog: pytest.LogCaptureFixture,
 ):
     """Ensure application/octet-stream is parsed into [filename, bytes]."""
-    caplog.set_level(logging.INFO, logger="async_bakalari_api.api_client")
+    caplog.set_level(logging.DEBUG, logger="async_bakalari_api.api_client")
     url = "https://example.com/file"
     content = b"FILEDATA"
     # Content-Disposition must include filename*=utf-8''...
@@ -132,7 +132,7 @@ async def test_authorized_request_simple_success_with_access_token(
     caplog: pytest.LogCaptureFixture,
 ):
     """Covers branch where first request succeeds (no retries)."""
-    caplog.set_level(logging.INFO, logger="async_bakalari_api.api_client")
+    caplog.set_level(logging.DEBUG, logger="async_bakalari_api.api_client")
     url = "https://example.com/ok"
     with aioresponses() as m:
         m.get(url, status=200, payload={"done": True})
@@ -156,7 +156,7 @@ async def test_authorized_request_refresh_after_access_token_expired_then_succes
     caplog: pytest.LogCaptureFixture,
 ):
     """Simulate expired access token -> refresh -> retry success."""
-    caplog.set_level(logging.INFO, logger="async_bakalari_api.api_client")
+    caplog.set_level(logging.DEBUG, logger="async_bakalari_api.api_client")
     url = "https://example.com/protected"
     creds = Creds(access_token="OLD", refresh_token="R")
 
@@ -199,7 +199,7 @@ async def test_authorized_request_no_access_token_header_removed_and_success(
     caplog: pytest.LogCaptureFixture,
 ):
     """Start without access_token -> header Authorization removed -> success."""
-    caplog.set_level(logging.INFO, logger="async_bakalari_api.api_client")
+    caplog.set_level(logging.DEBUG, logger="async_bakalari_api.api_client")
     url = "https://example.com/no-auth-token"
     creds = Creds(access_token=None, refresh_token="R")
 

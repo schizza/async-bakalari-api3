@@ -46,7 +46,7 @@ async def test_request_success_json_and_metrics_logging(
     caplog: pytest.LogCaptureFixture,
 ):
     """Tests that request success with JSON response and metrics logging."""
-    caplog.set_level(logging.INFO, logger="async_bakalari_api.api_client")
+    caplog.set_level(logging.DEBUG, logger="async_bakalari_api.api_client")
     url = "https://example.com/api"
     payload = {"ok": True}
 
@@ -82,7 +82,7 @@ async def test_request_success_octet_stream_filename_and_bytes(
     caplog: pytest.LogCaptureFixture,
 ):
     """Tests that request success with octet-stream response and filename extraction."""
-    caplog.set_level(logging.INFO, logger="async_bakalari_api.api_client")
+    caplog.set_level(logging.DEBUG, logger="async_bakalari_api.api_client")
     url = "https://example.com/download"
     data = b"binary-data"
     # Content-Disposition includes RFC5987 filename* with UTF-8'' prefix
@@ -114,7 +114,7 @@ async def test_request_timeout_maps_to_timeout_exception_and_logs_metric(
     caplog: pytest.LogCaptureFixture,
 ):
     """Tests that request timeout maps to TimeoutException and logs metric."""
-    caplog.set_level(logging.INFO, logger="async_bakalari_api.api_client")
+    caplog.set_level(logging.DEBUG, logger="async_bakalari_api.api_client")
 
     class FakeRespCM:
         async def __aenter__(self):
@@ -151,7 +151,7 @@ async def test_request_connection_error_maps_to_bad_request_and_logs_metric(
     caplog: pytest.LogCaptureFixture,
 ):
     """Tests that request connection error maps to BadRequestException and logs metric."""
-    caplog.set_level(logging.INFO, logger="async_bakalari_api.api_client")
+    caplog.set_level(logging.DEBUG, logger="async_bakalari_api.api_client")
 
     class FakeRespCM:
         async def __aenter__(self):
@@ -246,7 +246,7 @@ async def test_authorized_request_refresh_and_retry_success(
     caplog: pytest.LogCaptureFixture,
 ):
     """Tests that authorized request refresh and retry success works correctly."""
-    caplog.set_level(logging.INFO, logger="async_bakalari_api.api_client")
+    caplog.set_level(logging.DEBUG, logger="async_bakalari_api.api_client")
 
     class Creds:
         def __init__(self, access_token: str | None, refresh_token: str | None):
@@ -294,7 +294,7 @@ async def test_authorized_request_refresh_token_expired_logs_and_raises(
     caplog: pytest.LogCaptureFixture,
 ):
     """Tests that authorized request refresh token expired logs and raises."""
-    caplog.set_level(logging.INFO, logger="async_bakalari_api.api_client")
+    caplog.set_level(logging.DEBUG, logger="async_bakalari_api.api_client")
 
     class Creds:
         def __init__(self, access_token: str | None, refresh_token: str | None):
@@ -326,7 +326,7 @@ async def test_invalid_token_max_retries(
     caplog: pytest.LogCaptureFixture,
 ):
     """Tests that authorized request retries are bounded and attempts are counted."""
-    caplog.set_level(logging.INFO, logger="async_bakalari_api.api_client")
+    caplog.set_level(logging.DEBUG, logger="async_bakalari_api.api_client")
 
     class Creds:
         def __init__(self, access_token: str | None, refresh_token: str | None):
