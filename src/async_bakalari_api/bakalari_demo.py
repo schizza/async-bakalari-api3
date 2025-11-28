@@ -13,6 +13,7 @@ from .bakalari import Bakalari
 from .datastructure import Credentials, Schools
 from .komens import Komens, MessageContainer
 from .logger_api import configure_logging
+from .marks import Marks
 from .timetable import Timetable, TimetableContext
 
 log = logging.getLogger(__name__)
@@ -146,6 +147,125 @@ async def komens(args, bakalari):  # noqa: C901
 
     if args.attachment:
         await wb(*(await Komens(bakalari=bakalari).get_attachment(args.attachment)))
+
+
+async def marks(args, bakalari):  # noqa: C901
+    """Mark command."""
+    # Local import to avoid touching global imports block
+
+    # Parse filters
+    date_from = None
+    date_to = None
+    if getattr(args, "marks_from", None):
+        try:
+            date_from = datetime.fromisoformat(args.marks_from)
+        except Exception as ex:
+            print(
+                f"Neplatný formát data pro --from: {args.marks_from} (YYYY-MM-DD) — {ex}"
+            )
+            return
+    if getattr(args, "marks_to", None):
+        try:
+            date_to = datetime.fromisoformat(args.marks_to)
+        except Exception as ex:
+            print(f"Neplatný formát data pro --to: {args.marks_to} (YYYY-MM-DD) — {ex}")
+            return
+    subject_id = getattr(args, "marks_subject", None)
+
+    m = Marks(bakalari=bakalari)
+    await m.fetch_marks()
+
+    # subjects list
+    if getattr(args, "marks_subjects", False):
+        subs = await m.get_subjects()
+        for s in subs:
+            print(f"{s.id}\t{s.abbr}\t{s.name}")
+        return
+
+    # summary
+    if getattr(args, "marks_summary", False):
+        summary = await m.get_all_marks_summary()
+        print(orjson.dumps(summary, option=orjson.OPT_INDENT_2).decode())
+        return
+
+    # snapshot save
+    if getattr(args, "marks_save", None):
+        # If only new or unconfirmed requested, use predicate
+        predicate = None
+        if getattr(args, "marks_new", False):
+
+            def _predicate_new(it):
+                return it.is_new
+
+            predicate = _predicate_new
+        elif getattr(args, "marks_unconfirmed", False):
+
+            def _predicate_unconfirmed(it):
+                return not it.confirmed
+
+            predicate = _predicate_unconfirmed
+        snapshot = await m.get_snapshot(
+            date_from=date_from,
+            date_to=date_to,
+            subject_id=subject_id,
+            order="desc",
+            predicate=predicate,
+            to_dict=True,
+        )
+        await wb(args.marks_save, orjson.dumps(snapshot, option=orjson.OPT_INDENT_2))
+        print(f"Uloženo: {args.marks_save}")
+        return
+
+    # list/print
+    if getattr(args, "marks_list", False):
+        # With filters and possible predicate, print custom format
+        predicate = None
+        if getattr(args, "marks_new", False):
+
+            def _predicate_new(it):
+                return it.is_new
+
+            predicate = _predicate_new
+        elif getattr(args, "marks_unconfirmed", False):
+
+            def _predicate_unconfirmed(it):
+                return not it.confirmed
+
+            predicate = _predicate_unconfirmed
+        if predicate:
+            for subj, marks in m.iter_grouped(
+                date_from=date_from,
+                date_to=date_to,
+                subject_id=subject_id,
+                predicate=predicate,
+            ):
+                header = f"{subj.name} ({subj.abbr}) | average: {subj.average_text} | points_only: {subj.points_only}"
+                print(header)
+                print("-" * len(header))
+                for mk in marks:
+                    mark_text = mk.marktext.text if mk.marktext else ""
+                    caption = mk.caption or ""
+                    line = f"  [{mk.date.date()}] {caption} -> {mark_text}"
+                    if mk.is_new:
+                        line += " [NEW]"
+                    if not mk.confirmed:
+                        line += " [UNCONFIRMED]"
+                    print(line)
+                    if mk.theme:
+                        print(f"    theme: {mk.theme.strip()}")
+                    if mk.is_points:
+                        pt = mk.points_text or ""
+                        if mk.max_points is not None:
+                            print(f"    points: {pt} / {mk.max_points}")
+                        else:
+                            print(f"    points: {pt}")
+                print("")
+        else:
+            text = await m.format_all_marks(
+                date_from=date_from, date_to=date_to, subject_id=subject_id
+            )
+            print(text)
+        return
 
 
 async def request_custom(args, bakalari):  # noqa: C901
@@ -508,6 +628,69 @@ def main() -> None:
     komens_parser.add_argument(
         "--attachment", nargs=None, metavar="ID_přílohy", help="Stáhne přílohu zprávy."
     )
+
+    # Marks command
+    marks_parser = subparser.add_parser("marks", help="Známky (marks)")
+    marks_action = marks_parser.add_mutually_exclusive_group(required=True)
+    marks_action.add_argument(
+        "-l",
+        "--list",
+        dest="marks_list",
+        action="store_true",
+        help="Vypíše známky (volitelně filtrování dle data/předmětu).",
+    )
+    marks_action.add_argument(
+        "-s",
+        "--save",
+        dest="marks_save",
+        metavar="SOUBOR.json",
+        help="Uloží snapshot známek do souboru (JSON).",
+    )
+    marks_action.add_argument(
+        "--summary",
+        dest="marks_summary",
+        action="store_true",
+        help="Vypíše souhrn známek (průměry, počty).",
+    )
+    marks_parser.add_argument(
+        "--from",
+        dest="marks_from",
+        metavar="YYYY-MM-DD",
+        help="Začátek intervalu (včetně) ve formátu YYYY-MM-DD.",
+    )
+    marks_parser.add_argument(
+        "--to",
+        dest="marks_to",
+        metavar="YYYY-MM-DD",
+        help="Konec intervalu (včetně) ve formátu YYYY-MM-DD.",
+    )
+    marks_parser.add_argument(
+        "--subject",
+        dest="marks_subject",
+        metavar="SUBJECT_ID",
+        help="Filtrování podle ID předmětu.",
+    )
+    marks_parser.add_argument(
+        "--subjects",
+        dest="marks_subjects",
+        action="store_true",
+        help="Vypíše seznam předmětů (ID, zkratka, název) pro filtrování.",
+    )
+    marks_parser.add_argument(
+        "-n",
+        "--new",
+        dest="marks_new",
+        action="store_true",
+        help="Pouze nové známky.",
+    )
+    marks_parser.add_argument(
+        "-u",
+        "--unconfirmed",
+        dest="marks_unconfirmed",
+        action="store_true",
+        help="Pouze nepotvrzené známky.",
+    )
+    marks_parser.set_defaults(func=marks)
 
     # Timetable command
     # Custom request command
