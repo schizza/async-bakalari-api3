@@ -60,6 +60,10 @@ class EndPoint(Enum):
         "endpoint": "/api/3/marks",
         "method": "get",
     }
+    SIGN_MARKS = {
+        "endpoint": "/api/3/marks/SetClassificationConfirmation",
+        "method": "post",
+    }
     TIMETABLE_ACTUAL = {
         "endpoint": "/api/3/timetable/actual",
         "method": "get",
