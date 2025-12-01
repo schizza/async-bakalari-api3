@@ -44,7 +44,7 @@ iniconfig==2.3.0
     #   pytest
 logger==1.4
     # via -r requirements_dev.in
-multidict==6.1.0
+multidict==6.7.0
     # via
     #   -r requirements_dev.in
     #   aiohttp
