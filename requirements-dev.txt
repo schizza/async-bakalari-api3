@@ -51,7 +51,7 @@ multidict==6.1.0
     #   yarl
 orjson==3.11.4
     # via -r requirements_dev.in
-packaging==24.2
+packaging==25.0
     # via
     #   -r requirements_dev.in
     #   pytest
