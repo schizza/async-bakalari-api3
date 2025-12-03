@@ -34,7 +34,7 @@ frozenlist==1.8.0
     #   -r requirements_dev.in
     #   aiohttp
     #   aiosignal
-idna==3.10
+idna==3.11
     # via
     #   -r requirements_dev.in
     #   yarl
