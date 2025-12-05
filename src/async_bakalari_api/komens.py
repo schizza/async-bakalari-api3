@@ -200,6 +200,7 @@ class Komens:
         """Initialize class Komens."""
         self.bakalari = bakalari
         self.messages = Messages()
+        self.noticeboard: Messages = Messages()
 
     async def fetch_messages(self) -> Messages:
         """Fetch unread messages.
@@ -234,6 +235,22 @@ class Komens:
             read=msg["Read"],
             attachments=msg["Attachments"],
         )
+
+    async def fetch_noticeboard(self) -> Messages:
+        """Fetch noticeboard messages."""
+
+        "First clear messages"
+        self.noticeboard.clear()
+
+        noticeboard = await self.bakalari.send_auth_request(
+            request_endpoint=EndPoint.NOTICEBOARD_ALL
+        )
+
+        self.noticeboard.extend(
+            [(await self.create_msg(notice)) for notice in noticeboard]
+        )
+
+        return self.noticeboard
 
     async def get_unread_messages(self) -> list[MessageContainer]:
         """Get unread messages."""
