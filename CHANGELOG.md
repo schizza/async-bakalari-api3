@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 🇨🇿 Full documentation (czech) on [this site](https://async-bakalari-api.schizza.cz)
 
+## 0.10.0
+
+## ✨ Nové funkce
+
+**Add support for fetching noticeboard messages in Komens. (#169) @schizza**
+  - přidána funkce pro stažení `Nástěnky`
+
 ## 0.9.0
 
 ## ✨ Nové funkce

@@ -56,6 +56,11 @@ class EndPoint(Enum):
         "method": "get",
     }
 
+    NOTICEBOARD_ALL = {
+        "endpoint": "/api/3/komens/messages/noticeboard",
+        "method": "post",
+    }
+
     MARKS = {
         "endpoint": "/api/3/marks",
         "method": "get",
