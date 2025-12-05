@@ -245,12 +245,15 @@ class Komens:
         noticeboard = await self.bakalari.send_auth_request(
             request_endpoint=EndPoint.NOTICEBOARD_ALL
         )
+        noticeboard_object = Messages()
 
-        self.noticeboard.extend(
-            [(await self.create_msg(notice)) for notice in noticeboard]
+        noticeboard_object.extend(
+            [(await self.create_msg(notice)) for notice in noticeboard["Messages"]]
         )
 
-        return self.noticeboard
+        self.noticeboard = noticeboard_object
+
+        return noticeboard_object
 
     async def get_unread_messages(self) -> list[MessageContainer]:
         """Get unread messages."""

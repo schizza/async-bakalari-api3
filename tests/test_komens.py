@@ -406,3 +406,47 @@ async def test_komens_mark_as_read():
         assert message is None
 
     await bak.__aexit__()
+
+
+async def test_get_noticeboard():
+    """Test getting noticeboard."""
+
+    bakalari = Bakalari(server=fs, credentials=cred)
+    noticeboard = Komens(bakalari)
+
+    with aioresponses() as m:
+        m.post(
+            url=fs + EndPoint.NOTICEBOARD_ALL.endpoint,
+            body=payload,
+            headers={},
+            status=200,
+        )
+
+        notice: Messages = await noticeboard.fetch_noticeboard()
+
+        assert isinstance(noticeboard.messages, Messages)
+        assert noticeboard.noticeboard.count_messages() == 2
+
+        msg = notice.get_message_by_id("fake_id1")
+
+        assert msg.mid == "fake_id1"
+        assert msg.sender == "fake_teacher_name1"
+        assert msg.text == "fake_text_id1"
+        assert msg.title == ""
+
+        assert (
+            str(notice) == "Message id: fake_id1\n"
+            "title: \n"
+            "text: fake_text_id1\n"
+            "sent: 2024-01-01\n"
+            "sender: fake_teacher_name1\n"
+            "read: True\n"
+            "attachments: id: fake_attachment_id1 name: fake_atachement_name1\n"
+            "Message id: fake_id2\n"
+            "title: \n"
+            "text: fake_text_id2\n"
+            "sent: 2024-01-05\n"
+            "sender: fake_teacher_name2\n"
+            "read: True\n"
+            "attachments: \n"
+        )
