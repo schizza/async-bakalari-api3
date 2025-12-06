@@ -88,7 +88,7 @@ strenum==0.4.15
     # via -r requirements_dev.in
 typing==3.7.4.3
     # via -r requirements_dev.in
-urllib3==2.5.0
+urllib3==2.6.0
     # via -r requirements_dev.in
 yarl==1.22.0
     # via
