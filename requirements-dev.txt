@@ -59,7 +59,7 @@ pluggy==1.6.0
     # via
     #   -r requirements_dev.in
     #   pytest
-pytest==9.0.1
+pytest==9.0.2
     # via
     #   -r requirements_dev.in
     #   pytest-aiohttp
