@@ -415,3 +415,85 @@ async def test_fetch_marks_returns_early_on_string_response(caplog):
     await bakalari.__aexit__()
     assert await marks.get_subjects() == []
     assert any("unexpected response type" in rec.message for rec in caplog.records)
+
+
+async def test_fetch_marks_logs_when_subject_task_raises(monkeypatch, caplog):
+    """Test task raise error.
+
+    If a ``_parse_subjects`` task raises, the error is collected by
+    ``asyncio.gather(return_exceptions=True)`` and logged as a warning;
+    remaining subjects continue to be parsed.
+
+    Covers the ``log.warning("fetch_marks: subject parse failed: ...")`` branch.
+    """
+    import logging
+
+    bakalari = Bakalari(FS, credentials=CRED)
+    marks = Marks(bakalari)
+
+    # Patch _parse_subjects so the FIRST call raises, the second succeeds.
+    original = marks._parse_subjects
+    call_count = {"n": 0}
+
+    async def flaky_parse(subjects):
+        call_count["n"] += 1
+        if call_count["n"] == 1:
+            raise RuntimeError("boom-in-parse-subjects")
+        await original(subjects)
+
+    monkeypatch.setattr(marks, "_parse_subjects", flaky_parse)
+
+    # Payload with two subjects — the first one triggers the raise,
+    # the second one must still land in the registry.
+    payload = {
+        "MarkOptions": [{"Id": "1", "Abbrev": "1", "Name": "1"}],
+        "Subjects": [
+            {
+                "Subject": {"Id": "101", "Abbrev": "MAT", "Name": "Matematika"},
+                "AverageText": "1.0",
+                "PointsOnly": False,
+                "Marks": [],
+            },
+            {
+                "Subject": {"Id": "202", "Abbrev": "AJ", "Name": "Angličtina"},
+                "AverageText": "1.5",
+                "PointsOnly": False,
+                "Marks": [
+                    {
+                        "Id": "m1",
+                        "MarkDate": "2026-04-10T10:00:00+00:00",
+                        "MarkText": "1",
+                        "SubjectId": "202",
+                        "MarkConfirmationState": "Confirmed",
+                    }
+                ],
+            },
+        ],
+    }
+
+    with aioresponses() as m:
+        m.get(
+            url=FS + EndPoint.MARKS.get("endpoint"),
+            payload=payload,
+            headers={},
+            status=200,
+        )
+        with caplog.at_level(logging.WARNING, logger="src.async_bakalari_api.marks"):
+            await marks.fetch_marks()  # must not raise
+
+    await bakalari.__aexit__()
+
+    # First task raised, second succeeded
+    assert call_count["n"] == 2
+    subject_ids = {s.id for s in await marks.get_subjects()}
+    assert "202" in subject_ids  # second subject loaded
+    assert "101" not in subject_ids  # first subject was the failing one
+
+    # The warning path ran
+    assert any(
+        "subject parse failed" in rec.message
+        and "boom-in-parse-subjects" in rec.message
+        for rec in caplog.records
+    ), (
+        f"expected subject parse failure warning, got: {[r.message for r in caplog.records]}"
+    )
