@@ -384,13 +384,14 @@ class Marks:
         )
         for mark in subjects.get("Marks") or []:
             raw_mt_id = mark.get("MarkText")
-            opt = self.marksoptions[raw_mt_id] if raw_mt_id else None
+            opt = self.marksoptions[raw_mt_id] if raw_mt_id is not None else None
             if opt is None:
                 log.warning(
                     f"MarkOptions not found for MarkText={raw_mt_id!r}; using placeholder"
                 )
+                palaceholder_id = raw_mt_id if raw_mt_id is not None else ""
                 opt = MarkOptionsBase(
-                    id=raw_mt_id or "", abbr=raw_mt_id or "", text=raw_mt_id or ""
+                    id=palaceholder_id, abbr=palaceholder_id, text=palaceholder_id
                 )
             mark_date_raw = mark.get("MarkDate")
             try:

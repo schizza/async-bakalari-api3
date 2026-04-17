@@ -496,3 +496,35 @@ async def test_fetch_marks_logs_when_subject_task_raises(monkeypatch, caplog):
     ), (
         f"expected subject parse failure warning, got: {[r.message for r in caplog.records]}"
     )
+
+
+async def test_empty_string_mark_text_resolves_to_empty_id_option():
+    """Test empry string ID.
+
+    If MarkOptions has an entry with Id="" (or null normalized to ""),
+    a mark with MarkText="" must resolve to THAT entry, not to a blank
+    placeholder. Regression: the ``if raw_mt_id`` guard in _parse_subjects
+    used to bypass the lookup for empty strings.
+    """
+    payload = _base_payload()
+    # Registry: one normal entry + one with empty id (simulating Id: null
+    # after the or-"" normalization in _parse_marks_options)
+    payload["MarkOptions"] = [
+        {"Id": "1", "Abbrev": "Jedna", "Name": "1"},
+        {"Id": "", "Abbrev": "NH", "Name": "nehodnoceno"},
+    ]
+    # The mark references the empty-id entry
+    payload["Subjects"][0]["Marks"][0]["MarkText"] = ""
+
+    marks = await _run_fetch(payload)
+
+    # Pick up the mark we just parsed and check its resolved marktext
+    subjects = await marks.get_subjects()
+    assert len(subjects) == 1
+    all_marks = list(subjects[0].marks)
+    assert len(all_marks) == 1
+
+    mt = all_marks[0].marktext
+    assert mt is not None
+    assert mt.abbr == "NH"  # resolved, not placeholder
+    assert mt.text == "nehodnoceno"  # resolved, not placeholder
