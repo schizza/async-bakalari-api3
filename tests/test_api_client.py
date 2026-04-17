@@ -351,7 +351,7 @@ async def test_invalid_token_max_retries(
                 "https://example.com/protected",
                 hdrs.METH_GET,
                 credentials=creds,
-                refresh_callback=lambda: refresh_cred(),
+                refresh_callback=refresh_cred,
                 max_retries=3,
             )
 
