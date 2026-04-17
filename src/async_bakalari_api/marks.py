@@ -384,7 +384,8 @@ class Marks:
         )
         for mark in subjects.get("Marks") or []:
             raw_mt_id = mark.get("MarkText")
-            opt = self.marksoptions[raw_mt_id] if raw_mt_id is not None else None
+            lookup_id = raw_mt_id if raw_mt_id is not None else ""
+            opt = self.marksoptions[lookup_id]
             if opt is None:
                 log.warning(
                     f"MarkOptions not found for MarkText={raw_mt_id!r}; using placeholder"

@@ -528,3 +528,43 @@ async def test_empty_string_mark_text_resolves_to_empty_id_option():
     assert mt is not None
     assert mt.abbr == "NH"  # resolved, not placeholder
     assert mt.text == "nehodnoceno"  # resolved, not placeholder
+
+
+async def test_null_mark_text_resolves_to_null_id_option():
+    """Test null_id option for mark.
+
+    If MarkOptions has an entry with Id: null (normalized to "" at
+    storage time), a mark with MarkText: null must resolve to THAT entry,
+    not to a blank placeholder.
+
+    Regression: after normalizing Id via `or ""` in _parse_marks_options,
+    the lookup side in _parse_subjects forgot to mirror the normalization,
+    so null MarkText dropped into the placeholder branch and lost the label.
+    """
+    payload = _base_payload()
+    payload["MarkOptions"] = [
+        {"Id": "1", "Abbrev": "Jedna", "Name": "1"},
+        {"Id": None, "Abbrev": "NH", "Name": "nehodnoceno"},  # null Id
+    ]
+    payload["Subjects"][0]["Marks"][0]["MarkText"] = None  # null MarkText
+
+    marks = await _run_fetch(payload)
+
+    subjects = await marks.get_subjects()
+    assert len(subjects) == 1
+    all_marks = list(subjects[0].marks)
+    assert len(all_marks) == 1
+
+    mt = all_marks[0].marktext
+    assert mt is not None
+    # Must resolve to the real "nehodnoceno" entry, not a blank placeholder
+    assert mt.abbr == "NH"
+    assert mt.text == "nehodnoceno"
+
+    # And crucially: summary must not treat "nehodnoceno" as numeric 0
+    # just because the label was lost. The previous bug path produced
+    # text="" → sanitize_number("") == 0 → skewed average.
+    summary = await marks.get_all_marks_summary()
+    # This mark is non-numeric (text), so total_non_point_marks should
+    # count it but it should NOT contribute to the numeric average.
+    assert summary["total_marks"] == "1"
