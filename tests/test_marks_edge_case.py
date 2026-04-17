@@ -426,7 +426,6 @@ async def test_fetch_marks_logs_when_subject_task_raises(monkeypatch, caplog):
 
     Covers the ``log.warning("fetch_marks: subject parse failed: ...")`` branch.
     """
-    import logging
 
     bakalari = Bakalari(FS, credentials=CRED)
     marks = Marks(bakalari)
