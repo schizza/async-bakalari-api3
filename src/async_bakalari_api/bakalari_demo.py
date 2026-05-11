@@ -130,17 +130,24 @@ async def komens(args, bakalari):  # noqa: C901
         await asyncio.gather(*tasks)
 
     if args.komens_list:
-        if not args.komens_unread:
+        if args.komens_noticeboard:
+            await msgs(await Komens(bakalari=bakalari).fetch_noticeboard())
+        elif not args.komens_unread:
             await msgs(await Komens(bakalari=bakalari).fetch_messages())
         else:
             await msgs(await Komens(bakalari=bakalari).get_unread_messages())
 
     if args.extend:
-        messages = await Komens(bakalari=bakalari).fetch_messages()
+        if args.komens_noticeboard:
+            messages = await Komens(bakalari=bakalari).fetch_noticeboard()
+        else:
+            messages = await Komens(bakalari=bakalari).fetch_messages()
         await msgs([messages.get_message_by_id(args.extend)])
 
     if args.komens_save:
-        if not args.komens_unread:
+        if args.komens_noticeboard:
+            await msgs_w(await Komens(bakalari=bakalari).fetch_noticeboard())
+        elif not args.komens_unread:
             await msgs_w(await Komens(bakalari=bakalari).fetch_messages())
         else:
             await msgs_w(await Komens(bakalari=bakalari).get_unread_messages())
@@ -601,10 +608,17 @@ def main() -> None:
         help="Uloží automaticky přílohy zpráv do souboru",
         dest="komens_save_attachment",
     )
+    komens_parser.add_argument(
+        "-nb",
+        "--noticeboard",
+        action="store_true",
+        help="Pracovat s nástěnkou místo běžných komens zpráv",
+        dest="komens_noticeboard",
+    )
     komens_action.add_argument(
         "-l",
         "--list",
-        help="Vypíše přijaté zprávy",
+        help="Vypíše přijaté zprávy (nebo nástěnku s parametrem --noticeboard)",
         dest="komens_list",
         action="store_true",
     )
@@ -614,7 +628,7 @@ def main() -> None:
         "--extend",
         nargs=None,
         metavar="ID_zprávy",
-        help="Vypíše podrobně zprávu s ID zprávy.",
+        help="Vypíše podrobně zprávu s ID zprávy (z nástěnky při použití --noticeboard).",
     )
     komens_action.add_argument(
         "-s",
