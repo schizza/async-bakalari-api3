@@ -358,50 +358,63 @@ class Marks:
         d["date"] = fm.date.isoformat()
         return d
 
-    async def _parse_marks_options(self, options: list[dict[str, str]]):
+    async def _parse_marks_options(self, options: list[dict[str, str]] | None):
         """Parse mark options."""
-        if not options:
-            options = []
-        for option in options:
+        for option in options or []:
             self.marksoptions.append(
                 marksoptions=MarkOptionsBase(
-                    id=option.get("Id", ""),
-                    abbr=option.get("Abbrev", ""),
-                    text=option.get("Name", ""),
+                    id=option.get("Id") or "",
+                    abbr=option.get("Abbrev") or "",
+                    text=option.get("Name") or "",
                 )
             )
 
     async def _parse_subjects(self, subjects: dict[str, Any]):
         """Parse subjects."""
 
+        subj = subjects.get("Subject") or {}
         self.subjects.append_subject(
             subjects=SubjectsBase(
-                id=subjects["Subject"].get("Id"),
-                abbr=subjects["Subject"].get("Abbrev"),
-                name=subjects["Subject"].get("Name"),
-                average_text=subjects.get("AverageText", ""),
-                points_only=subjects.get("PointsOnly", ""),
+                id=subj.get("Id") or "",
+                abbr=subj.get("Abbrev") or "",
+                name=subj.get("Name") or "",
+                average_text=subjects.get("AverageText") or "",
+                points_only=bool(subjects.get("PointsOnly") or False),
             )
         )
-        for mark in subjects["Marks"]:
+        for mark in subjects.get("Marks") or []:
             raw_mt_id = mark.get("MarkText")
-            opt = self.marksoptions[raw_mt_id]
+            lookup_id = raw_mt_id if raw_mt_id is not None else ""
+            opt = self.marksoptions[lookup_id]
             if opt is None:
                 log.warning(
                     f"MarkOptions not found for MarkText={raw_mt_id!r}; using placeholder"
                 )
+                palaceholder_id = raw_mt_id if raw_mt_id is not None else ""
                 opt = MarkOptionsBase(
-                    id=raw_mt_id, abbr=raw_mt_id or "", text=raw_mt_id or ""
+                    id=palaceholder_id, abbr=palaceholder_id, text=palaceholder_id
                 )
+            mark_date_raw = mark.get("MarkDate")
+            try:
+                mark_date = parser.parse(mark_date_raw) if mark_date_raw else None
+            except (ValueError, TypeError) as exc:
+                log.warning(
+                    "Invalid MarkDate=%r: %s; skipping mark", mark_date_raw, exc
+                )
+                continue
+            if mark_date is None:
+                log.warning("Missing MarkDate for mark id=%r; skipping", mark.get("Id"))
+                continue
+
             self.subjects.append_marks(
                 marks=MarksBase(
-                    id=mark.get("Id"),
-                    date=parser.parse(mark.get("MarkDate")),
-                    caption=mark.get("Caption"),
+                    id=mark.get("Id") or "",
+                    date=mark_date,
+                    caption=mark.get("Caption") or "",
                     theme=mark.get("Theme"),
                     marktext=opt,
                     teacher=mark.get("Teacher"),
-                    subject_id=mark.get("SubjectId"),
+                    subject_id=mark.get("SubjectId") or "",
                     is_new=mark.get("IsNew"),
                     is_points=mark.get("IsPoints"),
                     points_text=mark.get("PointsText"),
@@ -414,14 +427,30 @@ class Marks:
         """Fetch marks from Bakalari."""
         response: Any = await self.bakalari.send_auth_request(EndPoint.MARKS)
 
-        await self._parse_marks_options(response.get("MarkOptions"))
+        if not isinstance(response, dict):
+            log.warning("fetch_marks: unexpected response type %s", type(response))
+            return
 
-        tasks = [
-            asyncio.create_task(self._parse_subjects(subjects))
-            for subjects in response.get("Subjects", {})
-        ]
+        raw_options = response.get("MarkOptions")
+        options: list[dict[str, str]] | None = (
+            raw_options if isinstance(raw_options, list) else None
+        )
+        await self._parse_marks_options(options)
 
-        await asyncio.gather(*tasks)
+        raw_subjects = response.get("Subjects")
+        subjects_list: list[dict[str, Any]] = (
+            [s for s in raw_subjects if isinstance(s, dict)]
+            if isinstance(raw_subjects, list)
+            else []
+        )
+
+        tasks = [asyncio.create_task(self._parse_subjects(s)) for s in subjects_list]
+
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        for r in results:
+            if isinstance(r, Exception):
+                log.warning("fetch_marks: subject parse failed: %s", r)
 
     async def async_sign_marks(self, subjects: list[str]):
         """Mark all marks signed."""
@@ -833,8 +862,13 @@ class Marks:
         }
 
     def sanitize_number(self, number: str) -> float:
-        """Sanitizes a number string and returns a float."""
+        """Sanitizes a number string and returns a float.
 
+        Tolerates None / non-string inputs.
+        """
+
+        if not number:
+            return 0.0
         match = re.search(r"\d+(?:[.,]\d+)?", number)
         if not match:
             return 0.0
