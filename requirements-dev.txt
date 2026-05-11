@@ -59,7 +59,7 @@ pluggy==1.6.0
     # via
     #   -r requirements_dev.in
     #   pytest
-pytest==9.0.2
+pytest==9.0.3
     # via
     #   -r requirements_dev.in
     #   pytest-aiohttp
@@ -88,7 +88,7 @@ strenum==0.4.15
     # via -r requirements_dev.in
 typing==3.7.4.3
     # via -r requirements_dev.in
-urllib3==2.6.3
+urllib3==2.7.0
     # via -r requirements_dev.in
 yarl==1.22.0
     # via
