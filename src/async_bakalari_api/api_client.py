@@ -216,7 +216,7 @@ class ApiClient:
                     )
                     raise
                 retries += 1
-                log.warning(
+                log.debug(
                     "access_token_refresh",
                     extra={
                         "event": "token_refresh",
