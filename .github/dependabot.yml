@@ -9,3 +9,8 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+    # Only raise a requirement when the current one does not allow the new
+    # version. Keeps the runtime floors in requirements.txt (the library's
+    # install_requires) stable while still bumping the == pins in
+    # requirements-dev.txt.
+    versioning-strategy: increase-if-necessary
