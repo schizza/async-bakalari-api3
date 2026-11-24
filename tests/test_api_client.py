@@ -246,7 +246,7 @@ async def test_authorized_request_refresh_and_retry_success(
     caplog: pytest.LogCaptureFixture,
 ):
     """Tests that authorized request refresh and retry success works correctly."""
-    caplog.set_level(logging.DEBUG, logger="async_bakalari_api.api_client")
+    caplog.set_level(logging.DEBUG, logger="async_bakalari_api")
 
     class Creds:
         def __init__(self, access_token: str | None, refresh_token: str | None):
@@ -287,6 +287,9 @@ async def test_authorized_request_refresh_and_retry_success(
     # summary log must be present
     recs = [r for r in caplog.records if r.msg == "authorized_request"]
     assert recs and getattr(recs[-1], "retries", None) == 1
+
+    # A routine refresh must not log at WARNING or above
+    assert not [r for r in caplog.records if r.levelno >= logging.WARNING]
 
 
 @pytest.mark.asyncio

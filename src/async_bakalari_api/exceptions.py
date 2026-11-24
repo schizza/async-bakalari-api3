@@ -12,7 +12,7 @@ class APIException(Exception):
         """General API Exception."""
 
         super().__init__(message)
-        logger.error("(%s): %s", self.__class__.__name__, self)
+        logger.debug("(%s): %s", self.__class__.__name__, self)
 
 
 class Ex(APIException):
